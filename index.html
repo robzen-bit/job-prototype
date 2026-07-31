@@ -2483,7 +2483,7 @@ html, body {
             <div class="subtab" data-f="planning" onclick="filterJobs(this,'planning')">Planning <span class="cnt"></span></div>
             <div class="subtab" data-f="shootday" onclick="filterJobs(this,'shootday')">Shoot Day <span class="cnt"></span></div>
             <div class="subtab" data-f="uploading" onclick="filterJobs(this,'uploading')">Uploading <span class="cnt"></span></div>
-            <div class="subtab" data-f="delivered" onclick="filterJobs(this,'delivered')">Delivered <span class="cnt"></span></div>
+            <div class="subtab" data-f="selling" onclick="filterJobs(this,'selling')">Selling <span class="cnt"></span></div>
           </div>
         </div>
 
@@ -2520,8 +2520,8 @@ html, body {
                 <div class="phase-label">Upload</div>
               </div>
               <div class="phase-step upcoming">
-                <div class="phase-dot"><i class="fa-solid fa-share-nodes"></i></div>
-                <div class="phase-label">Delivered</div>
+                <div class="phase-dot"><i class="fa-solid fa-tag"></i></div>
+                <div class="phase-label">Sales</div>
               </div>
             </div>
 
@@ -2571,8 +2571,8 @@ html, body {
                 <div class="phase-label">Upload</div>
               </div>
               <div class="phase-step upcoming">
-                <div class="phase-dot"><i class="fa-solid fa-share-nodes"></i></div>
-                <div class="phase-label">Delivered</div>
+                <div class="phase-dot"><i class="fa-solid fa-tag"></i></div>
+                <div class="phase-label">Sales</div>
               </div>
             </div>
 
@@ -2618,8 +2618,8 @@ html, body {
                 <div class="phase-label">Upload</div>
               </div>
               <div class="phase-step upcoming">
-                <div class="phase-dot"><i class="fa-solid fa-share-nodes"></i></div>
-                <div class="phase-label">Delivered</div>
+                <div class="phase-dot"><i class="fa-solid fa-tag"></i></div>
+                <div class="phase-label">Sales</div>
               </div>
             </div>
 
@@ -2636,9 +2636,9 @@ html, body {
           </div>
 
           <!-- Job 4: York Little League — Delivered phase -->
-          <div class="job-card" data-status="delivered" style="cursor:pointer;" onclick="showView('view-job-detail')">
+          <div class="job-card" data-status="selling" style="cursor:pointer;" onclick="showView('view-job-detail')">
             <div class="job-info">
-              <span class="job-status-pill pill-delivered">Delivered</span>
+              <span class="job-status-pill pill-delivered">Selling</span>
               <div class="job-name">York Central Little League — Summer 2026</div>
               <div class="job-meta">
                 <div class="job-meta-row shoot-date">
@@ -2665,9 +2665,9 @@ html, body {
                 <div class="phase-dot"><i class="fa-solid fa-check"></i></div>
                 <div class="phase-label">Upload</div>
               </div>
-              <div class="phase-step done">
-                <div class="phase-dot"><i class="fa-solid fa-check"></i></div>
-                <div class="phase-label">Delivered</div>
+              <div class="phase-step active">
+                <div class="phase-dot"><i class="fa-solid fa-tag"></i></div>
+                <div class="phase-label">Sales</div>
               </div>
             </div>
 
@@ -2820,7 +2820,9 @@ html, body {
                   </div>
                 </div>
 
-                <!-- Right: Phase Tracker card -->
+                <!-- Right column: progress + shoot day -->
+                <div style="display:flex; flex-direction:column; gap:20px;">
+
                 <div class="detail-card">
                   <div class="detail-card-header">Job Progress</div>
 
@@ -2867,17 +2869,17 @@ html, body {
                       </div>
                     </div>
 
-                    <!-- Step 4: Delivered — upcoming -->
+                    <!-- Step 4: Sales — upcoming -->
                     <div class="stepper-step">
                       <div class="stepper-dot-col">
-                        <div class="stepper-dot upcoming"><i class="fa-solid fa-share-nodes"></i></div>
+                        <div class="stepper-dot upcoming"><i class="fa-solid fa-tag"></i></div>
                       </div>
                       <div class="stepper-content">
                         <div class="stepper-title">
-                          Delivered
+                          Sales
                           <span class="stepper-badge upcoming">Upcoming</span>
                         </div>
-                        <div class="stepper-desc">Share galleries with contacts</div>
+                        <div class="stepper-desc">Galleries delivered, campaigns running, orders tracked</div>
                       </div>
                     </div>
 
@@ -2887,6 +2889,29 @@ html, body {
                     Go to Upload Status <i class="fa-solid fa-arrow-right" style="margin-left:6px;"></i>
                   </button>
                 </div>
+
+                <!-- Shoot Day card -->
+                <div class="detail-card">
+                  <div class="detail-card-header">Shoot Day — May 14</div>
+                  <div class="meter-wrap">
+                    <div class="meter-head">
+                      <span class="meter-big">148</span>
+                      <span class="meter-cap">subjects photographed</span>
+                    </div>
+                    <div class="meter-track"><div class="meter-fill" style="width:100%;"></div></div>
+                    <div class="meter-legend">
+                      <span><b>142</b> roster matched</span>
+                      <span><b>6</b> walk-ups added</span>
+                      <span><b>0</b> missed</span>
+                    </div>
+                  </div>
+                  <div style="display:flex; gap:8px; margin-top:16px;">
+                    <button class="btn btn-ghost-sm" onclick="toast('Generating printable QR card PDF for 142 subjects…')"><i class="fa-solid fa-qrcode" style="font-size:11px;"></i> Download QR Cards</button>
+                    <button class="btn btn-ghost-sm" onclick="toast('Check-in sheet PDF exported')"><i class="fa-solid fa-list-check" style="font-size:11px;"></i> Check-in Sheet</button>
+                  </div>
+                </div>
+
+                </div><!-- /right column -->
 
               </div><!-- /overview-grid -->
 
@@ -3533,19 +3558,19 @@ html, body {
               <div class="rules-list" id="rules-list">
 
                 <div class="rule-card">
-                  <div class="rule-icon"><i class="fa-solid fa-share-nodes"></i></div>
+                  <div class="rule-icon"><i class="fa-solid fa-envelope-open-text"></i></div>
                   <div class="rule-body">
-                    <div class="rule-sentence"><span class="rule-kw when">WHEN</span> all galleries in a folder are marked <b>Upload Complete</b> <span class="rule-kw then">THEN</span> <b>share galleries</b> with their linked contacts</div>
-                    <div class="rule-meta">Ran 2 times · last run Jun 2, 4:10 PM · 14 galleries shared</div>
+                    <div class="rule-sentence"><span class="rule-kw when">WHEN</span> <b>3 days</b> before the shoot date <span class="rule-kw then">THEN</span> send a <b>registration reminder</b> to families who haven't registered</div>
+                    <div class="rule-meta">Ran 1 time · May 11, 9:00 AM · 53 reminders sent · 12 registrations followed</div>
                   </div>
                   <div class="rule-actions"><span class="chip chip-teal">Active</span><button class="toggle on" onclick="flipRule(this)"></button></div>
                 </div>
 
                 <div class="rule-card">
-                  <div class="rule-icon"><i class="fa-solid fa-envelope"></i></div>
+                  <div class="rule-icon"><i class="fa-solid fa-share-nodes"></i></div>
                   <div class="rule-body">
-                    <div class="rule-sentence"><span class="rule-kw when">WHEN</span> a gallery is shared <span class="rule-kw then">THEN</span> send the <b>“Your photos are ready”</b> email to the gallery's contacts</div>
-                    <div class="rule-meta">Ran 8 times · last run Jun 2, 4:11 PM</div>
+                    <div class="rule-sentence"><span class="rule-kw when">WHEN</span> all galleries in a folder are marked <b>Upload Complete</b> <span class="rule-kw then">THEN</span> <b>share galleries</b> and send the <b>“Your photos are ready”</b> email to their contacts</div>
+                    <div class="rule-meta">Ran 2 times · last run Jun 2, 4:10 PM · 14 galleries delivered</div>
                   </div>
                   <div class="rule-actions"><span class="chip chip-teal">Active</span><button class="toggle on" onclick="flipRule(this)"></button></div>
                 </div>
@@ -3955,9 +3980,20 @@ html, body {
             <input class="f-input" type="date" value="2026-09-29">
           </div>
         </div>
-        <div class="f-field">
-          <label class="f-label">Location</label>
-          <input class="f-input" id="wz-loc" placeholder="e.g. Lincoln Elementary Gymnasium, York, PA">
+        <div class="f-row">
+          <div class="f-field">
+            <label class="f-label">Location</label>
+            <input class="f-input" id="wz-loc" placeholder="e.g. Lincoln Elementary Gymnasium, York, PA">
+          </div>
+          <div class="f-field">
+            <label class="f-label">Price List</label>
+            <select class="f-input" id="wz-pricelist">
+              <option>Youth Sports 2026</option>
+              <option>School Portraits — Standard</option>
+              <option>Dance &amp; Recital 2026</option>
+              <option>Attach later</option>
+            </select>
+          </div>
         </div>
         <div class="f-row">
           <div class="f-field">
@@ -4015,11 +4051,10 @@ html, body {
         <div id="wz-prereg-block" style="display:none;">
           <div class="wiz-info" style="margin-top:0;"><i class="fa-solid fa-qrcode"></i><div>A registration link and QR code will be generated when the job is created. Families who register get a gallery automatically — and can <b>pre-order packages</b> if a price list is attached.</div></div>
           <div class="f-field" style="margin-top:14px;">
-            <label class="f-label">Attach price list for pre-orders</label>
+            <label class="f-label">Pre-orders</label>
             <select class="f-input">
-              <option>Youth Sports 2026</option>
-              <option>School Portraits — Standard</option>
-              <option>No pre-orders (registration only)</option>
+              <option>Enabled — families buy from the job price list</option>
+              <option>Disabled — registration only</option>
             </select>
           </div>
         </div>
@@ -4062,11 +4097,7 @@ html, body {
         <div class="f-label" style="margin-bottom:8px;">Automation presets</div>
         <div style="border:1px solid var(--line); border-radius:var(--r-sm); padding:0 14px; margin-bottom:18px;">
           <div class="toggle-row">
-            <div><div class="toggle-row-title">Auto-share when uploads complete</div><div class="toggle-row-desc">Share each gallery with its contacts once marked Upload Complete.</div></div>
-            <button class="toggle on" onclick="flipToggle(this)"></button>
-          </div>
-          <div class="toggle-row">
-            <div><div class="toggle-row-title">“Photos are ready” email</div><div class="toggle-row-desc">Notify contacts automatically when their gallery is shared.</div></div>
+            <div><div class="toggle-row-title">Auto-deliver galleries</div><div class="toggle-row-desc">When a folder's uploads are complete, share each gallery and send its contacts the “Your photos are ready” email.</div></div>
             <button class="toggle on" onclick="flipToggle(this)"></button>
           </div>
           <div class="toggle-row">
@@ -4157,12 +4188,13 @@ html, body {
         <label class="f-label"><span class="rule-kw when">WHEN</span> this happens</label>
         <select class="f-input" id="rule-when" onchange="updateRuleSentence()">
           <option>All galleries in a folder are marked Upload Complete</option>
+          <option>A number of days before the shoot date</option>
           <option>A gallery is shared</option>
           <option>A number of days pass after a gallery is shared</option>
           <option>A gallery is viewed for the first time</option>
           <option>A new pre-registration is received</option>
           <option>A new order is placed</option>
-          <option>Job phase changes to Delivered</option>
+          <option>Job phase changes to Sales</option>
         </select>
       </div>
       <div class="f-field" id="rule-days-field" style="display:none;">
@@ -4172,8 +4204,8 @@ html, body {
       <div class="f-field">
         <label class="f-label"><span class="rule-kw then">THEN</span> do this</label>
         <select class="f-input" id="rule-then" onchange="updateRuleSentence()">
-          <option>Share galleries with their linked contacts</option>
-          <option>Send the “Your photos are ready” email</option>
+          <option>Share galleries and send the “Your photos are ready” email</option>
+          <option>Send a registration reminder to unregistered families</option>
           <option>Send a 10% off promo code</option>
           <option>Notify the primary photographer</option>
           <option>Notify the assigned sub-photographer</option>
@@ -4285,7 +4317,7 @@ function switchJobTab(el, panelId) {
 }
 
 function filterJobs(el, status) {
-  document.querySelectorAll('.jobs-filterbar .subtab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('#view-jobs-list .jobs-filterbar .subtab').forEach(t => t.classList.remove('active'));
   el.classList.add('active');
   document.querySelectorAll('.jobs-list .job-card').forEach(c => {
     c.style.display = (status === 'all' || c.dataset.status === status) ? '' : 'none';
@@ -4296,7 +4328,7 @@ function refreshJobCounts() {
   const cards = document.querySelectorAll('.jobs-list .job-card');
   const counts = { all: cards.length };
   cards.forEach(c => { counts[c.dataset.status] = (counts[c.dataset.status] || 0) + 1; });
-  document.querySelectorAll('.jobs-filterbar .subtab').forEach(t => {
+  document.querySelectorAll('#view-jobs-list .jobs-filterbar .subtab').forEach(t => {
     t.querySelector('.cnt').textContent = counts[t.dataset.f] || 0;
   });
 }
@@ -4659,6 +4691,7 @@ function buildReview() {
   const loc = fval('wz-loc') || '—';
   const contact = fval('wz-contact') || '—';
   const teamN = document.querySelectorAll('#wiz-3 .check-item.checked').length;
+  const priceList = fval('wz-pricelist');
   const modeTxt = {
     csv: 'Roster CSV — 142 galleries + QR codes will be generated',
     prereg: 'Pre-registration link with pre-orders enabled',
@@ -4670,6 +4703,7 @@ function buildReview() {
     '<div class="review-row"><span class="review-key">Shoot Date</span><span class="review-val">' + date + '</span></div>' +
     '<div class="review-row"><span class="review-key">Location</span><span class="review-val">' + loc + '</span></div>' +
     '<div class="review-row"><span class="review-key">Primary Contact</span><span class="review-val">' + contact + '</span></div>' +
+    '<div class="review-row"><span class="review-key">Price List</span><span class="review-val">' + priceList + '</span></div>' +
     '<div class="review-row"><span class="review-key">Subject Data</span><span class="review-val">' + modeTxt + '</span></div>' +
     '<div class="review-row"><span class="review-key">Team</span><span class="review-val">' + teamN + ' photographer' + (teamN === 1 ? '' : 's') + ' assigned</span></div>';
 }
@@ -4693,7 +4727,7 @@ function createJob() {
         '<div class="phase-step active"><div class="phase-dot"><i class="fa-solid fa-gear"></i></div><div class="phase-label">Setup</div></div>' +
         '<div class="phase-step upcoming"><div class="phase-dot"><i class="fa-solid fa-camera"></i></div><div class="phase-label">Shoot Day</div></div>' +
         '<div class="phase-step upcoming"><div class="phase-dot"><i class="fa-solid fa-arrow-up"></i></div><div class="phase-label">Upload</div></div>' +
-        '<div class="phase-step upcoming"><div class="phase-dot"><i class="fa-solid fa-share-nodes"></i></div><div class="phase-label">Delivered</div></div>' +
+        '<div class="phase-step upcoming"><div class="phase-dot"><i class="fa-solid fa-tag"></i></div><div class="phase-label">Sales</div></div>' +
       '</div>' +
       '<div class="job-right">' +
         '<div class="avatar-stack"><div class="avatar-chip avatar-a">RC</div></div>' +
@@ -4704,7 +4738,7 @@ function createJob() {
       '</div>' +
     '</div>';
   document.querySelector('.jobs-list').insertAdjacentHTML('afterbegin', card);
-  const allChip = document.querySelector('.jobs-filterbar .subtab[data-f="all"]');
+  const allChip = document.querySelector('#view-jobs-list .jobs-filterbar .subtab[data-f="all"]');
   filterJobs(allChip, 'all');
   refreshJobCounts();
   closeModal('modal-wizard');
@@ -4777,12 +4811,12 @@ function updateRuleSentence() {
   const whenSel = document.getElementById('rule-when');
   const thenSel = document.getElementById('rule-then');
   if (!whenSel) return;
-  const needsDays = whenSel.value.indexOf('days pass') >= 0;
-  document.getElementById('rule-days-field').style.display = needsDays ? 'flex' : 'none';
+  const isAfter = whenSel.value.indexOf('days pass') >= 0;
+  const isBefore = whenSel.value.indexOf('days before') >= 0;
+  document.getElementById('rule-days-field').style.display = (isAfter || isBefore) ? 'flex' : 'none';
   let whenTxt = whenSel.value;
-  if (needsDays) {
-    whenTxt = '<b>' + (fval('rule-days') || '7') + ' days</b> after a gallery is shared';
-  }
+  if (isAfter)  whenTxt = '<b>' + (fval('rule-days') || '7') + ' days</b> after a gallery is shared';
+  if (isBefore) whenTxt = '<b>' + (fval('rule-days') || '3') + ' days</b> before the shoot date';
   document.getElementById('rule-sentence').innerHTML =
     '<span class="rule-kw when">WHEN</span> ' + whenTxt + ' <span class="rule-kw then">THEN</span> <b>' + thenSel.value + '</b>';
 }
@@ -4790,6 +4824,7 @@ function updateRuleSentence() {
 function createRule() {
   const thenVal = fval('rule-then');
   const icon = thenVal.indexOf('Share') >= 0 ? 'fa-share-nodes'
+    : thenVal.indexOf('registration') >= 0 ? 'fa-envelope-open-text'
     : thenVal.indexOf('email') >= 0 ? 'fa-envelope'
     : thenVal.indexOf('promo') >= 0 ? 'fa-tag'
     : thenVal.indexOf('Notify') >= 0 ? 'fa-bell'
