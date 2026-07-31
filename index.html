@@ -1108,6 +1108,1242 @@ html, body {
   cursor: pointer;
   accent-color: var(--teal);
 }
+
+/* ──────────────────────────────────────
+   GLOBAL DASHBOARD STRIP
+────────────────────────────────────── */
+.dash-strip {
+  padding: 0 32px 20px;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+}
+
+.stat-tile {
+  background: var(--surface);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-sm);
+  padding: 16px 18px;
+  min-width: 0;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: var(--text-3);
+  font-weight: 500;
+}
+
+.stat-value {
+  margin-top: 6px;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.4px;
+  line-height: 1.1;
+}
+
+.stat-delta {
+  margin-top: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.stat-delta.up   { color: var(--teal); }
+.stat-delta.down { color: var(--orange); }
+.stat-delta.flat { color: var(--text-3); font-weight: 500; }
+
+.dash-lower {
+  padding: 0 32px 24px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.attention-card {
+  background: var(--surface);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-sm);
+  padding: 18px 20px;
+}
+
+.attention-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.attention-title i { color: var(--orange); font-size: 12px; }
+
+.attention-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-top: 1px solid var(--line);
+  font-size: 13px;
+  color: var(--text-2);
+}
+
+.attention-row i {
+  width: 16px;
+  text-align: center;
+  color: var(--text-3);
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.attention-row .att-job {
+  color: var(--text-3);
+  font-size: 12px;
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+.attention-row a {
+  color: var(--teal);
+  text-decoration: none;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.attention-row a:hover { text-decoration: underline; }
+
+/* ──────────────────────────────────────
+   GENERIC CHIPS
+────────────────────────────────────── */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 20px;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.chip-teal   { background: rgba(45,179,166,0.10); color: var(--teal); }
+.chip-orange { background: rgba(242,107,58,0.12); color: var(--orange); }
+.chip-gray   { background: #F0F0F2; color: var(--text-3); }
+.chip-dark   { background: var(--text); color: #fff; }
+.chip-red    { background: rgba(217,64,64,0.10); color: #C43C3C; }
+
+/* ──────────────────────────────────────
+   OVERVIEW ADDITIONS
+────────────────────────────────────── */
+.overview-stats {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.summary-cards {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.summary-card {
+  background: var(--surface);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-sm);
+  padding: 16px 18px;
+  cursor: pointer;
+  transition: box-shadow 0.15s ease;
+}
+
+.summary-card:hover { box-shadow: var(--shadow-md); }
+
+.summary-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.summary-card-top i { color: var(--text-3); font-size: 14px; }
+
+.summary-card-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.summary-card-main {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.summary-card-sub {
+  margin-top: 3px;
+  font-size: 12px;
+  color: var(--text-3);
+}
+
+/* ──────────────────────────────────────
+   SUB-TABS (Reports, Settings)
+────────────────────────────────────── */
+.subtabs {
+  display: inline-flex;
+  background: #ECECF0;
+  border-radius: 999px;
+  padding: 3px;
+  gap: 2px;
+  margin-bottom: 20px;
+}
+
+.subtab {
+  padding: 6px 16px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text-2);
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.subtab.active {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-sm);
+  font-weight: 600;
+}
+
+/* ──────────────────────────────────────
+   FILTER ROW
+────────────────────────────────────── */
+.filter-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.filter-field { display: flex; flex-direction: column; gap: 4px; }
+
+.filter-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.filter-select {
+  height: 32px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0 30px 0 12px;
+  font-family: 'Inter', sans-serif;
+  font-size: 12.5px;
+  color: var(--text);
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%2386868B'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+}
+
+.filter-select:focus { border-color: var(--teal); }
+
+.filter-clear {
+  height: 32px;
+  padding: 0 12px;
+  background: transparent;
+  border: none;
+  color: var(--text-3);
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 999px;
+}
+
+.filter-clear:hover { background: #ECECF0; color: var(--text); }
+
+.filter-count {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--text-3);
+  padding-bottom: 8px;
+}
+
+/* ──────────────────────────────────────
+   CHARTS (pure HTML/CSS marks)
+────────────────────────────────────── */
+.report-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.chart-card {
+  background: var(--surface);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-sm);
+  padding: 20px;
+  min-width: 0;
+}
+
+.chart-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.chart-sub {
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--text-3);
+  margin-bottom: 16px;
+}
+
+/* Horizontal bars */
+.hbar-row {
+  display: grid;
+  grid-template-columns: 130px 1fr 64px;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 0;
+}
+
+.hbar-name {
+  font-size: 12.5px;
+  color: var(--text-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hbar-track { height: 18px; position: relative; }
+
+.hbar-fill {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  background: var(--orange);
+  border-radius: 0 4px 4px 0;
+  min-width: 3px;
+  transition: width 0.3s ease;
+}
+
+.hbar-val {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Columns chart */
+.cols-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+  height: 150px;
+  padding-top: 18px;
+  border-bottom: 1px solid var(--line);
+}
+
+.col-slot {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+  position: relative;
+  cursor: default;
+}
+
+.col-cap {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-2);
+  margin-bottom: 4px;
+  font-variant-numeric: tabular-nums;
+}
+
+.col-bar {
+  width: 100%;
+  max-width: 24px;
+  background: var(--orange);
+  border-radius: 4px 4px 0 0;
+  transition: height 0.3s ease;
+}
+
+.col-slot:hover .col-bar { opacity: 0.85; }
+
+.cols-x {
+  display: flex;
+  gap: 14px;
+  padding-top: 6px;
+}
+
+.cols-x span {
+  flex: 1;
+  text-align: center;
+  font-size: 11px;
+  color: var(--text-3);
+  white-space: nowrap;
+}
+
+/* Meter */
+.meter-wrap { margin-top: 4px; }
+
+.meter-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.meter-big {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.4px;
+}
+
+.meter-cap { font-size: 12px; color: var(--text-3); }
+
+.meter-track {
+  height: 10px;
+  background: rgba(242,107,58,0.15);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.meter-fill {
+  height: 100%;
+  background: var(--orange);
+  border-radius: 999px;
+}
+
+.meter-legend {
+  margin-top: 8px;
+  display: flex;
+  gap: 16px;
+  font-size: 11.5px;
+  color: var(--text-3);
+}
+
+.meter-legend b { color: var(--text-2); font-weight: 600; }
+
+/* Report tables */
+.report-table-card {
+  background: var(--surface);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  margin-top: 16px;
+}
+
+.report-table-card .chart-title { padding: 16px 16px 0; }
+.report-table-card .chart-sub   { padding: 0 16px; }
+
+.amount-cell {
+  font-weight: 600;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  text-align: right !important;
+}
+
+.orders-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-top: 1px solid var(--line);
+  font-size: 12.5px;
+  color: var(--text-3);
+}
+
+.orders-foot b { color: var(--text); font-weight: 700; font-variant-numeric: tabular-nums; }
+
+/* Chart tooltip */
+.chart-tip {
+  position: fixed;
+  z-index: 500;
+  background: #2C2C2E;
+  color: #fff;
+  font-size: 11.5px;
+  padding: 6px 10px;
+  border-radius: var(--r-xs);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.1s ease;
+  white-space: nowrap;
+}
+
+.chart-tip.show { opacity: 1; }
+
+/* ──────────────────────────────────────
+   MODALS
+────────────────────────────────────── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(29,29,31,0.45);
+  z-index: 300;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.modal-overlay.open { display: flex; }
+
+.modal {
+  background: var(--surface);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-lg);
+  width: 680px;
+  max-width: 100%;
+  max-height: calc(100vh - 48px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.modal-sm { width: 520px; }
+
+.modal-header {
+  padding: 20px 24px 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.modal-title { font-size: 17px; font-weight: 700; color: var(--text); }
+
+.modal-subtitle { margin-top: 3px; font-size: 12.5px; color: var(--text-3); }
+
+.modal-close {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  border: none;
+  background: var(--bg);
+  color: var(--text-2);
+  cursor: pointer;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.modal-close:hover { background: #ECECF0; }
+
+.modal-body {
+  padding: 20px 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.modal-footer {
+  padding: 14px 24px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.modal-footer .spacer { flex: 1; }
+
+/* Wizard step indicator */
+.wiz-steps {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 16px 24px 4px;
+}
+
+.wiz-step {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-3);
+  white-space: nowrap;
+}
+
+.wiz-step-num {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 1.5px solid var(--line);
+  color: var(--text-3);
+  font-size: 11px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.wiz-step.active { color: var(--text); font-weight: 600; }
+.wiz-step.active .wiz-step-num { background: var(--orange); border-color: var(--orange); color: #fff; }
+.wiz-step.done .wiz-step-num   { background: var(--teal); border-color: var(--teal); color: #fff; }
+.wiz-step.done { color: var(--teal); }
+
+.wiz-connector {
+  flex: 1;
+  height: 1.5px;
+  background: var(--line);
+  margin: 0 10px;
+  min-width: 16px;
+}
+
+.wiz-pane { display: none; }
+.wiz-pane.active { display: block; }
+
+/* Forms */
+.f-row { display: flex; gap: 12px; }
+.f-row > .f-field { flex: 1; }
+
+.f-field { margin-bottom: 14px; display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+
+.f-label { font-size: 12px; font-weight: 600; color: var(--text-2); }
+
+.f-label .opt { color: var(--text-3); font-weight: 400; }
+
+.f-input, .f-textarea, select.f-input {
+  height: 36px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  padding: 0 12px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  color: var(--text);
+  outline: none;
+  width: 100%;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.f-textarea { height: auto; min-height: 70px; padding: 10px 12px; resize: vertical; line-height: 1.5; }
+
+.f-input:focus, .f-textarea:focus {
+  border-color: var(--teal);
+  box-shadow: 0 0 0 3px rgba(45,179,166,0.12);
+}
+
+/* Choice cards (wizard + settings access) */
+.choice-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.choice-cards.two { grid-template-columns: repeat(2, 1fr); }
+
+.choice-card {
+  border: 1.5px solid var(--line);
+  border-radius: var(--r-md);
+  padding: 16px;
+  cursor: pointer;
+  position: relative;
+  transition: border-color 0.15s ease, background 0.15s ease;
+  background: var(--surface);
+}
+
+.choice-card:hover { border-color: var(--text-3); }
+
+.choice-card.selected {
+  border-color: var(--orange);
+  background: rgba(242,107,58,0.04);
+}
+
+.choice-card.selected::after {
+  content: '\f00c';
+  font-family: 'Font Awesome 6 Free';
+  font-weight: 900;
+  position: absolute;
+  top: 10px; right: 10px;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: var(--orange);
+  color: #fff;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.choice-icon { font-size: 17px; color: var(--text-2); margin-bottom: 10px; }
+.choice-card.selected .choice-icon { color: var(--orange); }
+
+.choice-name {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-bottom: 4px;
+}
+
+.choice-desc { font-size: 12px; color: var(--text-3); line-height: 1.45; }
+
+/* Toggle switch */
+.toggle {
+  position: relative;
+  width: 38px; height: 22px;
+  border-radius: 999px;
+  background: #D8D8DE;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  flex-shrink: 0;
+  border: none;
+}
+
+.toggle::after {
+  content: '';
+  position: absolute;
+  top: 2px; left: 2px;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+  transition: transform 0.15s ease;
+}
+
+.toggle.on { background: var(--orange); }
+.toggle.on::after { transform: translateX(16px); }
+
+.toggle-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.toggle-row:last-child { border-bottom: none; }
+
+.toggle-row-title { font-size: 13px; font-weight: 600; color: var(--text); }
+.toggle-row-desc  { margin-top: 3px; font-size: 12px; color: var(--text-3); line-height: 1.5; }
+
+/* Check list (team picker) */
+.check-list { display: flex; flex-direction: column; gap: 8px; }
+
+.check-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--r-sm);
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.check-item:hover { border-color: var(--text-3); }
+.check-item.checked { border-color: var(--teal); background: rgba(45,179,166,0.05); }
+
+.check-item input { width: 15px; height: 15px; accent-color: var(--teal); pointer-events: none; }
+
+.check-item .avatar-chip { margin-left: 0; border: none; }
+
+.check-name { font-size: 13px; font-weight: 600; color: var(--text); }
+.check-sub  { font-size: 11.5px; color: var(--text-3); margin-top: 1px; }
+
+.check-right { margin-left: auto; font-size: 11.5px; color: var(--text-3); }
+
+/* CSV preview */
+.csv-preview {
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  overflow: hidden;
+  margin-top: 12px;
+}
+
+.csv-preview-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-2);
+}
+
+.csv-preview-head i { color: var(--teal); }
+
+.csv-preview table { width: 100%; border-collapse: collapse; }
+
+.csv-preview th {
+  text-align: left;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  padding: 7px 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.csv-preview td {
+  padding: 6px 12px;
+  font-size: 12px;
+  color: var(--text-2);
+  border-bottom: 1px solid var(--line);
+}
+
+.csv-preview tr:last-child td { border-bottom: none; }
+
+.wiz-info {
+  display: flex;
+  gap: 10px;
+  background: rgba(45,179,166,0.07);
+  border: 1px solid rgba(45,179,166,0.25);
+  border-radius: var(--r-sm);
+  padding: 10px 12px;
+  font-size: 12px;
+  color: var(--text-2);
+  line-height: 1.5;
+  margin-top: 12px;
+}
+
+.wiz-info i { color: var(--teal); margin-top: 2px; }
+
+/* Review list (wizard step 4) */
+.review-list { border: 1px solid var(--line); border-radius: var(--r-sm); overflow: hidden; }
+
+.review-row {
+  display: flex;
+  gap: 12px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--line);
+  font-size: 12.5px;
+}
+
+.review-row:last-child { border-bottom: none; }
+.review-row:nth-child(odd) { background: #FAFAFA; }
+
+.review-key { width: 150px; flex-shrink: 0; color: var(--text-3); }
+.review-val { color: var(--text); font-weight: 500; }
+
+/* ──────────────────────────────────────
+   TEAM TAB
+────────────────────────────────────── */
+.team-grid { display: grid; grid-template-columns: 300px 1fr; gap: 16px; align-items: start; }
+
+.photog-card {
+  background: var(--surface);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-sm);
+  padding: 20px;
+  text-align: center;
+}
+
+.photog-avatar-lg {
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  background: var(--orange);
+  color: #fff;
+  font-size: 22px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 12px;
+}
+
+.photog-name { font-size: 15px; font-weight: 700; color: var(--text); }
+.photog-email { font-size: 12px; color: var(--text-3); margin-top: 2px; }
+
+.photog-role-chip { margin-top: 10px; }
+
+.photog-stats {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  text-align: center;
+}
+
+.photog-stat-val { font-size: 16px; font-weight: 700; color: var(--text); }
+.photog-stat-lab { font-size: 10.5px; color: var(--text-3); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.3px; }
+
+.iso-note {
+  display: flex;
+  gap: 10px;
+  background: #FFF8F1;
+  border: 1px solid rgba(242,107,58,0.3);
+  border-radius: var(--r-sm);
+  padding: 12px 14px;
+  font-size: 12px;
+  color: var(--text-2);
+  line-height: 1.55;
+  margin-bottom: 16px;
+}
+
+.iso-note i { color: var(--orange); margin-top: 2px; }
+
+.perm-list { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+
+.perm-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 12.5px;
+  color: var(--text-2);
+  line-height: 1.45;
+}
+
+.perm-item input { width: 15px; height: 15px; margin-top: 1px; accent-color: var(--teal); }
+
+.perm-item.locked { opacity: 0.55; }
+
+.perm-item .perm-note { color: var(--text-3); font-size: 11.5px; display: block; }
+
+/* ──────────────────────────────────────
+   DOCUMENTS TAB
+────────────────────────────────────── */
+.dropzone {
+  border: 1.5px dashed var(--line);
+  border-radius: var(--r-md);
+  padding: 28px;
+  text-align: center;
+  color: var(--text-3);
+  font-size: 13px;
+  margin-bottom: 16px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+  background: var(--surface);
+}
+
+.dropzone:hover { border-color: var(--teal); background: rgba(45,179,166,0.03); }
+
+.dropzone i { font-size: 22px; opacity: 0.4; display: block; margin-bottom: 8px; }
+
+.dropzone b { color: var(--teal); font-weight: 600; }
+
+.doc-icon {
+  width: 36px; height: 36px;
+  border-radius: var(--r-xs);
+  background: rgba(217,64,64,0.08);
+  color: #C43C3C;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ──────────────────────────────────────
+   PRE-ORDERS TAB
+────────────────────────────────────── */
+.preorder-grid { display: grid; grid-template-columns: 340px 1fr; gap: 16px; align-items: start; }
+
+.link-card {
+  background: var(--surface);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-sm);
+  padding: 20px;
+}
+
+.qr-box {
+  width: 150px; height: 150px;
+  margin: 12px auto;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: #fff;
+}
+
+.link-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 7px 8px 7px 14px;
+  margin-top: 10px;
+}
+
+.link-pill span {
+  flex: 1;
+  font-size: 12px;
+  color: var(--text-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.copy-btn {
+  height: 26px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: none;
+  background: var(--text);
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.copy-btn:hover { opacity: 0.85; }
+
+.reg-status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 14px;
+  margin-top: 14px;
+  border-top: 1px solid var(--line);
+}
+
+.reg-status-label { font-size: 13px; font-weight: 600; color: var(--text); }
+.reg-status-sub { font-size: 11.5px; color: var(--text-3); margin-top: 2px; }
+
+/* ──────────────────────────────────────
+   AUTOMATION TAB
+────────────────────────────────────── */
+.rules-list { display: flex; flex-direction: column; gap: 10px; }
+
+.rule-card {
+  background: var(--surface);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-sm);
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.rule-card.off { opacity: 0.55; }
+
+.rule-icon {
+  width: 38px; height: 38px;
+  border-radius: var(--r-sm);
+  background: rgba(242,107,58,0.10);
+  color: var(--orange);
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.rule-body { flex: 1; min-width: 0; }
+
+.rule-sentence { font-size: 13px; color: var(--text); line-height: 1.5; }
+
+.rule-sentence b { font-weight: 600; }
+
+.rule-kw {
+  display: inline-flex;
+  align-items: center;
+  height: 18px;
+  padding: 0 7px;
+  border-radius: 5px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  margin-right: 4px;
+  vertical-align: 1px;
+}
+
+.rule-kw.when { background: rgba(45,179,166,0.12); color: var(--teal); }
+.rule-kw.then { background: rgba(242,107,58,0.12); color: var(--orange); }
+
+.rule-meta { margin-top: 4px; font-size: 11.5px; color: var(--text-3); }
+
+.rule-actions { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+
+.builder-sentence {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  padding: 12px 14px;
+  font-size: 13px;
+  color: var(--text-2);
+  line-height: 1.6;
+  margin-top: 4px;
+}
+
+/* ──────────────────────────────────────
+   SETTINGS TAB
+────────────────────────────────────── */
+.settings-grid { display: grid; grid-template-columns: 220px 1fr; gap: 20px; align-items: start; }
+
+.settings-nav { display: flex; flex-direction: column; gap: 4px; }
+
+.settings-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: var(--r-sm);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-2);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.settings-nav-item i { width: 16px; text-align: center; font-size: 13px; color: var(--text-3); }
+
+.settings-nav-item:hover { background: #ECECF0; }
+
+.settings-nav-item.active {
+  background: rgba(242,107,58,0.08);
+  color: var(--orange);
+  font-weight: 600;
+}
+
+.settings-nav-item.active i { color: var(--orange); }
+
+.settings-pane { display: none; }
+.settings-pane.active { display: block; }
+
+.settings-section-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 16px; }
+
+.settings-note { font-size: 12.5px; color: var(--text-3); line-height: 1.55; margin-top: 14px; }
+
+/* ──────────────────────────────────────
+   DROPDOWN MENU (kebab)
+────────────────────────────────────── */
+.menu-pop {
+  position: fixed;
+  z-index: 400;
+  background: var(--surface);
+  border-radius: var(--r-sm);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--line);
+  min-width: 170px;
+  padding: 6px;
+  display: none;
+}
+
+.menu-pop.open { display: block; }
+
+.menu-pop-item {
+  padding: 8px 12px;
+  border-radius: 7px;
+  font-size: 13px;
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.menu-pop-item i { width: 14px; font-size: 12px; color: var(--text-3); }
+
+.menu-pop-item:hover { background: var(--bg); }
+
+.menu-pop-item.danger { color: #C43C3C; }
+.menu-pop-item.danger i { color: #C43C3C; }
+
+/* ──────────────────────────────────────
+   TOAST
+────────────────────────────────────── */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translate(-50%, 12px);
+  background: #2C2C2E;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 11px 18px;
+  border-radius: 999px;
+  box-shadow: var(--shadow-lg);
+  z-index: 600;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+.toast i { color: var(--teal); }
+
+/* Folder row styling in galleries table */
+.gallery-thumb.is-folder { background: #F0F0F2; color: var(--text-2); }
+
+.type-cell { font-size: 12px; color: var(--text-3); }
+
+/* Section header inside tabs */
+.tab-section-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.tab-section-title { font-size: 16px; font-weight: 700; color: var(--text); }
+.tab-section-sub { margin-top: 3px; font-size: 12.5px; color: var(--text-3); }
+
+/* Contacts add form */
+.contact-add-card {
+  background: var(--surface);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-sm);
+  padding: 18px 20px;
+  margin-bottom: 16px;
+}
+
+.contact-add-head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.contact-add-title { font-size: 13px; font-weight: 600; color: var(--text); }
+
+.contact-add-links { margin-left: auto; display: flex; gap: 16px; }
+
+.contact-add-links a {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--teal);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.contact-add-links a:hover { text-decoration: underline; }
+
+.table-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-top: 1px solid var(--line);
+  font-size: 12px;
+  color: var(--text-3);
+}
 </style>
 </head>
 <body>
@@ -1170,10 +2406,63 @@ html, body {
             <h1>Jobs</h1>
             <p>Manage your volume photography jobs from start to finish</p>
           </div>
-          <button class="btn btn-brand">
+          <button class="btn btn-brand" onclick="openWizard()">
             <i class="fa-solid fa-plus"></i>
             New Job
           </button>
+        </div>
+
+        <!-- ── GLOBAL JOB DASHBOARD ── -->
+        <div class="dash-strip">
+          <div class="stat-tile">
+            <div class="stat-label">Active jobs</div>
+            <div class="stat-value">4</div>
+            <div class="stat-delta flat">1 delivered this month</div>
+          </div>
+          <div class="stat-tile">
+            <div class="stat-label">Upcoming shoots</div>
+            <div class="stat-value">2</div>
+            <div class="stat-delta flat">Next: Jun 2 · Lincoln Elementary</div>
+          </div>
+          <div class="stat-tile">
+            <div class="stat-label">Galleries awaiting upload</div>
+            <div class="stat-value">17</div>
+            <div class="stat-delta down"><i class="fa-solid fa-triangle-exclamation"></i> 2 jobs blocked</div>
+          </div>
+          <div class="stat-tile">
+            <div class="stat-label">Ready to share</div>
+            <div class="stat-value">25</div>
+            <div class="stat-delta up"><i class="fa-solid fa-arrow-up"></i> 25 galleries complete</div>
+          </div>
+          <div class="stat-tile">
+            <div class="stat-label">Revenue · last 30 days</div>
+            <div class="stat-value">$12,648</div>
+            <div class="stat-delta up"><i class="fa-solid fa-arrow-up"></i> 18% vs prior 30 days</div>
+          </div>
+        </div>
+
+        <div class="dash-lower">
+          <div class="attention-card">
+            <div class="attention-title"><i class="fa-solid fa-bolt"></i> Needs attention</div>
+            <div class="attention-row">
+              <i class="fa-solid fa-arrow-up"></i>
+              17 galleries still empty after shoot day
+              <span class="att-job">Riverside Youth Soccer</span>
+              <a onclick="showView('view-job-detail'); switchJobTabById('tab-galleries')">Review uploads</a>
+            </div>
+            <div class="attention-row">
+              <i class="fa-solid fa-file-signature"></i>
+              Contract still awaiting signature
+              <span class="att-job">Keystone Dance Academy</span>
+              <a onclick="showView('view-job-detail'); switchJobTabById('tab-documents')">View documents</a>
+            </div>
+            <div class="attention-row">
+              <i class="fa-solid fa-qrcode"></i>
+              Pre-registration closes in 3 days — 89 of 142 subjects registered
+              <span class="att-job">Lincoln Elementary</span>
+              <a onclick="showView('view-job-detail'); switchJobTabById('tab-preorders')">View pre-orders</a>
+            </div>
+          </div>
         </div>
 
         <div class="jobs-list">
@@ -1417,13 +2706,15 @@ html, body {
 
             <!-- Row 2: Tab bar -->
             <div class="job-tabs">
-              <div class="job-tab active"   onclick="switchJobTab(this,'tab-overview')">Overview</div>
-              <div class="job-tab"          onclick="switchJobTab(this,'tab-galleries')">Galleries</div>
-              <div class="job-tab"          onclick="switchJobTab(this,'tab-contacts')">Contacts</div>
-              <div class="job-tab"          onclick="switchJobTab(this,'tab-team')">Team</div>
-              <div class="job-tab"          onclick="switchJobTab(this,'tab-documents')">Documents</div>
-              <div class="job-tab"          onclick="switchJobTab(this,'tab-settings')">Settings</div>
-              <div class="job-tab"          onclick="switchJobTab(this,'tab-reports')">Reports</div>
+              <div class="job-tab active"   data-panel="tab-overview"   onclick="switchJobTab(this,'tab-overview')">Overview</div>
+              <div class="job-tab"          data-panel="tab-galleries"  onclick="switchJobTab(this,'tab-galleries')">Galleries</div>
+              <div class="job-tab"          data-panel="tab-contacts"   onclick="switchJobTab(this,'tab-contacts')">Contacts</div>
+              <div class="job-tab"          data-panel="tab-team"       onclick="switchJobTab(this,'tab-team')">Team</div>
+              <div class="job-tab"          data-panel="tab-preorders"  onclick="switchJobTab(this,'tab-preorders')">Pre-Orders</div>
+              <div class="job-tab"          data-panel="tab-documents"  onclick="switchJobTab(this,'tab-documents')">Documents</div>
+              <div class="job-tab"          data-panel="tab-automation" onclick="switchJobTab(this,'tab-automation')">Automation</div>
+              <div class="job-tab"          data-panel="tab-reports"    onclick="switchJobTab(this,'tab-reports')">Reports</div>
+              <div class="job-tab"          data-panel="tab-settings"   onclick="switchJobTab(this,'tab-settings')">Settings</div>
             </div>
           </div>
 
@@ -1432,6 +2723,35 @@ html, body {
 
             <!-- OVERVIEW TAB -->
             <div id="tab-overview" class="tab-panel active">
+
+              <div class="overview-stats">
+                <div class="stat-tile">
+                  <div class="stat-label">Galleries</div>
+                  <div class="stat-value">42</div>
+                  <div class="stat-delta flat">25 with photos · 17 empty</div>
+                </div>
+                <div class="stat-tile">
+                  <div class="stat-label">Photos uploaded</div>
+                  <div class="stat-value">3,847</div>
+                  <div class="stat-delta up"><i class="fa-solid fa-arrow-up"></i> 412 in last 24h</div>
+                </div>
+                <div class="stat-tile">
+                  <div class="stat-label">Contacts</div>
+                  <div class="stat-value">128</div>
+                  <div class="stat-delta flat">96 registered · 32 imported</div>
+                </div>
+                <div class="stat-tile">
+                  <div class="stat-label">Orders</div>
+                  <div class="stat-value">214</div>
+                  <div class="stat-delta up"><i class="fa-solid fa-arrow-up"></i> 38 pre-orders included</div>
+                </div>
+                <div class="stat-tile">
+                  <div class="stat-label">Revenue</div>
+                  <div class="stat-value" id="ov-revenue">$8,432</div>
+                  <div class="stat-delta up"><i class="fa-solid fa-arrow-up"></i> $1,240 from pre-orders</div>
+                </div>
+              </div>
+
               <div class="overview-grid">
 
                 <!-- Left: Job Details card -->
@@ -1551,6 +2871,42 @@ html, body {
                 </div>
 
               </div><!-- /overview-grid -->
+
+              <div class="summary-cards">
+                <div class="summary-card" onclick="switchJobTabById('tab-team')">
+                  <div class="summary-card-top">
+                    <span class="summary-card-title">Team</span>
+                    <i class="fa-solid fa-people-group"></i>
+                  </div>
+                  <div class="summary-card-main">3 photographers</div>
+                  <div class="summary-card-sub">Robert (lead) · Sofia · James</div>
+                </div>
+                <div class="summary-card" onclick="switchJobTabById('tab-preorders')">
+                  <div class="summary-card-top">
+                    <span class="summary-card-title">Pre-Orders</span>
+                    <i class="fa-solid fa-qrcode"></i>
+                  </div>
+                  <div class="summary-card-main">$1,240 · 38 orders</div>
+                  <div class="summary-card-sub">96 of 142 subjects registered</div>
+                </div>
+                <div class="summary-card" onclick="switchJobTabById('tab-documents')">
+                  <div class="summary-card-top">
+                    <span class="summary-card-title">Documents</span>
+                    <i class="fa-solid fa-file-lines"></i>
+                  </div>
+                  <div class="summary-card-main">3 files</div>
+                  <div class="summary-card-sub">1 awaiting signature</div>
+                </div>
+                <div class="summary-card" onclick="switchJobTabById('tab-automation')">
+                  <div class="summary-card-top">
+                    <span class="summary-card-title">Automation</span>
+                    <i class="fa-solid fa-bolt"></i>
+                  </div>
+                  <div class="summary-card-main">4 active rules</div>
+                  <div class="summary-card-sub">12 runs in last 7 days</div>
+                </div>
+              </div>
+
             </div><!-- /tab-overview -->
 
             <!-- GALLERIES TAB -->
@@ -1559,12 +2915,13 @@ html, body {
               <div class="gallery-toolbar">
                 <div class="gallery-search">
                   <i class="fa-solid fa-magnifying-glass"></i>
-                  <input type="text" placeholder="Search galleries…">
+                  <input type="text" placeholder="Search this job…">
                 </div>
                 <div class="gallery-toolbar-actions">
                   <button class="btn btn-ghost-sm"><i class="fa-solid fa-plus" style="font-size:10px;"></i> Add Gallery</button>
+                  <button class="btn btn-ghost-sm"><i class="fa-solid fa-folder-plus" style="font-size:11px;"></i> Add Folder</button>
                   <button class="btn btn-ghost-sm"><i class="fa-solid fa-qrcode" style="font-size:11px;"></i> QR Code Workflow</button>
-                  <button class="btn btn-ghost-sm">Bulk Actions <i class="fa-solid fa-chevron-down" style="font-size:10px; margin-left:2px;"></i></button>
+                  <button class="btn btn-ghost-sm" onclick="openMenu(event,'menu-bulk')">Bulk Actions <i class="fa-solid fa-chevron-down" style="font-size:10px; margin-left:2px;"></i></button>
                 </div>
               </div>
 
@@ -1574,7 +2931,8 @@ html, body {
                     <tr>
                       <th class="col-check"><input type="checkbox"></th>
                       <th class="col-thumb"></th>
-                      <th class="col-name">Gallery</th>
+                      <th class="col-name">Title</th>
+                      <th style="width:80px;">Type</th>
                       <th class="col-status">Status</th>
                       <th class="col-photos" style="text-align:right;">Photos</th>
                       <th class="col-modified">Last Modified</th>
@@ -1586,136 +2944,933 @@ html, body {
 
                     <tr>
                       <td><input type="checkbox"></td>
+                      <td><div class="gallery-thumb is-folder"><i class="fa-solid fa-folder"></i></div></td>
+                      <td><a class="gallery-name-link">Riverside Raptors U12</a></td>
+                      <td class="type-cell">Folder</td>
+                      <td><span class="pill-has-photos">14 galleries</span></td>
+                      <td class="count-cell col-photos">1,204</td>
+                      <td class="modified-cell">Jun 2, 2026</td>
+                      <td class="count-cell col-contacts">46</td>
+                      <td class="col-actions"><button class="kebab-btn" onclick="openMenu(event,'menu-gallery')"><i class="fa-solid fa-ellipsis"></i></button></td>
+                    </tr>
+
+                    <tr>
+                      <td><input type="checkbox"></td>
+                      <td><div class="gallery-thumb is-folder"><i class="fa-solid fa-folder"></i></div></td>
+                      <td><a class="gallery-name-link">Eagles U10</a></td>
+                      <td class="type-cell">Folder</td>
+                      <td><span class="pill-empty">11 galleries</span></td>
+                      <td class="count-cell col-photos">862</td>
+                      <td class="modified-cell">Jun 1, 2026</td>
+                      <td class="count-cell col-contacts">38</td>
+                      <td class="col-actions"><button class="kebab-btn" onclick="openMenu(event,'menu-gallery')"><i class="fa-solid fa-ellipsis"></i></button></td>
+                    </tr>
+
+                    <tr>
+                      <td><input type="checkbox"></td>
+                      <td><div class="gallery-thumb is-folder"><i class="fa-solid fa-folder"></i></div></td>
+                      <td><a class="gallery-name-link">Individual Portraits</a></td>
+                      <td class="type-cell">Folder</td>
+                      <td><span class="pill-has-photos">15 galleries</span></td>
+                      <td class="count-cell col-photos">1,763</td>
+                      <td class="modified-cell">Jun 2, 2026</td>
+                      <td class="count-cell col-contacts">44</td>
+                      <td class="col-actions"><button class="kebab-btn" onclick="openMenu(event,'menu-gallery')"><i class="fa-solid fa-ellipsis"></i></button></td>
+                    </tr>
+
+                    <tr>
+                      <td><input type="checkbox"></td>
                       <td><div class="gallery-thumb has-photos"><i class="fa-solid fa-image"></i></div></td>
                       <td><a class="gallery-name-link">Smith, Jordan</a></td>
+                      <td class="type-cell">Gallery</td>
                       <td><span class="pill-has-photos">Has Photos</span></td>
                       <td class="count-cell col-photos">24</td>
                       <td class="modified-cell">Jun 1, 2026</td>
                       <td class="count-cell col-contacts">1</td>
-                      <td class="col-actions"><button class="kebab-btn"><i class="fa-solid fa-ellipsis"></i></button></td>
+                      <td class="col-actions"><button class="kebab-btn" onclick="openMenu(event,'menu-gallery')"><i class="fa-solid fa-ellipsis"></i></button></td>
                     </tr>
 
                     <tr>
                       <td><input type="checkbox"></td>
                       <td><div class="gallery-thumb has-photos"><i class="fa-solid fa-image"></i></div></td>
                       <td><a class="gallery-name-link">Williams, Marcus</a></td>
+                      <td class="type-cell">Gallery</td>
                       <td><span class="pill-has-photos">Has Photos</span></td>
                       <td class="count-cell col-photos">31</td>
                       <td class="modified-cell">May 31, 2026</td>
                       <td class="count-cell col-contacts">1</td>
-                      <td class="col-actions"><button class="kebab-btn"><i class="fa-solid fa-ellipsis"></i></button></td>
+                      <td class="col-actions"><button class="kebab-btn" onclick="openMenu(event,'menu-gallery')"><i class="fa-solid fa-ellipsis"></i></button></td>
                     </tr>
 
                     <tr>
                       <td><input type="checkbox"></td>
                       <td><div class="gallery-thumb has-photos"><i class="fa-solid fa-people-group"></i></div></td>
                       <td><a class="gallery-name-link">Team — Riverside Raptors U12</a></td>
+                      <td class="type-cell">Gallery</td>
                       <td><span class="pill-has-photos">Has Photos</span></td>
                       <td class="count-cell col-photos">18</td>
                       <td class="modified-cell">May 30, 2026</td>
                       <td class="count-cell col-contacts">0</td>
-                      <td class="col-actions"><button class="kebab-btn"><i class="fa-solid fa-ellipsis"></i></button></td>
+                      <td class="col-actions"><button class="kebab-btn" onclick="openMenu(event,'menu-gallery')"><i class="fa-solid fa-ellipsis"></i></button></td>
                     </tr>
 
                     <tr>
                       <td><input type="checkbox"></td>
                       <td><div class="gallery-thumb has-photos"><i class="fa-solid fa-image"></i></div></td>
                       <td><a class="gallery-name-link">Johnson, Aiden</a></td>
+                      <td class="type-cell">Gallery</td>
                       <td><span class="pill-has-photos">Has Photos</span></td>
                       <td class="count-cell col-photos">27</td>
                       <td class="modified-cell">Jun 2, 2026</td>
                       <td class="count-cell col-contacts">1</td>
-                      <td class="col-actions"><button class="kebab-btn"><i class="fa-solid fa-ellipsis"></i></button></td>
+                      <td class="col-actions"><button class="kebab-btn" onclick="openMenu(event,'menu-gallery')"><i class="fa-solid fa-ellipsis"></i></button></td>
                     </tr>
 
                     <tr>
                       <td><input type="checkbox"></td>
                       <td><div class="gallery-thumb is-empty"><i class="fa-regular fa-image"></i></div></td>
                       <td><a class="gallery-name-link">Davis, Lily</a></td>
+                      <td class="type-cell">Gallery</td>
                       <td><span class="pill-empty">Empty</span></td>
                       <td class="count-cell col-photos">—</td>
                       <td class="modified-cell">—</td>
                       <td class="count-cell col-contacts">1</td>
-                      <td class="col-actions"><button class="kebab-btn"><i class="fa-solid fa-ellipsis"></i></button></td>
+                      <td class="col-actions"><button class="kebab-btn" onclick="openMenu(event,'menu-gallery')"><i class="fa-solid fa-ellipsis"></i></button></td>
                     </tr>
 
                     <tr>
                       <td><input type="checkbox"></td>
                       <td><div class="gallery-thumb has-photos"><i class="fa-solid fa-image"></i></div></td>
                       <td><a class="gallery-name-link">Martinez, Ethan</a></td>
+                      <td class="type-cell">Gallery</td>
                       <td><span class="pill-has-photos">Has Photos</span></td>
                       <td class="count-cell col-photos">34</td>
                       <td class="modified-cell">Jun 2, 2026</td>
                       <td class="count-cell col-contacts">1</td>
-                      <td class="col-actions"><button class="kebab-btn"><i class="fa-solid fa-ellipsis"></i></button></td>
+                      <td class="col-actions"><button class="kebab-btn" onclick="openMenu(event,'menu-gallery')"><i class="fa-solid fa-ellipsis"></i></button></td>
                     </tr>
 
                     <tr>
                       <td><input type="checkbox"></td>
                       <td><div class="gallery-thumb is-empty"><i class="fa-regular fa-image"></i></div></td>
                       <td><a class="gallery-name-link">Thompson, Maya</a></td>
+                      <td class="type-cell">Gallery</td>
                       <td><span class="pill-empty">Empty</span></td>
                       <td class="count-cell col-photos">—</td>
                       <td class="modified-cell">—</td>
                       <td class="count-cell col-contacts">1</td>
-                      <td class="col-actions"><button class="kebab-btn"><i class="fa-solid fa-ellipsis"></i></button></td>
+                      <td class="col-actions"><button class="kebab-btn" onclick="openMenu(event,'menu-gallery')"><i class="fa-solid fa-ellipsis"></i></button></td>
                     </tr>
 
                     <tr>
                       <td><input type="checkbox"></td>
                       <td><div class="gallery-thumb is-empty"><i class="fa-solid fa-people-group"></i></div></td>
                       <td><a class="gallery-name-link">Team — Eagles U10</a></td>
+                      <td class="type-cell">Gallery</td>
                       <td><span class="pill-empty">Empty</span></td>
                       <td class="count-cell col-photos">—</td>
                       <td class="modified-cell">—</td>
                       <td class="count-cell col-contacts">0</td>
-                      <td class="col-actions"><button class="kebab-btn"><i class="fa-solid fa-ellipsis"></i></button></td>
+                      <td class="col-actions"><button class="kebab-btn" onclick="openMenu(event,'menu-gallery')"><i class="fa-solid fa-ellipsis"></i></button></td>
                     </tr>
 
                   </tbody>
                 </table>
+                <div class="table-foot">
+                  <span>Showing 11 of 45 items</span>
+                  <span>3 folders · 42 galleries</span>
+                </div>
               </div>
 
             </div>
 
             <!-- CONTACTS TAB -->
             <div id="tab-contacts" class="tab-panel">
-              <div class="coming-soon">
-                <i class="fa-solid fa-address-book"></i>
-                <p>Contacts — coming soon</p>
+
+              <div class="tab-section-head">
+                <div>
+                  <div class="tab-section-title">Contacts</div>
+                  <div class="tab-section-sub">Subjects and parents attached to this job. Imported from roster CSV or captured via pre-registration.</div>
+                </div>
               </div>
+
+              <div class="contact-add-card">
+                <div class="contact-add-head">
+                  <span class="contact-add-title">Add Manually</span>
+                  <div class="contact-add-links">
+                    <a onclick="toast('Add from Contacts — opens your CRM contact picker')">Add from Contacts</a>
+                    <a onclick="toast('Import CSV — roster import flow')">Import CSV</a>
+                  </div>
+                </div>
+                <div class="f-row">
+                  <div class="f-field"><input class="f-input" id="nc-first" placeholder="First"></div>
+                  <div class="f-field"><input class="f-input" id="nc-last" placeholder="Last"></div>
+                  <div class="f-field"><input class="f-input" id="nc-email" placeholder="Email"></div>
+                  <div class="f-field"><input class="f-input" id="nc-mobile" placeholder="Mobile Number"></div>
+                </div>
+                <button class="btn btn-ghost-sm" onclick="addContact()">Add Contact</button>
+              </div>
+
+              <div class="gallery-table-wrap">
+                <table class="gallery-table">
+                  <thead>
+                    <tr>
+                      <th class="col-check"><input type="checkbox"></th>
+                      <th>First</th>
+                      <th>Last</th>
+                      <th>Email</th>
+                      <th style="width:120px;">Mobile</th>
+                      <th style="width:110px;">Gallery</th>
+                      <th style="width:120px;">Reg Info</th>
+                      <th class="col-actions"></th>
+                    </tr>
+                  </thead>
+                  <tbody id="contacts-tbody">
+                    <tr>
+                      <td><input type="checkbox"></td>
+                      <td style="font-weight:500; color:var(--text);">Karen</td>
+                      <td>Mello</td>
+                      <td>karen.mello@riversideysa.org</td>
+                      <td>(717) 555-0134</td>
+                      <td><a class="gallery-name-link">—</a></td>
+                      <td><span class="chip chip-dark">Primary Contact</span></td>
+                      <td class="col-actions"><button class="kebab-btn" onclick="openMenu(event,'menu-contact')"><i class="fa-solid fa-ellipsis"></i></button></td>
+                    </tr>
+                    <tr>
+                      <td><input type="checkbox"></td>
+                      <td style="font-weight:500; color:var(--text);">Dana</td>
+                      <td>Smith</td>
+                      <td>dana.smith@yopmail.com</td>
+                      <td>(910) 263-1188</td>
+                      <td><a class="gallery-name-link">Smith, Jordan</a></td>
+                      <td><span class="chip chip-teal"><i class="fa-solid fa-check" style="font-size:9px;"></i> Pre-ordered</span></td>
+                      <td class="col-actions"><button class="kebab-btn" onclick="openMenu(event,'menu-contact')"><i class="fa-solid fa-ellipsis"></i></button></td>
+                    </tr>
+                    <tr>
+                      <td><input type="checkbox"></td>
+                      <td style="font-weight:500; color:var(--text);">Priya</td>
+                      <td>Williams</td>
+                      <td>priya.w@yopmail.com</td>
+                      <td>(717) 555-0912</td>
+                      <td><a class="gallery-name-link">Williams, Marcus</a></td>
+                      <td><span class="chip chip-teal"><i class="fa-solid fa-check" style="font-size:9px;"></i> Registered</span></td>
+                      <td class="col-actions"><button class="kebab-btn" onclick="openMenu(event,'menu-contact')"><i class="fa-solid fa-ellipsis"></i></button></td>
+                    </tr>
+                    <tr>
+                      <td><input type="checkbox"></td>
+                      <td style="font-weight:500; color:var(--text);">Tom</td>
+                      <td>Johnson</td>
+                      <td>tjohnson44@yopmail.com</td>
+                      <td>(717) 555-0477</td>
+                      <td><a class="gallery-name-link">Johnson, Aiden</a></td>
+                      <td><span class="chip chip-teal"><i class="fa-solid fa-check" style="font-size:9px;"></i> Pre-ordered</span></td>
+                      <td class="col-actions"><button class="kebab-btn" onclick="openMenu(event,'menu-contact')"><i class="fa-solid fa-ellipsis"></i></button></td>
+                    </tr>
+                    <tr>
+                      <td><input type="checkbox"></td>
+                      <td style="font-weight:500; color:var(--text);">Grace</td>
+                      <td>Davis</td>
+                      <td>gdavis@yopmail.com</td>
+                      <td>—</td>
+                      <td><a class="gallery-name-link">Davis, Lily</a></td>
+                      <td><span class="chip chip-gray">Imported</span></td>
+                      <td class="col-actions"><button class="kebab-btn" onclick="openMenu(event,'menu-contact')"><i class="fa-solid fa-ellipsis"></i></button></td>
+                    </tr>
+                    <tr>
+                      <td><input type="checkbox"></td>
+                      <td style="font-weight:500; color:var(--text);">Luis</td>
+                      <td>Martinez</td>
+                      <td>lmartinez@yopmail.com</td>
+                      <td>(717) 555-0341</td>
+                      <td><a class="gallery-name-link">Martinez, Ethan</a></td>
+                      <td><span class="chip chip-teal"><i class="fa-solid fa-check" style="font-size:9px;"></i> Registered</span></td>
+                      <td class="col-actions"><button class="kebab-btn" onclick="openMenu(event,'menu-contact')"><i class="fa-solid fa-ellipsis"></i></button></td>
+                    </tr>
+                    <tr>
+                      <td><input type="checkbox"></td>
+                      <td style="font-weight:500; color:var(--text);">Ana</td>
+                      <td>Thompson</td>
+                      <td>ana.thompson@yopmail.com</td>
+                      <td>(717) 555-0290</td>
+                      <td><a class="gallery-name-link">Thompson, Maya</a></td>
+                      <td><span class="chip chip-gray">Imported</span></td>
+                      <td class="col-actions"><button class="kebab-btn" onclick="openMenu(event,'menu-contact')"><i class="fa-solid fa-ellipsis"></i></button></td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div class="table-foot">
+                  <span id="contacts-count">1–7 of 128 contacts</span>
+                  <span style="display:flex; align-items:center; gap:14px;">
+                    <a class="gallery-name-link" onclick="toast('Exporting contacts to CSV…')"><i class="fa-solid fa-arrow-up-from-bracket" style="font-size:11px; margin-right:4px;"></i>Export</a>
+                    <span>25 / page</span>
+                  </span>
+                </div>
+              </div>
+
             </div>
 
-            <!-- TEAM TAB (Phase 5) -->
+            <!-- TEAM TAB -->
             <div id="tab-team" class="tab-panel">
-              <div class="coming-soon">
-                <i class="fa-solid fa-people-group"></i>
-                <p>Team — Phase 5</p>
+
+              <div class="tab-section-head">
+                <div>
+                  <div class="tab-section-title">Team</div>
+                  <div class="tab-section-sub">Assign photographers to this job. Sub-photographers can upload remotely to their assigned folders only.</div>
+                </div>
+                <button class="btn btn-brand" onclick="openModal('modal-assign')"><i class="fa-solid fa-user-plus"></i> Assign Photographer</button>
+              </div>
+
+              <div class="iso-note">
+                <i class="fa-solid fa-lock"></i>
+                <div><b>Access isolation is on.</b> Sub-photographers can only see and upload to the folders they're assigned within this job. They cannot access your other jobs, galleries, pricing, or business reports.</div>
+              </div>
+
+              <div class="team-grid">
+
+                <div class="photog-card">
+                  <div class="photog-avatar-lg">RC</div>
+                  <div class="photog-name">Robert Campbell</div>
+                  <div class="photog-email">robert@campbellphoto.com</div>
+                  <div class="photog-role-chip"><span class="chip chip-orange"><i class="fa-solid fa-star" style="font-size:9px;"></i> Primary Photographer</span></div>
+                  <div class="photog-stats">
+                    <div><div class="photog-stat-val">1,763</div><div class="photog-stat-lab">Uploads</div></div>
+                    <div><div class="photog-stat-val" id="sales-rc">$4,208</div><div class="photog-stat-lab">Sales</div></div>
+                  </div>
+                </div>
+
+                <div class="gallery-table-wrap">
+                  <table class="gallery-table">
+                    <thead>
+                      <tr>
+                        <th style="width:44px;"></th>
+                        <th>Photographer</th>
+                        <th style="width:170px;">Assigned To</th>
+                        <th class="col-photos" style="text-align:right;">Uploads</th>
+                        <th style="width:100px; text-align:right;">Sales</th>
+                        <th style="width:100px;">Status</th>
+                        <th class="col-actions"></th>
+                      </tr>
+                    </thead>
+                    <tbody id="team-tbody">
+                      <tr>
+                        <td><div class="avatar-chip avatar-b" style="margin-left:0; border:none;">SK</div></td>
+                        <td>
+                          <div style="font-weight:600; color:var(--text);">Sofia Khan</div>
+                          <div style="font-size:11.5px; color:var(--text-3);">sofia.khan@yopmail.com</div>
+                        </td>
+                        <td class="type-cell"><i class="fa-solid fa-folder" style="margin-right:5px; color:var(--text-3);"></i>Riverside Raptors U12</td>
+                        <td class="count-cell col-photos">1,204</td>
+                        <td class="amount-cell" id="sales-sk">$2,731</td>
+                        <td><span class="chip chip-teal">Active</span></td>
+                        <td class="col-actions"><button class="kebab-btn" onclick="openMenu(event,'menu-team')"><i class="fa-solid fa-ellipsis"></i></button></td>
+                      </tr>
+                      <tr>
+                        <td><div class="avatar-chip avatar-c" style="margin-left:0; border:none;">JT</div></td>
+                        <td>
+                          <div style="font-weight:600; color:var(--text);">James Torres</div>
+                          <div style="font-size:11.5px; color:var(--text-3);">jtorres.photo@yopmail.com</div>
+                        </td>
+                        <td class="type-cell"><i class="fa-solid fa-folder" style="margin-right:5px; color:var(--text-3);"></i>Eagles U10</td>
+                        <td class="count-cell col-photos">862</td>
+                        <td class="amount-cell" id="sales-jt">$1,493</td>
+                        <td><span class="chip chip-teal">Active</span></td>
+                        <td class="col-actions"><button class="kebab-btn" onclick="openMenu(event,'menu-team')"><i class="fa-solid fa-ellipsis"></i></button></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <div class="table-foot">
+                    <span>2 sub-photographers assigned</span>
+                    <a class="gallery-name-link" onclick="toast('Upload link copied — send it to your team for remote uploading')"><i class="fa-solid fa-link" style="font-size:11px; margin-right:4px;"></i>Copy remote upload link</a>
+                  </div>
+                </div>
+
               </div>
             </div>
 
             <!-- DOCUMENTS TAB -->
             <div id="tab-documents" class="tab-panel">
-              <div class="coming-soon">
-                <i class="fa-solid fa-file-lines"></i>
-                <p>Documents — coming soon</p>
+
+              <div class="tab-section-head">
+                <div>
+                  <div class="tab-section-title">Documents</div>
+                  <div class="tab-section-sub">Store signed contracts, releases and licenses with this job so everything lives in one place.</div>
+                </div>
+                <button class="btn btn-brand" onclick="uploadDocument()"><i class="fa-solid fa-arrow-up-from-bracket"></i> Upload Document</button>
               </div>
+
+              <div class="dropzone" onclick="uploadDocument()">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+                Drag &amp; drop PDFs here, or <b>browse files</b>
+              </div>
+
+              <div class="gallery-table-wrap">
+                <table class="gallery-table">
+                  <thead>
+                    <tr>
+                      <th style="width:52px;"></th>
+                      <th>Document</th>
+                      <th style="width:110px;">Type</th>
+                      <th style="width:130px;">Uploaded</th>
+                      <th style="width:80px; text-align:right;">Size</th>
+                      <th style="width:150px;">Status</th>
+                      <th class="col-actions"></th>
+                    </tr>
+                  </thead>
+                  <tbody id="docs-tbody">
+                    <tr>
+                      <td><div class="doc-icon"><i class="fa-solid fa-file-pdf"></i></div></td>
+                      <td>
+                        <div style="font-weight:600; color:var(--text);">Riverside_YSA_Services_Agreement.pdf</div>
+                        <div style="font-size:11.5px; color:var(--text-3);">Signed by Karen Mello</div>
+                      </td>
+                      <td class="type-cell">Contract</td>
+                      <td class="modified-cell">Apr 26, 2026</td>
+                      <td class="count-cell" style="text-align:right;">1.2 MB</td>
+                      <td><span class="chip chip-teal"><i class="fa-solid fa-check" style="font-size:9px;"></i> Signed</span></td>
+                      <td class="col-actions"><button class="kebab-btn" onclick="openMenu(event,'menu-doc')"><i class="fa-solid fa-ellipsis"></i></button></td>
+                    </tr>
+                    <tr>
+                      <td><div class="doc-icon"><i class="fa-solid fa-file-pdf"></i></div></td>
+                      <td>
+                        <div style="font-weight:600; color:var(--text);">League_Photo_Day_Schedule.pdf</div>
+                        <div style="font-size:11.5px; color:var(--text-3);">Uploaded by Robert Campbell</div>
+                      </td>
+                      <td class="type-cell">Schedule</td>
+                      <td class="modified-cell">May 2, 2026</td>
+                      <td class="count-cell" style="text-align:right;">340 KB</td>
+                      <td><span class="chip chip-gray">Reference</span></td>
+                      <td class="col-actions"><button class="kebab-btn" onclick="openMenu(event,'menu-doc')"><i class="fa-solid fa-ellipsis"></i></button></td>
+                    </tr>
+                    <tr>
+                      <td><div class="doc-icon"><i class="fa-solid fa-file-pdf"></i></div></td>
+                      <td>
+                        <div style="font-weight:600; color:var(--text);">Sub_Photographer_Agreement_Torres.pdf</div>
+                        <div style="font-size:11.5px; color:var(--text-3);">Sent to James Torres · May 8</div>
+                      </td>
+                      <td class="type-cell">Contract</td>
+                      <td class="modified-cell">May 8, 2026</td>
+                      <td class="count-cell" style="text-align:right;">890 KB</td>
+                      <td><span class="chip chip-orange"><i class="fa-regular fa-clock" style="font-size:9px;"></i> Awaiting signature</span></td>
+                      <td class="col-actions"><button class="kebab-btn" onclick="openMenu(event,'menu-doc')"><i class="fa-solid fa-ellipsis"></i></button></td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div class="table-foot">
+                  <span id="docs-count">3 documents</span>
+                  <span>Storage only in MVP — e-signature automation comes in Phase 3</span>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- PRE-ORDERS TAB -->
+            <div id="tab-preorders" class="tab-panel">
+
+              <div class="tab-section-head">
+                <div>
+                  <div class="tab-section-title">Pre-Orders &amp; Registration</div>
+                  <div class="tab-section-sub">Families register before picture day, get matched to their gallery automatically, and can pre-purchase packages.</div>
+                </div>
+                <button class="btn btn-ghost" onclick="toast('Opening pre-registration page preview…')">Preview Registration Page</button>
+              </div>
+
+              <div class="overview-stats" style="grid-template-columns: repeat(4, 1fr);">
+                <div class="stat-tile">
+                  <div class="stat-label">Subjects registered</div>
+                  <div class="stat-value">96 <span style="font-size:14px; font-weight:500; color:var(--text-3);">/ 142</span></div>
+                  <div class="stat-delta up"><i class="fa-solid fa-arrow-up"></i> 12 this week</div>
+                </div>
+                <div class="stat-tile">
+                  <div class="stat-label">Pre-orders placed</div>
+                  <div class="stat-value">38</div>
+                  <div class="stat-delta flat">40% of registered families</div>
+                </div>
+                <div class="stat-tile">
+                  <div class="stat-label">Pre-order revenue</div>
+                  <div class="stat-value">$1,240</div>
+                  <div class="stat-delta up"><i class="fa-solid fa-arrow-up"></i> $32.63 avg order</div>
+                </div>
+                <div class="stat-tile">
+                  <div class="stat-label">Price list</div>
+                  <div class="stat-value" style="font-size:16px; padding-top:4px;">Youth Sports 2026</div>
+                  <div class="stat-delta flat"><a class="gallery-name-link" onclick="toast('Opening price list…')">Change price list</a></div>
+                </div>
+              </div>
+
+              <div class="preorder-grid">
+
+                <div class="link-card">
+                  <div class="chart-title">Registration Link</div>
+                  <div class="chart-sub" style="margin-bottom:0;">Share with families or print the QR code on flyers.</div>
+                  <div class="qr-box"><svg id="qr-svg" viewBox="0 0 29 29" width="100%" height="100%"></svg></div>
+                  <div class="link-pill">
+                    <span>zenfol.io/r/riverside-soccer-26</span>
+                    <button class="copy-btn" onclick="toast('Registration link copied to clipboard')">Copy</button>
+                  </div>
+                  <div class="reg-status-row">
+                    <div>
+                      <div class="reg-status-label">Registration open</div>
+                      <div class="reg-status-sub">Closes automatically on shoot day</div>
+                    </div>
+                    <button class="toggle on" onclick="flipToggle(this)"></button>
+                  </div>
+                  <div class="reg-status-row">
+                    <div>
+                      <div class="reg-status-label">Allow pre-orders</div>
+                      <div class="reg-status-sub">Families can buy packages at registration</div>
+                    </div>
+                    <button class="toggle on" onclick="flipToggle(this)"></button>
+                  </div>
+                </div>
+
+                <div>
+                  <div class="gallery-table-wrap">
+                    <table class="gallery-table">
+                      <thead>
+                        <tr>
+                          <th>Package</th>
+                          <th style="width:90px; text-align:right;">Price</th>
+                          <th style="width:90px; text-align:right;">Sold</th>
+                          <th style="width:110px; text-align:right;">Revenue</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td style="font-weight:600; color:var(--text);">Digital Package <span class="chip chip-orange" style="margin-left:6px;">Most popular</span></td>
+                          <td class="amount-cell">$25</td>
+                          <td class="count-cell" style="text-align:right;">21</td>
+                          <td class="amount-cell">$525</td>
+                        </tr>
+                        <tr>
+                          <td style="font-weight:600; color:var(--text);">Print Bundle — 8×10 + wallets</td>
+                          <td class="amount-cell">$35</td>
+                          <td class="count-cell" style="text-align:right;">11</td>
+                          <td class="amount-cell">$385</td>
+                        </tr>
+                        <tr>
+                          <td style="font-weight:600; color:var(--text);">Deluxe — digital + prints + magnet</td>
+                          <td class="amount-cell">$55</td>
+                          <td class="count-cell" style="text-align:right;">6</td>
+                          <td class="amount-cell">$330</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <div class="orders-foot"><span>Pre-order totals</span><b>38 orders · $1,240</b></div>
+                  </div>
+
+                  <div class="report-table-card">
+                    <div class="chart-title" style="padding:16px 16px 0;">Recent registrations</div>
+                    <div class="chart-sub" style="padding:0 16px;">Auto-matched to galleries via roster</div>
+                    <table class="gallery-table">
+                      <tbody>
+                        <tr>
+                          <td style="width:44px;"><div class="avatar-chip avatar-b" style="margin-left:0; border:none;">DS</div></td>
+                          <td><span style="font-weight:600; color:var(--text);">Dana Smith</span> registered <a class="gallery-name-link">Smith, Jordan</a></td>
+                          <td class="type-cell" style="width:150px;">Raptors U12</td>
+                          <td style="width:130px;"><span class="chip chip-teal">Pre-ordered · $35</span></td>
+                          <td class="modified-cell" style="width:90px; text-align:right;">2h ago</td>
+                        </tr>
+                        <tr>
+                          <td><div class="avatar-chip avatar-c" style="margin-left:0; border:none;">TJ</div></td>
+                          <td><span style="font-weight:600; color:var(--text);">Tom Johnson</span> registered <a class="gallery-name-link">Johnson, Aiden</a></td>
+                          <td class="type-cell">Eagles U10</td>
+                          <td><span class="chip chip-teal">Pre-ordered · $25</span></td>
+                          <td class="modified-cell" style="text-align:right;">5h ago</td>
+                        </tr>
+                        <tr>
+                          <td><div class="avatar-chip avatar-a" style="margin-left:0; border:none;">PW</div></td>
+                          <td><span style="font-weight:600; color:var(--text);">Priya Williams</span> registered <a class="gallery-name-link">Williams, Marcus</a></td>
+                          <td class="type-cell">Raptors U12</td>
+                          <td><span class="chip chip-gray">Registration only</span></td>
+                          <td class="modified-cell" style="text-align:right;">1d ago</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- AUTOMATION TAB -->
+            <div id="tab-automation" class="tab-panel">
+
+              <div class="tab-section-head">
+                <div>
+                  <div class="tab-section-title">Automation</div>
+                  <div class="tab-section-sub">Logic-based rules that move this job along without manual work. Rules run only within this job.</div>
+                </div>
+                <button class="btn btn-brand" onclick="openModal('modal-rule')"><i class="fa-solid fa-plus"></i> New Automation</button>
+              </div>
+
+              <div class="rules-list" id="rules-list">
+
+                <div class="rule-card">
+                  <div class="rule-icon"><i class="fa-solid fa-share-nodes"></i></div>
+                  <div class="rule-body">
+                    <div class="rule-sentence"><span class="rule-kw when">WHEN</span> all galleries in a folder are marked <b>Upload Complete</b> <span class="rule-kw then">THEN</span> <b>share galleries</b> with their linked contacts</div>
+                    <div class="rule-meta">Ran 2 times · last run Jun 2, 4:10 PM · 14 galleries shared</div>
+                  </div>
+                  <div class="rule-actions"><span class="chip chip-teal">Active</span><button class="toggle on" onclick="flipRule(this)"></button></div>
+                </div>
+
+                <div class="rule-card">
+                  <div class="rule-icon"><i class="fa-solid fa-envelope"></i></div>
+                  <div class="rule-body">
+                    <div class="rule-sentence"><span class="rule-kw when">WHEN</span> a gallery is shared <span class="rule-kw then">THEN</span> send the <b>“Your photos are ready”</b> email to the gallery's contacts</div>
+                    <div class="rule-meta">Ran 8 times · last run Jun 2, 4:11 PM</div>
+                  </div>
+                  <div class="rule-actions"><span class="chip chip-teal">Active</span><button class="toggle on" onclick="flipRule(this)"></button></div>
+                </div>
+
+                <div class="rule-card">
+                  <div class="rule-icon"><i class="fa-solid fa-tag"></i></div>
+                  <div class="rule-body">
+                    <div class="rule-sentence"><span class="rule-kw when">WHEN</span> <b>7 days</b> after a gallery is shared and no order was placed <span class="rule-kw then">THEN</span> send a <b>10% off promo code</b></div>
+                    <div class="rule-meta">Ran 2 times · last run Jun 1, 9:00 AM · 41 emails sent</div>
+                  </div>
+                  <div class="rule-actions"><span class="chip chip-teal">Active</span><button class="toggle on" onclick="flipRule(this)"></button></div>
+                </div>
+
+                <div class="rule-card">
+                  <div class="rule-icon"><i class="fa-solid fa-bell"></i></div>
+                  <div class="rule-body">
+                    <div class="rule-sentence"><span class="rule-kw when">WHEN</span> a sub-photographer uploads to their assigned folder <span class="rule-kw then">THEN</span> <b>notify Robert Campbell</b></div>
+                    <div class="rule-meta">Ran 12 times · last run today, 8:42 AM</div>
+                  </div>
+                  <div class="rule-actions"><span class="chip chip-teal">Active</span><button class="toggle on" onclick="flipRule(this)"></button></div>
+                </div>
+
+                <div class="rule-card off">
+                  <div class="rule-icon"><i class="fa-solid fa-hourglass-half"></i></div>
+                  <div class="rule-body">
+                    <div class="rule-sentence"><span class="rule-kw when">WHEN</span> <b>30 days</b> after job is delivered <span class="rule-kw then">THEN</span> <b>expire gallery access</b> and archive the job</div>
+                    <div class="rule-meta">Paused · will not run</div>
+                  </div>
+                  <div class="rule-actions"><span class="chip chip-gray">Paused</span><button class="toggle" onclick="flipRule(this)"></button></div>
+                </div>
+
+              </div>
+
+              <div class="settings-note" style="margin-top:16px;"><i class="fa-solid fa-circle-info" style="margin-right:6px;"></i>Automations pause automatically if the job is archived. Drip campaigns and review requests arrive in Phase 3.</div>
             </div>
 
             <!-- SETTINGS TAB -->
             <div id="tab-settings" class="tab-panel">
-              <div class="coming-soon">
-                <i class="fa-solid fa-gear"></i>
-                <p>Settings — coming soon</p>
+              <div class="settings-grid">
+
+                <div class="settings-nav">
+                  <div class="settings-nav-item active" onclick="switchSettings(this,'set-access')"><i class="fa-solid fa-lock"></i> Job Access</div>
+                  <div class="settings-nav-item" onclick="switchSettings(this,'set-details')"><i class="fa-solid fa-circle-info"></i> Job Details</div>
+                  <div class="settings-nav-item" onclick="switchSettings(this,'set-features')"><i class="fa-regular fa-image"></i> Features</div>
+                </div>
+
+                <div>
+                  <!-- ACCESS -->
+                  <div class="settings-pane active" id="set-access">
+                    <div class="detail-card">
+                      <div class="settings-section-title">Job Access</div>
+                      <div class="choice-cards">
+                        <div class="choice-card selected" onclick="selectChoice(this)">
+                          <div class="choice-icon"><i class="fa-solid fa-users"></i></div>
+                          <div class="choice-name">Public</div>
+                          <div class="choice-desc">Anyone with the link has access.</div>
+                        </div>
+                        <div class="choice-card" onclick="selectChoice(this)">
+                          <div class="choice-icon"><i class="fa-solid fa-asterisk"></i></div>
+                          <div class="choice-name">Password Protected</div>
+                          <div class="choice-desc">Requires password for access.</div>
+                        </div>
+                        <div class="choice-card" onclick="selectChoice(this)">
+                          <div class="choice-icon"><i class="fa-solid fa-eye-slash"></i></div>
+                          <div class="choice-name">Hidden</div>
+                          <div class="choice-desc">Does not allow job-level access.</div>
+                        </div>
+                      </div>
+                      <div class="settings-note">Public jobs allow anyone with the link to access. Contained folders and galleries retain their individual access settings.</div>
+                      <div class="toggle-row" style="margin-top:8px;">
+                        <div>
+                          <div class="toggle-row-title">Show Job Registration</div>
+                          <div class="toggle-row-desc">Configure payment collection, email capture and custom form fields.</div>
+                        </div>
+                        <button class="toggle on" onclick="flipToggle(this)"></button>
+                      </div>
+                      <div class="toggle-row">
+                        <div>
+                          <div class="toggle-row-title">Allow job to appear in search results</div>
+                          <div class="toggle-row-desc">Turn on to select which search results this job can appear in. Items within this job have their own settings and must be managed separately.</div>
+                        </div>
+                        <button class="toggle" onclick="flipToggle(this)"></button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- DETAILS -->
+                  <div class="settings-pane" id="set-details">
+                    <div class="detail-card">
+                      <div class="settings-section-title">Job Details</div>
+                      <div class="f-row" style="margin-bottom:14px;">
+                        <div>
+                          <div class="f-label" style="margin-bottom:4px;">Job Created</div>
+                          <div style="font-size:13px; font-weight:600;">Apr 28, 2026</div>
+                        </div>
+                        <div>
+                          <div class="f-label" style="margin-bottom:4px;">Job Modified</div>
+                          <div style="font-size:13px; font-weight:600;">Jun 2, 2026</div>
+                        </div>
+                        <div>
+                          <div class="f-label" style="margin-bottom:4px;">Access Setting</div>
+                          <div style="font-size:13px; font-weight:600;">Public</div>
+                        </div>
+                      </div>
+                      <div class="f-field">
+                        <label class="f-label">Job Title</label>
+                        <input class="f-input" value="Riverside Youth Soccer League — Spring 2026">
+                      </div>
+                      <div class="f-field">
+                        <label class="f-label">Job Description <span class="opt">— shown at the top of the job page</span></label>
+                        <textarea class="f-textarea" placeholder="Job description"></textarea>
+                      </div>
+                      <button class="btn btn-ghost-sm" onclick="toast('Job details saved')">Save Changes</button>
+                    </div>
+                  </div>
+
+                  <!-- FEATURES -->
+                  <div class="settings-pane" id="set-features">
+                    <div class="detail-card">
+                      <div class="settings-section-title">Features</div>
+                      <div class="toggle-row">
+                        <div>
+                          <div class="toggle-row-title">Display a search bar on the job page</div>
+                          <div class="toggle-row-desc">Visitors can find their gallery by name. Only contained items set to appear in search will show in results.</div>
+                        </div>
+                        <button class="toggle on" onclick="flipToggle(this)"></button>
+                      </div>
+                      <div class="toggle-row">
+                        <div>
+                          <div class="toggle-row-title">Exact match search</div>
+                          <div class="toggle-row-desc">Only display results that exactly match the search query — recommended for privacy in school jobs.</div>
+                        </div>
+                        <button class="toggle on" onclick="flipToggle(this)"></button>
+                      </div>
+                      <div class="toggle-row">
+                        <div>
+                          <div class="toggle-row-title">Enforce naming convention</div>
+                          <div class="toggle-row-desc">New galleries must follow “Last, First” so roster matching and QR workflows stay reliable.</div>
+                        </div>
+                        <button class="toggle on" onclick="flipToggle(this)"></button>
+                      </div>
+                      <div class="f-field" style="margin-top:14px;">
+                        <label class="f-label">Search instructions / placeholder <span class="opt">(max 60 chars)</span></label>
+                        <input class="f-input" placeholder="Search the contents of this job…">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
               </div>
             </div>
 
-            <!-- REPORTS TAB (Phase 6) -->
+            <!-- REPORTS TAB -->
             <div id="tab-reports" class="tab-panel">
-              <div class="coming-soon">
-                <i class="fa-solid fa-chart-bar"></i>
-                <p>Reports — Phase 6</p>
+
+              <div class="tab-section-head">
+                <div>
+                  <div class="tab-section-title">Reports</div>
+                  <div class="tab-section-sub">Everything this job earned and how people engaged — broken down by folder, gallery, date, and photographer.</div>
+                </div>
+                <button class="btn btn-ghost" onclick="toast('Exporting job report to CSV…')"><i class="fa-solid fa-arrow-up-from-bracket" style="font-size:11px;"></i> Export</button>
               </div>
+
+              <div class="subtabs">
+                <div class="subtab active" onclick="switchReport(this,'rep-overview')">Overview</div>
+                <div class="subtab" onclick="switchReport(this,'rep-orders')">Orders</div>
+              </div>
+
+              <!-- REPORT: OVERVIEW -->
+              <div class="settings-pane active" id="rep-overview">
+
+                <div class="overview-stats">
+                  <div class="stat-tile">
+                    <div class="stat-label">Total revenue</div>
+                    <div class="stat-value" id="rp-revenue">$8,432</div>
+                    <div class="stat-delta up"><i class="fa-solid fa-arrow-up"></i> $612 in last 7 days</div>
+                  </div>
+                  <div class="stat-tile">
+                    <div class="stat-label">Orders</div>
+                    <div class="stat-value">214</div>
+                    <div class="stat-delta flat">38 pre-orders · 176 gallery</div>
+                  </div>
+                  <div class="stat-tile">
+                    <div class="stat-label">Avg order value</div>
+                    <div class="stat-value" id="rp-aov">$39.40</div>
+                    <div class="stat-delta up"><i class="fa-solid fa-arrow-up"></i> $4.10 vs your average</div>
+                  </div>
+                  <div class="stat-tile">
+                    <div class="stat-label">Gallery views</div>
+                    <div class="stat-value">1,847</div>
+                    <div class="stat-delta up"><i class="fa-solid fa-arrow-up"></i> 214 in last 7 days</div>
+                  </div>
+                  <div class="stat-tile">
+                    <div class="stat-label">Visitors who ordered</div>
+                    <div class="stat-value">31%</div>
+                    <div class="stat-delta flat">66 of 213 unique visitors</div>
+                  </div>
+                </div>
+
+                <div class="report-grid">
+
+                  <div class="chart-card">
+                    <div class="chart-title">Sales attribution by photographer</div>
+                    <div class="chart-sub">Revenue from orders on galleries each photographer uploaded</div>
+                    <div id="attr-bars"></div>
+                  </div>
+
+                  <div class="chart-card">
+                    <div class="chart-title">Orders per week</div>
+                    <div class="chart-sub">Pre-orders begin May 1 · galleries shared Jun 2</div>
+                    <div class="cols-chart" id="orders-cols"></div>
+                    <div class="cols-x" id="orders-cols-x"></div>
+                  </div>
+
+                  <div class="chart-card">
+                    <div class="chart-title">Gallery engagement</div>
+                    <div class="chart-sub">Which shared galleries have been opened by their contacts</div>
+                    <div class="meter-wrap">
+                      <div class="meter-head">
+                        <span class="meter-big">68%</span>
+                        <span class="meter-cap">17 of 25 shared galleries viewed</span>
+                      </div>
+                      <div class="meter-track"><div class="meter-fill" style="width:68%;"></div></div>
+                      <div class="meter-legend">
+                        <span><b>17</b> viewed</span>
+                        <span><b>8</b> not yet viewed</span>
+                        <span><b>17</b> not yet shared</span>
+                      </div>
+                    </div>
+                    <div style="margin-top:14px; padding-top:12px; border-top:1px solid var(--line); font-size:12.5px;">
+                      <a class="gallery-name-link" onclick="toast('8 reminder emails queued for unviewed galleries')">Send reminder to 8 unviewed galleries →</a>
+                    </div>
+                  </div>
+
+                  <div class="chart-card">
+                    <div class="chart-title">Revenue by folder</div>
+                    <div class="chart-sub">Where this job's sales come from</div>
+                    <div id="folder-bars"></div>
+                  </div>
+
+                </div>
+
+                <div class="report-table-card">
+                  <div class="chart-title">Photographer attribution detail</div>
+                  <div class="chart-sub">Uploads, orders and revenue credited to each team member</div>
+                  <table class="gallery-table">
+                    <thead>
+                      <tr>
+                        <th>Photographer</th>
+                        <th style="width:150px;">Assigned folder</th>
+                        <th style="width:90px; text-align:right;">Uploads</th>
+                        <th style="width:90px; text-align:right;">Orders</th>
+                        <th style="width:110px; text-align:right;">Revenue</th>
+                        <th style="width:110px; text-align:right;">Share of sales</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td><div style="display:flex; align-items:center; gap:9px;"><div class="avatar-chip avatar-a" style="margin-left:0; border:none;">RC</div><span style="font-weight:600; color:var(--text);">Robert Campbell</span><span class="chip chip-orange">Lead</span></div></td>
+                        <td class="type-cell">Individual Portraits</td>
+                        <td class="count-cell" style="text-align:right;">1,763</td>
+                        <td class="count-cell" style="text-align:right;">107</td>
+                        <td class="amount-cell" id="attr-rev-rc">$4,208</td>
+                        <td class="count-cell" style="text-align:right;" id="attr-share-rc">50%</td>
+                      </tr>
+                      <tr>
+                        <td><div style="display:flex; align-items:center; gap:9px;"><div class="avatar-chip avatar-b" style="margin-left:0; border:none;">SK</div><span style="font-weight:600; color:var(--text);">Sofia Khan</span></div></td>
+                        <td class="type-cell">Riverside Raptors U12</td>
+                        <td class="count-cell" style="text-align:right;">1,204</td>
+                        <td class="count-cell" style="text-align:right;">69</td>
+                        <td class="amount-cell" id="attr-rev-sk">$2,731</td>
+                        <td class="count-cell" style="text-align:right;" id="attr-share-sk">32%</td>
+                      </tr>
+                      <tr>
+                        <td><div style="display:flex; align-items:center; gap:9px;"><div class="avatar-chip avatar-c" style="margin-left:0; border:none;">JT</div><span style="font-weight:600; color:var(--text);">James Torres</span></div></td>
+                        <td class="type-cell">Eagles U10</td>
+                        <td class="count-cell" style="text-align:right;">862</td>
+                        <td class="count-cell" style="text-align:right;">38</td>
+                        <td class="amount-cell" id="attr-rev-jt">$1,493</td>
+                        <td class="count-cell" style="text-align:right;" id="attr-share-jt">18%</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+              </div>
+
+              <!-- REPORT: ORDERS -->
+              <div class="settings-pane" id="rep-orders">
+
+                <div class="filter-row">
+                  <div class="filter-field">
+                    <span class="filter-label">Date</span>
+                    <select class="filter-select" id="fl-date" onchange="renderOrders()">
+                      <option value="all">All time</option>
+                      <option value="pre">Pre-shoot (before May 14)</option>
+                      <option value="may">May</option>
+                      <option value="jun">June</option>
+                    </select>
+                  </div>
+                  <div class="filter-field">
+                    <span class="filter-label">Folder</span>
+                    <select class="filter-select" id="fl-folder" onchange="renderOrders()">
+                      <option value="all">All folders</option>
+                      <option>Riverside Raptors U12</option>
+                      <option>Eagles U10</option>
+                      <option>Individual Portraits</option>
+                    </select>
+                  </div>
+                  <div class="filter-field">
+                    <span class="filter-label">Gallery</span>
+                    <select class="filter-select" id="fl-gallery" onchange="renderOrders()">
+                      <option value="all">All galleries</option>
+                    </select>
+                  </div>
+                  <div class="filter-field">
+                    <span class="filter-label">Photographer</span>
+                    <select class="filter-select" id="fl-photog" onchange="renderOrders()">
+                      <option value="all">All photographers</option>
+                      <option>Robert Campbell</option>
+                      <option>Sofia Khan</option>
+                      <option>James Torres</option>
+                    </select>
+                  </div>
+                  <button class="filter-clear" onclick="clearFilters()">Clear filters</button>
+                  <span class="filter-count" id="fl-count"></span>
+                </div>
+
+                <div class="gallery-table-wrap">
+                  <table class="gallery-table">
+                    <thead>
+                      <tr>
+                        <th style="width:90px;">Order</th>
+                        <th style="width:110px;">Date</th>
+                        <th>Customer</th>
+                        <th>Gallery</th>
+                        <th style="width:160px;">Folder</th>
+                        <th style="width:150px;">Photographer</th>
+                        <th style="width:100px;">Status</th>
+                        <th style="width:90px; text-align:right;">Total</th>
+                      </tr>
+                    </thead>
+                    <tbody id="orders-tbody"></tbody>
+                  </table>
+                  <div class="orders-foot">
+                    <span id="orders-sum-label">Filtered total</span>
+                    <b id="orders-sum"></b>
+                  </div>
+                </div>
+
+              </div>
+
             </div>
 
           </div><!-- /job-tab-content -->
@@ -1726,7 +3881,328 @@ html, body {
   </div>
 </div>
 
+<!-- ══════════ NEW JOB WIZARD ══════════ -->
+<div class="modal-overlay" id="modal-wizard">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">Create New Job</div>
+        <div class="modal-subtitle">A job wraps galleries, contacts, contracts and reporting into one workflow.</div>
+      </div>
+      <button class="modal-close" onclick="closeModal('modal-wizard')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <div class="wiz-steps" id="wiz-steps">
+      <div class="wiz-step active"><span class="wiz-step-num">1</span> Details</div>
+      <div class="wiz-connector"></div>
+      <div class="wiz-step"><span class="wiz-step-num">2</span> Subject Data</div>
+      <div class="wiz-connector"></div>
+      <div class="wiz-step"><span class="wiz-step-num">3</span> Team</div>
+      <div class="wiz-connector"></div>
+      <div class="wiz-step"><span class="wiz-step-num">4</span> Review</div>
+    </div>
+
+    <div class="modal-body">
+
+      <!-- STEP 1 : DETAILS -->
+      <div class="wiz-pane active" id="wiz-1">
+        <div class="f-field">
+          <label class="f-label">Job Name</label>
+          <input class="f-input" id="wz-name" placeholder="e.g. Lincoln Elementary Picture Day — Fall 2026">
+        </div>
+        <div class="f-field">
+          <label class="f-label">Organization <span class="opt">(optional)</span></label>
+          <input class="f-input" id="wz-org" placeholder="e.g. Lincoln Elementary PTA">
+        </div>
+        <div class="f-row">
+          <div class="f-field">
+            <label class="f-label">Shoot Start Date</label>
+            <input class="f-input" id="wz-date" type="date" value="2026-09-15">
+          </div>
+          <div class="f-field">
+            <label class="f-label">Shoot End Date <span class="opt">(optional)</span></label>
+            <input class="f-input" type="date">
+          </div>
+          <div class="f-field">
+            <label class="f-label">Delivery Deadline</label>
+            <input class="f-input" type="date" value="2026-09-29">
+          </div>
+        </div>
+        <div class="f-field">
+          <label class="f-label">Location</label>
+          <input class="f-input" id="wz-loc" placeholder="e.g. Lincoln Elementary Gymnasium, York, PA">
+        </div>
+        <div class="f-row">
+          <div class="f-field">
+            <label class="f-label">Primary Contact</label>
+            <input class="f-input" id="wz-contact" placeholder="Name">
+          </div>
+          <div class="f-field">
+            <label class="f-label">Contact Email</label>
+            <input class="f-input" placeholder="email@example.com">
+          </div>
+        </div>
+        <div class="f-field">
+          <label class="f-label">Notes <span class="opt">(optional)</span></label>
+          <textarea class="f-textarea" placeholder="Internal notes about this job…"></textarea>
+        </div>
+      </div>
+
+      <!-- STEP 2 : SUBJECT DATA -->
+      <div class="wiz-pane" id="wiz-2">
+        <div class="f-label" style="margin-bottom:8px;">How do you want to set up subjects and galleries?</div>
+        <div class="choice-cards">
+          <div class="choice-card selected" data-mode="csv" onclick="selectDataMode(this)">
+            <div class="choice-icon"><i class="fa-solid fa-file-csv"></i></div>
+            <div class="choice-name">Import Roster CSV</div>
+            <div class="choice-desc">Auto-generate a gallery + QR code per subject from a roster file.</div>
+          </div>
+          <div class="choice-card" data-mode="prereg" onclick="selectDataMode(this)">
+            <div class="choice-icon"><i class="fa-solid fa-qrcode"></i></div>
+            <div class="choice-name">Pre-Registration</div>
+            <div class="choice-desc">Share a link — families register themselves and can pre-order packages.</div>
+          </div>
+          <div class="choice-card" data-mode="manual" onclick="selectDataMode(this)">
+            <div class="choice-icon"><i class="fa-solid fa-folder-plus"></i></div>
+            <div class="choice-name">Start Empty</div>
+            <div class="choice-desc">Add folders and galleries manually later.</div>
+          </div>
+        </div>
+
+        <div id="wz-csv-block">
+          <div class="csv-preview">
+            <div class="csv-preview-head"><i class="fa-solid fa-circle-check"></i> fall_roster_2026.csv — 142 subjects detected <a class="gallery-name-link" style="margin-left:auto; font-weight:500;" onclick="toast('File picker would open here')">Replace file</a></div>
+            <table>
+              <thead><tr><th>Last</th><th>First</th><th>Group</th><th>Parent Email</th></tr></thead>
+              <tbody>
+                <tr><td>Abbott</td><td>Chloe</td><td>Grade 3 — Rm 112</td><td>j.abbott@yopmail.com</td></tr>
+                <tr><td>Alvarez</td><td>Mateo</td><td>Grade 1 — Rm 104</td><td>alvarez.fam@yopmail.com</td></tr>
+                <tr><td>Bennett</td><td>Ruby</td><td>Grade 5 — Rm 121</td><td>rbennett@yopmail.com</td></tr>
+                <tr><td colspan="4" style="color:var(--text-3);">+ 139 more rows…</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="wiz-info"><i class="fa-solid fa-wand-magic-sparkles"></i><div>Zenfolio will create <b>142 galleries</b> named “Last, First”, grouped into <b>6 folders</b> by Group, each with a unique <b>QR code</b> for shoot-day matching.</div></div>
+        </div>
+
+        <div id="wz-prereg-block" style="display:none;">
+          <div class="wiz-info" style="margin-top:0;"><i class="fa-solid fa-qrcode"></i><div>A registration link and QR code will be generated when the job is created. Families who register get a gallery automatically — and can <b>pre-order packages</b> if a price list is attached.</div></div>
+          <div class="f-field" style="margin-top:14px;">
+            <label class="f-label">Attach price list for pre-orders</label>
+            <select class="f-input">
+              <option>Youth Sports 2026</option>
+              <option>School Portraits — Standard</option>
+              <option>No pre-orders (registration only)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 3 : TEAM -->
+      <div class="wiz-pane" id="wiz-3">
+        <div class="f-label" style="margin-bottom:8px;">Assign photographers to this job</div>
+        <div class="check-list">
+          <div class="check-item checked" onclick="flipCheck(this)">
+            <input type="checkbox" checked>
+            <div class="avatar-chip avatar-a">RC</div>
+            <div><div class="check-name">Robert Campbell <span class="chip chip-orange" style="margin-left:6px;">Primary</span></div><div class="check-sub">robert@campbellphoto.com</div></div>
+            <div class="check-right">Owner</div>
+          </div>
+          <div class="check-item" onclick="flipCheck(this)">
+            <input type="checkbox">
+            <div class="avatar-chip avatar-b">SK</div>
+            <div><div class="check-name">Sofia Khan</div><div class="check-sub">sofia.khan@yopmail.com</div></div>
+            <div class="check-right">Sub-photographer</div>
+          </div>
+          <div class="check-item" onclick="flipCheck(this)">
+            <input type="checkbox">
+            <div class="avatar-chip avatar-c">JT</div>
+            <div><div class="check-name">James Torres</div><div class="check-sub">jtorres.photo@yopmail.com</div></div>
+            <div class="check-right">Sub-photographer</div>
+          </div>
+          <div class="check-item" onclick="flipCheck(this)">
+            <input type="checkbox">
+            <div class="avatar-chip" style="background:#B08FD8; margin-left:0; border:none;">EL</div>
+            <div><div class="check-name">Emma Liu</div><div class="check-sub">emma.liu.photo@yopmail.com</div></div>
+            <div class="check-right">Sub-photographer</div>
+          </div>
+        </div>
+        <div class="wiz-info"><i class="fa-solid fa-lock"></i><div><b>Access isolation:</b> sub-photographers only see this job's folders they're assigned to. They can upload remotely but can't view pricing, other jobs, or business reports.</div></div>
+      </div>
+
+      <!-- STEP 4 : REVIEW -->
+      <div class="wiz-pane" id="wiz-4">
+        <div class="f-label" style="margin-bottom:8px;">Automation presets</div>
+        <div style="border:1px solid var(--line); border-radius:var(--r-sm); padding:0 14px; margin-bottom:18px;">
+          <div class="toggle-row">
+            <div><div class="toggle-row-title">Auto-share when uploads complete</div><div class="toggle-row-desc">Share each gallery with its contacts once marked Upload Complete.</div></div>
+            <button class="toggle on" onclick="flipToggle(this)"></button>
+          </div>
+          <div class="toggle-row">
+            <div><div class="toggle-row-title">“Photos are ready” email</div><div class="toggle-row-desc">Notify contacts automatically when their gallery is shared.</div></div>
+            <button class="toggle on" onclick="flipToggle(this)"></button>
+          </div>
+          <div class="toggle-row">
+            <div><div class="toggle-row-title">7-day promo nudge</div><div class="toggle-row-desc">Send a promo code to contacts who haven't ordered a week after sharing.</div></div>
+            <button class="toggle" onclick="flipToggle(this)"></button>
+          </div>
+        </div>
+        <div class="f-label" style="margin-bottom:8px;">Review</div>
+        <div class="review-list" id="wz-review"></div>
+      </div>
+
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-ghost-sm" id="wiz-back" onclick="wizNav(-1)" style="visibility:hidden;">Back</button>
+      <div class="spacer"></div>
+      <span style="font-size:12px; color:var(--text-3);" id="wiz-count">Step 1 of 4</span>
+      <button class="btn btn-brand" id="wiz-next" onclick="wizNav(1)">Next <i class="fa-solid fa-arrow-right" style="font-size:11px;"></i></button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ ASSIGN PHOTOGRAPHER MODAL ══════════ -->
+<div class="modal-overlay" id="modal-assign">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">Assign Photographer</div>
+        <div class="modal-subtitle">They'll get an invite with a remote upload link scoped to this job.</div>
+      </div>
+      <button class="modal-close" onclick="closeModal('modal-assign')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="check-list">
+        <div class="check-item checked" onclick="flipCheck(this)">
+          <input type="checkbox" checked>
+          <div class="avatar-chip" style="background:#B08FD8; margin-left:0; border:none;">EL</div>
+          <div><div class="check-name">Emma Liu</div><div class="check-sub">emma.liu.photo@yopmail.com</div></div>
+        </div>
+        <div class="check-item" onclick="flipCheck(this)">
+          <input type="checkbox">
+          <div class="avatar-chip" style="background:#5B8DB8; margin-left:0; border:none;">DO</div>
+          <div><div class="check-name">David Osei</div><div class="check-sub">d.osei@yopmail.com</div></div>
+        </div>
+        <div class="check-item" onclick="flipCheck(this)">
+          <input type="checkbox">
+          <div class="avatar-chip" style="background:#C99A2E; margin-left:0; border:none;">+</div>
+          <div><div class="check-name">Invite by email…</div><div class="check-sub">Send an invite to someone outside your team</div></div>
+        </div>
+      </div>
+      <div class="f-field" style="margin-top:16px;">
+        <label class="f-label">Assign to</label>
+        <select class="f-input">
+          <option>Entire job (all folders)</option>
+          <option>Riverside Raptors U12</option>
+          <option>Eagles U10</option>
+          <option>Individual Portraits</option>
+        </select>
+      </div>
+      <div class="f-label" style="margin-bottom:6px;">Permissions</div>
+      <div class="perm-list">
+        <label class="perm-item"><input type="checkbox" checked disabled> Upload to assigned folders <span class="perm-note">Always on for sub-photographers</span></label>
+        <label class="perm-item"><input type="checkbox" checked> View their own sales attribution</label>
+        <label class="perm-item"><input type="checkbox"> Manage gallery settings in assigned folders</label>
+        <label class="perm-item locked"><input type="checkbox" disabled> Access other jobs, pricing or business reports <span class="perm-note"><i class="fa-solid fa-lock" style="font-size:10px;"></i> Blocked by access isolation</span></label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div class="spacer"></div>
+      <button class="btn btn-ghost-sm" onclick="closeModal('modal-assign')">Cancel</button>
+      <button class="btn btn-brand" onclick="assignPhotographer()">Send Invite &amp; Assign</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ NEW AUTOMATION MODAL ══════════ -->
+<div class="modal-overlay" id="modal-rule">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">New Automation</div>
+        <div class="modal-subtitle">Build a logic rule for this job.</div>
+      </div>
+      <button class="modal-close" onclick="closeModal('modal-rule')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="f-field">
+        <label class="f-label"><span class="rule-kw when">WHEN</span> this happens</label>
+        <select class="f-input" id="rule-when" onchange="updateRuleSentence()">
+          <option>All galleries in a folder are marked Upload Complete</option>
+          <option>A gallery is shared</option>
+          <option>A number of days pass after a gallery is shared</option>
+          <option>A gallery is viewed for the first time</option>
+          <option>A new pre-registration is received</option>
+          <option>A new order is placed</option>
+          <option>Job phase changes to Delivered</option>
+        </select>
+      </div>
+      <div class="f-field" id="rule-days-field" style="display:none;">
+        <label class="f-label">Number of days</label>
+        <input class="f-input" id="rule-days" type="number" value="7" min="1" onchange="updateRuleSentence()" oninput="updateRuleSentence()">
+      </div>
+      <div class="f-field">
+        <label class="f-label"><span class="rule-kw then">THEN</span> do this</label>
+        <select class="f-input" id="rule-then" onchange="updateRuleSentence()">
+          <option>Share galleries with their linked contacts</option>
+          <option>Send the “Your photos are ready” email</option>
+          <option>Send a 10% off promo code</option>
+          <option>Notify the primary photographer</option>
+          <option>Notify the assigned sub-photographer</option>
+          <option>Expire gallery access and archive the job</option>
+          <option>Move job to the next phase</option>
+        </select>
+      </div>
+      <div class="f-label" style="margin-bottom:5px;">Rule preview</div>
+      <div class="builder-sentence" id="rule-sentence"></div>
+    </div>
+    <div class="modal-footer">
+      <div class="spacer"></div>
+      <button class="btn btn-ghost-sm" onclick="closeModal('modal-rule')">Cancel</button>
+      <button class="btn btn-brand" onclick="createRule()">Create Automation</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ KEBAB MENUS ══════════ -->
+<div class="menu-pop" id="menu-gallery">
+  <div class="menu-pop-item" onclick="menuAction('Move')"><i class="fa-solid fa-folder-tree"></i> Move</div>
+  <div class="menu-pop-item" onclick="menuAction('Apply Preset')"><i class="fa-solid fa-wand-magic-sparkles"></i> Apply Preset</div>
+  <div class="menu-pop-item" onclick="menuAction('Update Price List')"><i class="fa-solid fa-tag"></i> Update Price List</div>
+  <div class="menu-pop-item danger" onclick="menuAction('Delete')"><i class="fa-solid fa-trash-can"></i> Delete</div>
+</div>
+
+<div class="menu-pop" id="menu-bulk">
+  <div class="menu-pop-item" onclick="menuAction('Move')"><i class="fa-solid fa-folder-tree"></i> Move</div>
+  <div class="menu-pop-item" onclick="menuAction('Apply Preset')"><i class="fa-solid fa-wand-magic-sparkles"></i> Apply Preset</div>
+  <div class="menu-pop-item" onclick="menuAction('Update Price List')"><i class="fa-solid fa-tag"></i> Update Price List</div>
+  <div class="menu-pop-item danger" onclick="menuAction('Delete')"><i class="fa-solid fa-trash-can"></i> Delete</div>
+</div>
+
+<div class="menu-pop" id="menu-contact">
+  <div class="menu-pop-item" onclick="menuAction('Edit contact')"><i class="fa-solid fa-pencil"></i> Edit</div>
+  <div class="menu-pop-item" onclick="menuAction('Resend gallery link')"><i class="fa-solid fa-paper-plane"></i> Resend gallery link</div>
+  <div class="menu-pop-item danger" onclick="menuAction('Remove from job')"><i class="fa-solid fa-user-minus"></i> Remove from job</div>
+</div>
+
+<div class="menu-pop" id="menu-team">
+  <div class="menu-pop-item" onclick="menuAction('Edit assignment')"><i class="fa-solid fa-pencil"></i> Edit assignment</div>
+  <div class="menu-pop-item" onclick="menuAction('Copy upload link')"><i class="fa-solid fa-link"></i> Copy upload link</div>
+  <div class="menu-pop-item danger" onclick="menuAction('Remove from job')"><i class="fa-solid fa-user-minus"></i> Remove from job</div>
+</div>
+
+<div class="menu-pop" id="menu-doc">
+  <div class="menu-pop-item" onclick="menuAction('Download')"><i class="fa-solid fa-download"></i> Download</div>
+  <div class="menu-pop-item" onclick="menuAction('Rename')"><i class="fa-solid fa-pencil"></i> Rename</div>
+  <div class="menu-pop-item danger" onclick="menuAction('Delete')"><i class="fa-solid fa-trash-can"></i> Delete</div>
+</div>
+
+<div class="toast" id="toast"><i class="fa-solid fa-circle-check"></i><span id="toast-msg"></span></div>
+<div class="chart-tip" id="chart-tip"></div>
+
 <script>
+/* ══════════ VIEW / TAB SWITCHING ══════════ */
 function showView(id) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.getElementById(id).classList.add('active');
@@ -1740,6 +4216,507 @@ function switchJobTab(el, panelId) {
   document.getElementById(panelId).classList.add('active');
   document.querySelector('.content-area').scrollTop = 0;
 }
+
+function switchJobTabById(panelId) {
+  const tab = document.querySelector('.job-tab[data-panel="' + panelId + '"]');
+  if (tab) switchJobTab(tab, panelId);
+}
+
+function switchReport(el, paneId) {
+  document.querySelectorAll('#tab-reports .subtab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('#tab-reports .settings-pane').forEach(p => p.classList.remove('active'));
+  document.getElementById(paneId).classList.add('active');
+}
+
+function switchSettings(el, paneId) {
+  document.querySelectorAll('#tab-settings .settings-nav-item').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('#tab-settings .settings-pane').forEach(p => p.classList.remove('active'));
+  document.getElementById(paneId).classList.add('active');
+}
+
+/* ══════════ SMALL UI HELPERS ══════════ */
+function setText(id, v) { const el = document.getElementById(id); if (el) el.textContent = v; }
+
+let toastTimer = null;
+function toast(msg) {
+  setText('toast-msg', msg);
+  const t = document.getElementById('toast');
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+function flipToggle(btn) { btn.classList.toggle('on'); }
+
+function selectChoice(el) {
+  el.parentElement.querySelectorAll('.choice-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function flipCheck(el) {
+  el.classList.toggle('checked');
+  el.querySelector('input').checked = el.classList.contains('checked');
+}
+
+/* Modals */
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+document.querySelectorAll('.modal-overlay').forEach(ov => {
+  ov.addEventListener('click', e => { if (e.target === ov) ov.classList.remove('open'); });
+});
+
+/* Kebab menus */
+function openMenu(e, id) {
+  e.stopPropagation();
+  document.querySelectorAll('.menu-pop').forEach(m => m.classList.remove('open'));
+  const m = document.getElementById(id);
+  m.classList.add('open');
+  const w = m.offsetWidth, h = m.offsetHeight;
+  let x = Math.min(e.clientX, window.innerWidth - w - 12);
+  let y = e.clientY + 8;
+  if (y + h > window.innerHeight - 12) y = e.clientY - h - 8;
+  m.style.left = x + 'px';
+  m.style.top = y + 'px';
+}
+
+function menuAction(label) {
+  document.querySelectorAll('.menu-pop').forEach(m => m.classList.remove('open'));
+  toast(label + ' — mocked in prototype');
+}
+
+document.addEventListener('click', () => {
+  document.querySelectorAll('.menu-pop').forEach(m => m.classList.remove('open'));
+});
+
+/* Chart tooltip */
+function tipShow(e, text) {
+  const t = document.getElementById('chart-tip');
+  t.textContent = text;
+  t.classList.add('show');
+  tipMove(e);
+}
+function tipMove(e) {
+  const t = document.getElementById('chart-tip');
+  t.style.left = Math.min(e.clientX + 12, window.innerWidth - t.offsetWidth - 8) + 'px';
+  t.style.top = (e.clientY - 32) + 'px';
+}
+function tipHide() { document.getElementById('chart-tip').classList.remove('show'); }
+
+/* ══════════ MOCK DATA — 214 deterministic orders ══════════ */
+function mulberry32(a) {
+  return function() {
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+const rnd = mulberry32(42);
+const pick = arr => arr[Math.floor(rnd() * arr.length)];
+
+const FIRSTS = ['Jordan','Marcus','Aiden','Lily','Ethan','Maya','Chloe','Mateo','Ruby','Owen','Zoe','Liam','Ella','Noah','Ava','Lucas','Mia','Caleb','Nora','Dylan','Isla','Ryan','Sofia','Evan'];
+const LASTS  = ['Smith','Williams','Johnson','Davis','Martinez','Thompson','Abbott','Alvarez','Bennett','Carter','Diaz','Evans','Foster','Garcia','Hughes','Ingram','Jenkins','Keller','Lopez','Mason','Nolan','Ortiz','Price','Quinn'];
+const BUYERS = ['Dana','Priya','Tom','Grace','Luis','Ana','Karen','Mike','Sarah','Jen','Carlos','Beth','Raj','Emily','Sam','Kate','Paul','Nina','Alex','Laura'];
+
+const BUCKETS = [
+  { photog: 'Robert Campbell', folder: 'Individual Portraits',   n: 107, pre: 19 },
+  { photog: 'Sofia Khan',      folder: 'Riverside Raptors U12',  n: 69,  pre: 12 },
+  { photog: 'James Torres',    folder: 'Eagles U10',             n: 38,  pre: 7  }
+];
+
+/* Pre-order amounts match the package table exactly: 21×$25 + 11×$35 + 6×$55 = $1,240 */
+const PRE_AMTS = [].concat(Array(21).fill(25), Array(11).fill(35), Array(6).fill(55));
+for (let i = PRE_AMTS.length - 1; i > 0; i--) {
+  const j = Math.floor(rnd() * (i + 1));
+  [PRE_AMTS[i], PRE_AMTS[j]] = [PRE_AMTS[j], PRE_AMTS[i]];
+}
+const GAL_AMTS = [25, 29, 35, 39, 45, 49, 55, 65, 79];
+const STATUSES = ['Completed','Completed','Completed','Completed','Completed','Completed','Processing','Completed'];
+
+const ORDERS = [];
+let oid = 1841, preIdx = 0;
+BUCKETS.forEach(b => {
+  for (let i = 0; i < b.n; i++) {
+    const isPre = i < b.pre;
+    const last = pick(LASTS), first = pick(FIRSTS);
+    ORDERS.push({
+      id: '#' + (oid++),
+      m: isPre ? 4 : 5,
+      d: isPre ? 1 + Math.floor(rnd() * 13) : 2 + Math.floor(rnd() * 19),
+      pre: isPre,
+      customer: pick(BUYERS) + ' ' + last,
+      gallery: last + ', ' + first,
+      folder: b.folder,
+      photog: b.photog,
+      status: pick(STATUSES),
+      amt: isPre ? PRE_AMTS[preIdx++] : pick(GAL_AMTS)
+    });
+  }
+});
+ORDERS.sort((a, b) => (b.m - a.m) || (b.d - a.d));
+
+const MONTH_NAME = { 4: 'May', 5: 'Jun' };
+const fmtDate = o => MONTH_NAME[o.m] + ' ' + o.d + ', 2026';
+const fmt$ = v => '$' + Math.round(v).toLocaleString();
+
+/* ══════════ COMPUTED STATS + CHARTS ══════════ */
+function computeAll() {
+  const total = ORDERS.reduce((s, o) => s + o.amt, 0);
+  const per = {};
+  ORDERS.forEach(o => { per[o.photog] = (per[o.photog] || 0) + o.amt; });
+  const rc = per['Robert Campbell'], sk = per['Sofia Khan'], jt = per['James Torres'];
+
+  setText('ov-revenue', fmt$(total));
+  setText('rp-revenue', fmt$(total));
+  setText('rp-aov', '$' + (total / ORDERS.length).toFixed(2));
+  setText('attr-rev-rc', fmt$(rc)); setText('attr-share-rc', Math.round(rc / total * 100) + '%');
+  setText('attr-rev-sk', fmt$(sk)); setText('attr-share-sk', Math.round(sk / total * 100) + '%');
+  setText('attr-rev-jt', fmt$(jt)); setText('attr-share-jt', Math.round(jt / total * 100) + '%');
+  setText('sales-rc', fmt$(rc)); setText('sales-sk', fmt$(sk)); setText('sales-jt', fmt$(jt));
+
+  /* Photographer attribution bars */
+  renderHBars('attr-bars', [
+    { name: 'Robert Campbell', chip: '<div class="avatar-chip avatar-a" style="margin-left:0; border:none; width:22px; height:22px; font-size:9px;">RC</div>', val: rc },
+    { name: 'Sofia Khan',      chip: '<div class="avatar-chip avatar-b" style="margin-left:0; border:none; width:22px; height:22px; font-size:9px;">SK</div>', val: sk },
+    { name: 'James Torres',    chip: '<div class="avatar-chip avatar-c" style="margin-left:0; border:none; width:22px; height:22px; font-size:9px;">JT</div>', val: jt }
+  ]);
+
+  /* Folder bars */
+  const perF = {};
+  ORDERS.forEach(o => { perF[o.folder] = (perF[o.folder] || 0) + o.amt; });
+  renderHBars('folder-bars', Object.keys(perF).map(f => ({
+    name: f,
+    chip: '<i class="fa-solid fa-folder" style="color:var(--text-3); font-size:12px;"></i>',
+    val: perF[f]
+  })).sort((a, b) => b.val - a.val));
+
+  /* Orders per week columns */
+  const WEEKS = [
+    { label: 'May 1',  test: o => o.m === 4 && o.d <= 7 },
+    { label: 'May 8',  test: o => o.m === 4 && o.d >= 8 && o.d <= 14 },
+    { label: 'May 15', test: o => o.m === 4 && o.d >= 15 && o.d <= 21 },
+    { label: 'May 22', test: o => o.m === 4 && o.d >= 22 && o.d <= 28 },
+    { label: 'May 29', test: o => (o.m === 4 && o.d >= 29) || (o.m === 5 && o.d <= 4) },
+    { label: 'Jun 5',  test: o => o.m === 5 && o.d >= 5 && o.d <= 11 },
+    { label: 'Jun 12', test: o => o.m === 5 && o.d >= 12 && o.d <= 18 },
+    { label: 'Jun 19', test: o => o.m === 5 && o.d >= 19 && o.d <= 25 }
+  ];
+  const counts = WEEKS.map(w => ORDERS.filter(w.test).length);
+  const maxC = Math.max.apply(null, counts);
+  const colsEl = document.getElementById('orders-cols');
+  const xEl = document.getElementById('orders-cols-x');
+  if (colsEl) {
+    colsEl.innerHTML = counts.map((c, i) => {
+      const showCap = c === maxC || i === counts.length - 1;
+      return '<div class="col-slot" onmouseenter="tipShow(event, \'Week of ' + WEEKS[i].label + ' — ' + c + ' orders\')" onmousemove="tipMove(event)" onmouseleave="tipHide()">' +
+        (showCap ? '<div class="col-cap">' + c + '</div>' : '') +
+        '<div class="col-bar" style="height:' + Math.max(c / maxC * 100, 2) + '%;"></div></div>';
+    }).join('');
+    xEl.innerHTML = WEEKS.map(w => '<span>' + w.label + '</span>').join('');
+  }
+}
+
+function renderHBars(elId, rows) {
+  const el = document.getElementById(elId);
+  if (!el) return;
+  const max = Math.max.apply(null, rows.map(r => r.val));
+  el.innerHTML = rows.map(r =>
+    '<div class="hbar-row" onmouseenter="tipShow(event, \'' + r.name + ' — ' + fmt$(r.val) + '\')" onmousemove="tipMove(event)" onmouseleave="tipHide()">' +
+      '<div class="hbar-name">' + r.chip + r.name + '</div>' +
+      '<div class="hbar-track"><div class="hbar-fill" style="width:' + (r.val / max * 100) + '%;"></div></div>' +
+      '<div class="hbar-val">' + fmt$(r.val) + '</div>' +
+    '</div>'
+  ).join('');
+}
+
+/* ══════════ ORDERS TABLE + FILTERS ══════════ */
+const fval = id => document.getElementById(id).value;
+
+function populateGalleryFilter() {
+  const sel = document.getElementById('fl-gallery');
+  if (!sel) return;
+  const seen = [];
+  ORDERS.forEach(o => { if (seen.indexOf(o.gallery) < 0) seen.push(o.gallery); });
+  seen.sort().slice(0, 18).forEach(g => {
+    const op = document.createElement('option');
+    op.textContent = g;
+    sel.appendChild(op);
+  });
+}
+
+function renderOrders() {
+  const d = fval('fl-date'), f = fval('fl-folder'), g = fval('fl-gallery'), p = fval('fl-photog');
+  const rows = ORDERS.filter(o => {
+    if (d === 'pre' && !o.pre) return false;
+    if (d === 'may' && o.m !== 4) return false;
+    if (d === 'jun' && o.m !== 5) return false;
+    if (f !== 'all' && o.folder !== f) return false;
+    if (g !== 'all' && o.gallery !== g) return false;
+    if (p !== 'all' && o.photog !== p) return false;
+    return true;
+  });
+  const sum = rows.reduce((s, o) => s + o.amt, 0);
+  const show = rows.slice(0, 50);
+  document.getElementById('orders-tbody').innerHTML = show.map(o =>
+    '<tr>' +
+      '<td style="font-weight:600; color:var(--text);">' + o.id + '</td>' +
+      '<td class="modified-cell">' + fmtDate(o) + '</td>' +
+      '<td>' + o.customer + '</td>' +
+      '<td><a class="gallery-name-link">' + o.gallery + '</a></td>' +
+      '<td class="type-cell">' + o.folder + '</td>' +
+      '<td class="type-cell">' + o.photog + '</td>' +
+      '<td>' + (o.pre ? '<span class="chip chip-orange">Pre-order</span>' : (o.status === 'Completed' ? '<span class="chip chip-teal">Completed</span>' : '<span class="chip chip-gray">Processing</span>')) + '</td>' +
+      '<td class="amount-cell">' + fmt$(o.amt) + '</td>' +
+    '</tr>'
+  ).join('');
+  setText('fl-count', rows.length + ' of ' + ORDERS.length + ' orders match');
+  setText('orders-sum-label', 'Showing ' + show.length + ' of ' + rows.length + ' orders');
+  setText('orders-sum', rows.length + ' orders · ' + fmt$(sum));
+}
+
+function clearFilters() {
+  ['fl-date','fl-folder','fl-gallery','fl-photog'].forEach(id => { document.getElementById(id).selectedIndex = 0; });
+  renderOrders();
+}
+
+/* ══════════ NEW JOB WIZARD ══════════ */
+let wizStep = 1, wizMode = 'csv';
+
+function openWizard() {
+  wizStep = 1;
+  wizPaint();
+  openModal('modal-wizard');
+}
+
+function selectDataMode(el) {
+  selectChoice(el);
+  wizMode = el.dataset.mode;
+  document.getElementById('wz-csv-block').style.display = wizMode === 'csv' ? 'block' : 'none';
+  document.getElementById('wz-prereg-block').style.display = wizMode === 'prereg' ? 'block' : 'none';
+}
+
+function wizNav(dir) {
+  if (dir === 1 && wizStep === 4) { createJob(); return; }
+  wizStep = Math.min(4, Math.max(1, wizStep + dir));
+  wizPaint();
+}
+
+function wizPaint() {
+  for (let i = 1; i <= 4; i++) {
+    document.getElementById('wiz-' + i).classList.toggle('active', i === wizStep);
+  }
+  const steps = document.querySelectorAll('#wiz-steps .wiz-step');
+  steps.forEach((s, idx) => {
+    s.classList.toggle('active', idx + 1 === wizStep);
+    s.classList.toggle('done', idx + 1 < wizStep);
+  });
+  document.getElementById('wiz-back').style.visibility = wizStep === 1 ? 'hidden' : 'visible';
+  setText('wiz-count', 'Step ' + wizStep + ' of 4');
+  document.getElementById('wiz-next').innerHTML = wizStep === 4
+    ? 'Create Job <i class="fa-solid fa-check" style="font-size:11px;"></i>'
+    : 'Next <i class="fa-solid fa-arrow-right" style="font-size:11px;"></i>';
+  if (wizStep === 4) buildReview();
+}
+
+function buildReview() {
+  const name = fval('wz-name') || 'Untitled Job';
+  const org = fval('wz-org') || '—';
+  const date = fval('wz-date') || '—';
+  const loc = fval('wz-loc') || '—';
+  const contact = fval('wz-contact') || '—';
+  const teamN = document.querySelectorAll('#wiz-3 .check-item.checked').length;
+  const modeTxt = {
+    csv: 'Roster CSV — 142 galleries + QR codes will be generated',
+    prereg: 'Pre-registration link with pre-orders enabled',
+    manual: 'Start empty — add galleries manually'
+  }[wizMode];
+  document.getElementById('wz-review').innerHTML =
+    '<div class="review-row"><span class="review-key">Job Name</span><span class="review-val">' + name + '</span></div>' +
+    '<div class="review-row"><span class="review-key">Organization</span><span class="review-val">' + org + '</span></div>' +
+    '<div class="review-row"><span class="review-key">Shoot Date</span><span class="review-val">' + date + '</span></div>' +
+    '<div class="review-row"><span class="review-key">Location</span><span class="review-val">' + loc + '</span></div>' +
+    '<div class="review-row"><span class="review-key">Primary Contact</span><span class="review-val">' + contact + '</span></div>' +
+    '<div class="review-row"><span class="review-key">Subject Data</span><span class="review-val">' + modeTxt + '</span></div>' +
+    '<div class="review-row"><span class="review-key">Team</span><span class="review-val">' + teamN + ' photographer' + (teamN === 1 ? '' : 's') + ' assigned</span></div>';
+}
+
+function createJob() {
+  const name = fval('wz-name') || 'Untitled Job';
+  const loc = fval('wz-loc') || 'Location TBD';
+  const rawDate = fval('wz-date');
+  let dateTxt = 'Date TBD';
+  if (rawDate) {
+    const parts = rawDate.split('-');
+    const mn = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][parseInt(parts[1], 10) - 1];
+    dateTxt = mn + ' ' + parseInt(parts[2], 10) + ', ' + parts[0];
+  }
+  const galleries = wizMode === 'csv' ? '142 galleries' : '0 galleries';
+  const card =
+    '<div class="job-card" style="cursor:pointer;" onclick="showView(\'view-job-detail\')">' +
+      '<span class="job-status-pill pill-planning">Planning</span>' +
+      '<div class="job-info">' +
+        '<div class="job-name">' + name + '</div>' +
+        '<div class="job-meta">' +
+          '<div class="job-meta-row shoot-date"><i class="fa-solid fa-camera"></i> Shoot: ' + dateTxt + '</div>' +
+          '<div class="job-meta-row"><i class="fa-solid fa-location-dot"></i> ' + loc + '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="phase-tracker">' +
+        '<div class="phase-step active"><div class="phase-dot"><i class="fa-solid fa-gear"></i></div><div class="phase-label">Setup</div></div>' +
+        '<div class="phase-step upcoming"><div class="phase-dot"><i class="fa-solid fa-camera"></i></div><div class="phase-label">Shoot Day</div></div>' +
+        '<div class="phase-step upcoming"><div class="phase-dot"><i class="fa-solid fa-arrow-up"></i></div><div class="phase-label">Upload</div></div>' +
+        '<div class="phase-step upcoming"><div class="phase-dot"><i class="fa-solid fa-share-nodes"></i></div><div class="phase-label">Delivered</div></div>' +
+      '</div>' +
+      '<div class="job-right">' +
+        '<div class="avatar-stack"><div class="avatar-chip avatar-a">RC</div></div>' +
+        '<div class="job-right-bottom">' +
+          '<div class="gallery-count"><i class="fa-regular fa-images" style="margin-right:4px;"></i>' + galleries + '</div>' +
+          '<button class="chevron-btn"><i class="fa-solid fa-chevron-right"></i></button>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  document.querySelector('.jobs-list').insertAdjacentHTML('afterbegin', card);
+  closeModal('modal-wizard');
+  showView('view-jobs-list');
+  toast(wizMode === 'csv'
+    ? 'Job created — 142 galleries and QR codes generated'
+    : (wizMode === 'prereg' ? 'Job created — registration link is live' : 'Job created'));
+}
+
+/* ══════════ TEAM ══════════ */
+function assignPhotographer() {
+  const row =
+    '<tr>' +
+      '<td><div class="avatar-chip" style="background:#B08FD8; margin-left:0; border:none;">EL</div></td>' +
+      '<td><div style="font-weight:600; color:var(--text);">Emma Liu</div>' +
+      '<div style="font-size:11.5px; color:var(--text-3);">emma.liu.photo@yopmail.com</div></td>' +
+      '<td class="type-cell"><i class="fa-solid fa-folder" style="margin-right:5px; color:var(--text-3);"></i>Individual Portraits</td>' +
+      '<td class="count-cell col-photos">0</td>' +
+      '<td class="amount-cell">$0</td>' +
+      '<td><span class="chip chip-orange">Invited</span></td>' +
+      '<td class="col-actions"><button class="kebab-btn" onclick="openMenu(event,\'menu-team\')"><i class="fa-solid fa-ellipsis"></i></button></td>' +
+    '</tr>';
+  document.getElementById('team-tbody').insertAdjacentHTML('beforeend', row);
+  closeModal('modal-assign');
+  toast('Invite sent — Emma Liu can now upload to this job only');
+}
+
+/* ══════════ CONTACTS ══════════ */
+function addContact() {
+  const f = fval('nc-first'), l = fval('nc-last'), e = fval('nc-email'), m = fval('nc-mobile');
+  if (!f && !l) { toast('Enter at least a name to add a contact'); return; }
+  const row =
+    '<tr>' +
+      '<td><input type="checkbox"></td>' +
+      '<td style="font-weight:500; color:var(--text);">' + (f || '—') + '</td>' +
+      '<td>' + (l || '—') + '</td>' +
+      '<td>' + (e || '—') + '</td>' +
+      '<td>' + (m || '—') + '</td>' +
+      '<td><a class="gallery-name-link">—</a></td>' +
+      '<td><span class="chip chip-gray">Manual</span></td>' +
+      '<td class="col-actions"><button class="kebab-btn" onclick="openMenu(event,\'menu-contact\')"><i class="fa-solid fa-ellipsis"></i></button></td>' +
+    '</tr>';
+  document.getElementById('contacts-tbody').insertAdjacentHTML('afterbegin', row);
+  ['nc-first','nc-last','nc-email','nc-mobile'].forEach(id => document.getElementById(id).value = '');
+  toast('Contact added to job');
+}
+
+/* ══════════ DOCUMENTS ══════════ */
+let docCount = 3;
+function uploadDocument() {
+  docCount++;
+  const row =
+    '<tr>' +
+      '<td><div class="doc-icon"><i class="fa-solid fa-file-pdf"></i></div></td>' +
+      '<td><div style="font-weight:600; color:var(--text);">Model_Release_RiversideYSA_v' + (docCount - 2) + '.pdf</div>' +
+      '<div style="font-size:11.5px; color:var(--text-3);">Uploaded by Robert Campbell</div></td>' +
+      '<td class="type-cell">Release</td>' +
+      '<td class="modified-cell">Jun 3, 2026</td>' +
+      '<td class="count-cell" style="text-align:right;">512 KB</td>' +
+      '<td><span class="chip chip-gray">Reference</span></td>' +
+      '<td class="col-actions"><button class="kebab-btn" onclick="openMenu(event,\'menu-doc\')"><i class="fa-solid fa-ellipsis"></i></button></td>' +
+    '</tr>';
+  document.getElementById('docs-tbody').insertAdjacentHTML('beforeend', row);
+  setText('docs-count', docCount + ' documents');
+  toast('Document uploaded and attached to job');
+}
+
+/* ══════════ AUTOMATION ══════════ */
+function updateRuleSentence() {
+  const whenSel = document.getElementById('rule-when');
+  const thenSel = document.getElementById('rule-then');
+  if (!whenSel) return;
+  const needsDays = whenSel.value.indexOf('days pass') >= 0;
+  document.getElementById('rule-days-field').style.display = needsDays ? 'flex' : 'none';
+  let whenTxt = whenSel.value;
+  if (needsDays) {
+    whenTxt = '<b>' + (fval('rule-days') || '7') + ' days</b> after a gallery is shared';
+  }
+  document.getElementById('rule-sentence').innerHTML =
+    '<span class="rule-kw when">WHEN</span> ' + whenTxt + ' <span class="rule-kw then">THEN</span> <b>' + thenSel.value + '</b>';
+}
+
+function createRule() {
+  const thenVal = fval('rule-then');
+  const icon = thenVal.indexOf('Share') >= 0 ? 'fa-share-nodes'
+    : thenVal.indexOf('email') >= 0 ? 'fa-envelope'
+    : thenVal.indexOf('promo') >= 0 ? 'fa-tag'
+    : thenVal.indexOf('Notify') >= 0 ? 'fa-bell'
+    : thenVal.indexOf('Expire') >= 0 ? 'fa-hourglass-half'
+    : 'fa-arrow-right';
+  const card =
+    '<div class="rule-card">' +
+      '<div class="rule-icon"><i class="fa-solid ' + icon + '"></i></div>' +
+      '<div class="rule-body">' +
+        '<div class="rule-sentence">' + document.getElementById('rule-sentence').innerHTML + '</div>' +
+        '<div class="rule-meta">New rule · has not run yet</div>' +
+      '</div>' +
+      '<div class="rule-actions"><span class="chip chip-teal">Active</span><button class="toggle on" onclick="flipRule(this)"></button></div>' +
+    '</div>';
+  document.getElementById('rules-list').insertAdjacentHTML('afterbegin', card);
+  closeModal('modal-rule');
+  toast('Automation created and active');
+}
+
+function flipRule(btn) {
+  btn.classList.toggle('on');
+  const card = btn.closest('.rule-card');
+  const chip = card.querySelector('.rule-actions .chip');
+  const on = btn.classList.contains('on');
+  card.classList.toggle('off', !on);
+  chip.className = 'chip ' + (on ? 'chip-teal' : 'chip-gray');
+  chip.textContent = on ? 'Active' : 'Paused';
+}
+
+/* ══════════ QR MOCK ══════════ */
+function renderQR() {
+  const svg = document.getElementById('qr-svg');
+  if (!svg) return;
+  const r = mulberry32(7);
+  let cells = '';
+  for (let y = 0; y < 29; y++) {
+    for (let x = 0; x < 29; x++) {
+      const inFinder = (x < 8 && y < 8) || (x > 20 && y < 8) || (x < 8 && y > 20);
+      if (!inFinder && r() > 0.55) {
+        cells += '<rect x="' + x + '" y="' + y + '" width="1" height="1" fill="#1D1D1F"/>';
+      }
+    }
+  }
+  const finder = (fx, fy) =>
+    '<rect x="' + (fx + 0.5) + '" y="' + (fy + 0.5) + '" width="6" height="6" fill="none" stroke="#1D1D1F" stroke-width="1"/>' +
+    '<rect x="' + (fx + 2) + '" y="' + (fy + 2) + '" width="3" height="3" fill="#1D1D1F"/>';
+  svg.innerHTML = cells + finder(0, 0) + finder(22, 0) + finder(0, 22);
+}
+
+/* ══════════ INIT ══════════ */
+renderQR();
+computeAll();
+populateGalleryFilter();
+renderOrders();
+updateRuleSentence();
 </script>
 
 </body>
