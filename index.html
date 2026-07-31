@@ -1,0 +1,1746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NextZen — Jobs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --orange:   #F26B3A;
+  --teal:     #2DB3A6;
+  --bg:       #F5F5F7;
+  --surface:  #FFFFFF;
+  --text:     #1D1D1F;
+  --text-2:   #424247;
+  --text-3:   #86868B;
+  --line:     #E8E8ED;
+  --nav-bg:   #1D1D1F;
+
+  --r-xs: 6px;
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-lg: 20px;
+  --r-xl: 28px;
+
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.10);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+
+  --nav-width: 60px;
+  --topbar-height: 56px;
+}
+
+html, body {
+  height: 100%;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ──────────────────────────────────────
+   APP SHELL
+────────────────────────────────────── */
+.app-shell {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ──────────────────────────────────────
+   LEFT NAV
+────────────────────────────────────── */
+.left-nav {
+  width: var(--nav-width);
+  min-width: var(--nav-width);
+  height: 100vh;
+  background: var(--nav-bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 0;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 100;
+}
+
+.nav-logo {
+  width: 32px;
+  height: 32px;
+  background: var(--orange);
+  border-radius: var(--r-xs);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+  flex-shrink: 0;
+}
+
+.nav-logo svg {
+  width: 18px;
+  height: 18px;
+  fill: #fff;
+}
+
+.nav-items {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  width: 100%;
+  flex: 1;
+}
+
+.nav-spacer { flex: 1; }
+
+.nav-item {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  cursor: pointer;
+  color: var(--text-3);
+  font-size: 16px;
+  transition: color 0.15s ease;
+  border-left: 3px solid transparent;
+}
+
+.nav-item:hover { color: #FFFFFF; }
+
+.nav-item.active {
+  color: var(--orange);
+  border-left-color: var(--orange);
+}
+
+.nav-item i { pointer-events: none; }
+
+.nav-item::after {
+  content: attr(data-label);
+  position: absolute;
+  left: calc(var(--nav-width) + 8px);
+  top: 50%;
+  transform: translateY(-50%);
+  background: #2C2C2E;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  padding: 5px 10px;
+  border-radius: var(--r-xs);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  z-index: 200;
+}
+
+.nav-item:hover::after { opacity: 1; }
+
+/* ──────────────────────────────────────
+   MAIN COLUMN
+────────────────────────────────────── */
+.main-column {
+  margin-left: var(--nav-width);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ──────────────────────────────────────
+   TOP BAR
+────────────────────────────────────── */
+.topbar {
+  height: var(--topbar-height);
+  min-height: var(--topbar-height);
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  gap: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 90;
+}
+
+.topbar-search {
+  flex: 1;
+  max-width: 360px;
+  position: relative;
+}
+
+.topbar-search i {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-3);
+  font-size: 13px;
+  pointer-events: none;
+}
+
+.topbar-search input {
+  width: 100%;
+  height: 34px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0 14px 0 34px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.topbar-search input::placeholder { color: var(--text-3); }
+
+.topbar-search input:focus {
+  border-color: var(--teal);
+  box-shadow: 0 0 0 3px rgba(45, 179, 166, 0.12);
+}
+
+.topbar-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.topbar-icon-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-2);
+  font-size: 15px;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.topbar-icon-btn:hover {
+  background: var(--bg);
+  color: var(--text);
+}
+
+.topbar-account {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 4px 8px 4px 4px;
+  border-radius: 999px;
+  transition: background 0.15s ease;
+}
+
+.topbar-account:hover { background: var(--bg); }
+
+.topbar-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--orange);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.topbar-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.topbar-caret {
+  color: var(--text-3);
+  font-size: 11px;
+}
+
+/* ──────────────────────────────────────
+   CONTENT AREA
+────────────────────────────────────── */
+.content-area {
+  flex: 1;
+  overflow: auto;
+  background: var(--bg);
+  min-width: 0;
+}
+
+/* Inner page wrapper enforces 1440px target min */
+.page-inner {
+  min-width: 860px;
+}
+
+/* View switching */
+.view { display: none; }
+.view.active { display: block; }
+
+/* ──────────────────────────────────────
+   JOBS LIST — PAGE HEADER
+────────────────────────────────────── */
+.page-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 32px 32px 20px;
+}
+
+.page-header-text h1 {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.2;
+  letter-spacing: -0.3px;
+}
+
+.page-header-text p {
+  margin-top: 4px;
+  font-size: 14px;
+  color: var(--text-3);
+}
+
+/* ──────────────────────────────────────
+   BUTTONS
+────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 18px;
+  height: 36px;
+  border-radius: 999px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  white-space: nowrap;
+  transition: opacity 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn:hover { opacity: 0.88; }
+
+.btn-primary {
+  background: var(--text);
+  color: #fff;
+}
+
+.btn-brand {
+  background: var(--orange);
+  color: #fff;
+}
+
+.btn-ghost {
+  background: transparent;
+  border: 1.5px solid var(--text);
+  color: var(--text);
+}
+
+.btn-ghost-sm {
+  background: transparent;
+  border: 1.5px solid var(--line);
+  color: var(--text-2);
+  height: 30px;
+  padding: 0 12px;
+  font-size: 12px;
+}
+
+/* ──────────────────────────────────────
+   JOB CARDS LIST
+────────────────────────────────────── */
+.jobs-list {
+  padding: 0 32px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.job-card {
+  background: var(--surface);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-sm);
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  position: relative;
+  transition: box-shadow 0.15s ease;
+}
+
+.job-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+/* Status pill — positioned top-right */
+.job-status-pill {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+.pill-planning  { background: #F0F0F2; color: var(--text-3); }
+.pill-shootday  { background: rgba(242,107,58,0.12); color: var(--orange); }
+.pill-uploading { background: rgba(45,179,166,0.12); color: var(--teal); }
+.pill-delivered { background: #1D1D1F; color: #fff; }
+
+/* Left section */
+.job-info {
+  flex: 1 1 180px;
+  min-width: 0;
+  max-width: 280px;
+}
+
+.job-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.3;
+  padding-right: 90px; /* clear the status pill */
+}
+
+.job-meta {
+  margin-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.job-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: var(--text-3);
+}
+
+.job-meta-row i {
+  width: 12px;
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
+.job-meta-row.shoot-date { color: var(--text-2); font-weight: 500; }
+
+/* Center — Phase tracker */
+.phase-tracker {
+  flex: 2 1 200px;
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.phase-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  position: relative;
+}
+
+/* Connector line between steps */
+.phase-step:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 13px;
+  left: 50%;
+  width: 100%;
+  height: 2px;
+  background: var(--line);
+  z-index: 0;
+}
+
+.phase-step.done:not(:last-child)::after {
+  background: var(--teal);
+}
+
+.phase-step.active:not(:last-child)::after {
+  background: var(--line);
+}
+
+.phase-dot {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+}
+
+.phase-step.done .phase-dot {
+  background: var(--teal);
+  color: #fff;
+}
+
+.phase-step.active .phase-dot {
+  background: var(--orange);
+  color: #fff;
+  box-shadow: 0 0 0 4px rgba(242,107,58,0.18);
+}
+
+.phase-step.upcoming .phase-dot {
+  background: var(--bg);
+  border: 2px solid var(--line);
+  color: var(--text-3);
+}
+
+.phase-label {
+  margin-top: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  text-align: center;
+  white-space: nowrap;
+  padding: 0 4px;
+}
+
+.phase-step.done .phase-label    { color: var(--teal); }
+.phase-step.active .phase-label  { color: var(--orange); }
+.phase-step.upcoming .phase-label{ color: var(--text-3); }
+
+/* Right section */
+.job-right {
+  flex: 0 0 140px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.avatar-stack {
+  display: flex;
+  align-items: center;
+}
+
+.avatar-chip {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  font-size: 10px;
+  font-weight: 700;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--surface);
+  margin-left: -6px;
+  flex-shrink: 0;
+}
+
+.avatar-chip:first-child { margin-left: 0; }
+
+.avatar-a { background: var(--orange); }
+.avatar-b { background: var(--teal); }
+.avatar-c { background: #8E8EA0; }
+
+.gallery-count {
+  font-size: 12px;
+  color: var(--text-3);
+}
+
+.chevron-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1.5px solid var(--line);
+  background: var(--surface);
+  color: var(--text-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 13px;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.chevron-btn:hover {
+  background: var(--text);
+  border-color: var(--text);
+  color: #fff;
+}
+
+.job-card.clickable { cursor: default; }
+
+.job-right-bottom {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+/* ──────────────────────────────────────
+   JOB DETAIL — WRAPPER
+────────────────────────────────────── */
+.job-detail-inner {
+  min-width: 860px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ──────────────────────────────────────
+   JOB DETAIL — STICKY HEADER
+────────────────────────────────────── */
+.job-header {
+  position: sticky;
+  top: 0;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+  z-index: 80;
+}
+
+.job-header-row1 {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 24px;
+}
+
+.back-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1.5px solid var(--line);
+  background: var(--surface);
+  color: var(--text-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 13px;
+  flex-shrink: 0;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.back-btn:hover {
+  background: var(--bg);
+  border-color: var(--text-3);
+  color: var(--text);
+}
+
+.job-cover-thumb {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--r-sm);
+  background: var(--orange);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 20px;
+  flex-shrink: 0;
+  box-shadow: var(--shadow-sm);
+}
+
+.job-header-title-group {
+  flex: 1;
+  min-width: 0;
+}
+
+.job-header-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.2px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: default;
+}
+
+.edit-pencil {
+  font-size: 12px;
+  color: var(--text-3);
+  opacity: 0;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+  flex-shrink: 0;
+}
+
+.job-header-name:hover .edit-pencil {
+  opacity: 1;
+}
+
+.job-header-subtitle {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--text-3);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.dot-sep { color: var(--line); }
+
+.job-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* ── TAB BAR ── */
+.job-tabs {
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  border-top: 1px solid var(--line);
+  gap: 0;
+}
+
+.job-tab {
+  padding: 11px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-3);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: color 0.15s ease, border-color 0.15s ease;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.job-tab:hover { color: var(--text-2); }
+
+.job-tab.active {
+  color: var(--text);
+  border-bottom-color: var(--orange);
+}
+
+/* ── TAB CONTENT ── */
+.job-tab-content { flex: 1; }
+
+.tab-panel {
+  display: none;
+  padding: 28px 24px;
+}
+
+.tab-panel.active { display: block; }
+
+.coming-soon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 260px;
+  color: var(--text-3);
+  font-size: 14px;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.coming-soon i { font-size: 28px; opacity: 0.3; }
+
+/* ── OVERVIEW GRID ── */
+.overview-grid {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 20px;
+  align-items: start;
+}
+
+/* ── DETAIL CARD ── */
+.detail-card {
+  background: var(--surface);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-sm);
+  padding: 24px;
+}
+
+.detail-card-header {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 20px;
+}
+
+/* ── FIELD ROWS ── */
+.detail-fields {
+  display: flex;
+  flex-direction: column;
+}
+
+.detail-field-row {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+  position: relative;
+}
+
+.detail-field-row:last-child { border-bottom: none; }
+
+.detail-field-label {
+  font-size: 12px;
+  color: var(--text-3);
+  width: 140px;
+  flex-shrink: 0;
+  line-height: 1.5;
+}
+
+.detail-field-value {
+  flex: 1;
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.detail-field-value a {
+  color: var(--teal);
+  text-decoration: none;
+}
+
+.detail-field-value a:hover { text-decoration: underline; }
+
+.notes-value {
+  color: var(--text-2);
+  font-style: italic;
+}
+
+.field-pencil {
+  font-size: 11px;
+  color: var(--text-3);
+  opacity: 0;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+  flex-shrink: 0;
+}
+
+.detail-field-row:hover .field-pencil { opacity: 1; }
+
+.detail-card-footer {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+
+/* ── VERTICAL STEPPER ── */
+.stepper-v {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 24px;
+}
+
+.stepper-step {
+  display: flex;
+  gap: 16px;
+}
+
+.stepper-dot-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 32px;
+  flex-shrink: 0;
+}
+
+.stepper-dot {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.stepper-dot.done     { background: var(--teal); color: #fff; }
+.stepper-dot.active   { background: var(--orange); color: #fff; box-shadow: 0 0 0 5px rgba(242,107,58,0.15); }
+.stepper-dot.upcoming { background: var(--bg); border: 2px solid var(--line); color: var(--text-3); }
+
+.stepper-line {
+  flex: 1;
+  width: 2px;
+  min-height: 16px;
+  margin: 3px 0;
+  border-radius: 2px;
+}
+
+.stepper-line.done    { background: var(--teal); }
+.stepper-line.active  { background: var(--line); }
+.stepper-line.gray    { background: var(--line); }
+
+.stepper-content {
+  flex: 1;
+  padding: 4px 0 24px;
+}
+
+.stepper-step:last-child .stepper-content { padding-bottom: 4px; }
+
+.stepper-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  line-height: 1.4;
+}
+
+.stepper-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 18px;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+.stepper-badge.active  { background: rgba(242,107,58,0.12); color: var(--orange); }
+.stepper-badge.upcoming{ background: var(--bg); color: var(--text-3); }
+
+.stepper-desc {
+  margin-top: 3px;
+  font-size: 12px;
+  color: var(--text-3);
+  line-height: 1.5;
+}
+
+.stepper-ts {
+  margin-top: 3px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.stepper-ts.done     { color: var(--teal); }
+.stepper-ts.upcoming { color: var(--text-3); font-style: italic; }
+
+/* ──────────────────────────────────────
+   GALLERIES TAB
+────────────────────────────────────── */
+.gallery-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.gallery-search {
+  position: relative;
+  flex: 1;
+  max-width: 280px;
+}
+
+.gallery-search i {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-3);
+  font-size: 12px;
+  pointer-events: none;
+}
+
+.gallery-search input {
+  width: 100%;
+  height: 32px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0 12px 0 30px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.gallery-search input::placeholder { color: var(--text-3); }
+.gallery-search input:focus { border-color: var(--teal); }
+
+.gallery-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.gallery-table-wrap {
+  background: var(--surface);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.gallery-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.gallery-table th {
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+
+.gallery-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+  font-size: 13px;
+  color: var(--text-2);
+  vertical-align: middle;
+}
+
+.gallery-table tr:last-child td { border-bottom: none; }
+.gallery-table tbody tr:hover td { background: #FAFAFA; }
+
+.col-check    { width: 36px; }
+.col-thumb    { width: 56px; }
+.col-name     { min-width: 160px; }
+.col-status   { width: 110px; }
+.col-photos   { width: 76px; text-align: right !important; }
+.col-modified { width: 130px; }
+.col-contacts { width: 80px; text-align: center !important; }
+.col-actions  { width: 44px; text-align: center !important; }
+
+.gallery-thumb {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--r-xs);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+}
+
+.gallery-thumb.has-photos { background: rgba(242,107,58,0.10); color: var(--orange); }
+.gallery-thumb.is-empty   { background: #F0F0F2; color: var(--text-3); }
+
+.gallery-name-link {
+  color: var(--teal);
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.gallery-name-link:hover { text-decoration: underline; }
+
+.pill-has-photos {
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  background: rgba(45,179,166,0.10);
+  color: var(--teal);
+}
+
+.pill-empty {
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  background: #F0F0F2;
+  color: var(--text-3);
+}
+
+.count-cell   { color: var(--text-3); font-variant-numeric: tabular-nums; }
+.modified-cell{ font-size: 12px; color: var(--text-3); }
+
+.kebab-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-3);
+  font-size: 14px;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.kebab-btn:hover { background: var(--bg); color: var(--text-2); }
+
+.gallery-table input[type="checkbox"] {
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+  accent-color: var(--teal);
+}
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- ── LEFT NAV ── -->
+  <nav class="left-nav">
+    <div class="nav-logo">
+      <svg viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+        <path d="M2 2h6v6H2zM10 2h6v6h-6zM2 10h6v6H2zM10 10h6v6h-6z"/>
+      </svg>
+    </div>
+    <div class="nav-items">
+      <div class="nav-item" data-label="Dashboard"><i class="fa-solid fa-house"></i></div>
+      <div class="nav-item" data-label="Galleries"><i class="fa-solid fa-images"></i></div>
+      <div class="nav-item active" data-label="Jobs"><i class="fa-solid fa-briefcase"></i></div>
+      <div class="nav-item" data-label="Selling"><i class="fa-solid fa-tag"></i></div>
+      <div class="nav-item" data-label="Reports"><i class="fa-solid fa-chart-bar"></i></div>
+      <div class="nav-item" data-label="CRM"><i class="fa-solid fa-paper-plane"></i></div>
+      <div class="nav-item" data-label="Booking"><i class="fa-solid fa-calendar-check"></i></div>
+      <div class="nav-spacer"></div>
+      <div class="nav-item" data-label="Website"><i class="fa-solid fa-globe"></i></div>
+      <div class="nav-item" data-label="Blog"><i class="fa-solid fa-pen-nib"></i></div>
+      <div class="nav-item" data-label="SEO"><i class="fa-solid fa-magnifying-glass"></i></div>
+      <div class="nav-item" data-label="Help"><i class="fa-solid fa-circle-info"></i></div>
+    </div>
+  </nav>
+
+  <!-- ── MAIN COLUMN ── -->
+  <div class="main-column">
+
+    <!-- Top Bar -->
+    <header class="topbar">
+      <div class="topbar-search">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" placeholder="Search galleries, contacts…">
+      </div>
+      <div class="topbar-right">
+        <button class="topbar-icon-btn" title="Notifications">
+          <i class="fa-regular fa-bell"></i>
+        </button>
+        <div class="topbar-account">
+          <div class="topbar-avatar">RC</div>
+          <span class="topbar-name">Robert Campbell</span>
+          <i class="fa-solid fa-chevron-down topbar-caret"></i>
+        </div>
+      </div>
+    </header>
+
+    <!-- Content Area -->
+    <main class="content-area">
+
+      <!-- ── VIEW: JOBS LIST ── -->
+      <div id="view-jobs-list" class="view active">
+      <div class="page-inner">
+
+        <div class="page-header">
+          <div class="page-header-text">
+            <h1>Jobs</h1>
+            <p>Manage your volume photography jobs from start to finish</p>
+          </div>
+          <button class="btn btn-brand">
+            <i class="fa-solid fa-plus"></i>
+            New Job
+          </button>
+        </div>
+
+        <div class="jobs-list">
+
+          <!-- Job 1: Riverside Soccer — Upload phase — CLICKABLE -->
+          <div class="job-card" id="job-riverside" style="cursor:pointer;" onclick="showView('view-job-detail')">
+            <span class="job-status-pill pill-uploading">Uploading</span>
+
+            <div class="job-info">
+              <div class="job-name">Riverside Youth Soccer League — Spring 2026</div>
+              <div class="job-meta">
+                <div class="job-meta-row shoot-date">
+                  <i class="fa-solid fa-camera"></i>
+                  Shoot: May 14, 2026
+                </div>
+                <div class="job-meta-row">
+                  <i class="fa-solid fa-location-dot"></i>
+                  Riverside Park, York, PA
+                </div>
+              </div>
+            </div>
+
+            <div class="phase-tracker">
+              <div class="phase-step done">
+                <div class="phase-dot"><i class="fa-solid fa-check"></i></div>
+                <div class="phase-label">Setup</div>
+              </div>
+              <div class="phase-step done">
+                <div class="phase-dot"><i class="fa-solid fa-check"></i></div>
+                <div class="phase-label">Shoot Day</div>
+              </div>
+              <div class="phase-step active">
+                <div class="phase-dot"><i class="fa-solid fa-arrow-up"></i></div>
+                <div class="phase-label">Upload</div>
+              </div>
+              <div class="phase-step upcoming">
+                <div class="phase-dot"><i class="fa-solid fa-share-nodes"></i></div>
+                <div class="phase-label">Delivered</div>
+              </div>
+            </div>
+
+            <div class="job-right">
+              <div class="avatar-stack">
+                <div class="avatar-chip avatar-a">RC</div>
+                <div class="avatar-chip avatar-b">SK</div>
+                <div class="avatar-chip avatar-c">JT</div>
+              </div>
+              <div class="job-right-bottom">
+                <div class="gallery-count"><i class="fa-regular fa-images" style="margin-right:4px;"></i>42 galleries</div>
+                <button class="chevron-btn" onclick="event.stopPropagation(); showView('view-job-detail')">
+                  <i class="fa-solid fa-chevron-right"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Job 2: Lincoln Elementary — Shoot Day phase -->
+          <div class="job-card">
+            <span class="job-status-pill pill-shootday">Shoot Day</span>
+
+            <div class="job-info">
+              <div class="job-name">Lincoln Elementary School Picture Day</div>
+              <div class="job-meta">
+                <div class="job-meta-row shoot-date">
+                  <i class="fa-solid fa-camera"></i>
+                  Shoot: June 2, 2026
+                </div>
+                <div class="job-meta-row">
+                  <i class="fa-solid fa-location-dot"></i>
+                  Lincoln Elementary, York, PA
+                </div>
+              </div>
+            </div>
+
+            <div class="phase-tracker">
+              <div class="phase-step done">
+                <div class="phase-dot"><i class="fa-solid fa-check"></i></div>
+                <div class="phase-label">Setup</div>
+              </div>
+              <div class="phase-step active">
+                <div class="phase-dot"><i class="fa-solid fa-camera"></i></div>
+                <div class="phase-label">Shoot Day</div>
+              </div>
+              <div class="phase-step upcoming">
+                <div class="phase-dot"><i class="fa-solid fa-arrow-up"></i></div>
+                <div class="phase-label">Upload</div>
+              </div>
+              <div class="phase-step upcoming">
+                <div class="phase-dot"><i class="fa-solid fa-share-nodes"></i></div>
+                <div class="phase-label">Delivered</div>
+              </div>
+            </div>
+
+            <div class="job-right">
+              <div class="avatar-stack">
+                <div class="avatar-chip avatar-a">RC</div>
+              </div>
+              <div class="job-right-bottom">
+                <div class="gallery-count"><i class="fa-regular fa-images" style="margin-right:4px;"></i>0 galleries</div>
+                <button class="chevron-btn"><i class="fa-solid fa-chevron-right"></i></button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Job 3: Keystone Dance — Setup phase -->
+          <div class="job-card">
+            <span class="job-status-pill pill-planning">Planning</span>
+
+            <div class="job-info">
+              <div class="job-name">Keystone Dance Academy — Recital 2026</div>
+              <div class="job-meta">
+                <div class="job-meta-row shoot-date">
+                  <i class="fa-solid fa-camera"></i>
+                  Shoot: June 18, 2026
+                </div>
+                <div class="job-meta-row">
+                  <i class="fa-solid fa-location-dot"></i>
+                  Keystone Performing Arts Center, PA
+                </div>
+              </div>
+            </div>
+
+            <div class="phase-tracker">
+              <div class="phase-step active">
+                <div class="phase-dot"><i class="fa-solid fa-gear"></i></div>
+                <div class="phase-label">Setup</div>
+              </div>
+              <div class="phase-step upcoming">
+                <div class="phase-dot"><i class="fa-solid fa-camera"></i></div>
+                <div class="phase-label">Shoot Day</div>
+              </div>
+              <div class="phase-step upcoming">
+                <div class="phase-dot"><i class="fa-solid fa-arrow-up"></i></div>
+                <div class="phase-label">Upload</div>
+              </div>
+              <div class="phase-step upcoming">
+                <div class="phase-dot"><i class="fa-solid fa-share-nodes"></i></div>
+                <div class="phase-label">Delivered</div>
+              </div>
+            </div>
+
+            <div class="job-right">
+              <div class="avatar-stack">
+                <div class="avatar-chip avatar-a">RC</div>
+                <div class="avatar-chip avatar-b">SK</div>
+              </div>
+              <div class="job-right-bottom">
+                <div class="gallery-count"><i class="fa-regular fa-images" style="margin-right:4px;"></i>0 galleries</div>
+                <button class="chevron-btn"><i class="fa-solid fa-chevron-right"></i></button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Job 4: York Little League — Delivered phase -->
+          <div class="job-card">
+            <span class="job-status-pill pill-delivered">Delivered</span>
+
+            <div class="job-info">
+              <div class="job-name">York Central Little League — Summer 2026</div>
+              <div class="job-meta">
+                <div class="job-meta-row shoot-date">
+                  <i class="fa-solid fa-camera"></i>
+                  Shoot: July 10, 2026
+                </div>
+                <div class="job-meta-row">
+                  <i class="fa-solid fa-location-dot"></i>
+                  York Memorial Stadium, York, PA
+                </div>
+              </div>
+            </div>
+
+            <div class="phase-tracker">
+              <div class="phase-step done">
+                <div class="phase-dot"><i class="fa-solid fa-check"></i></div>
+                <div class="phase-label">Setup</div>
+              </div>
+              <div class="phase-step done">
+                <div class="phase-dot"><i class="fa-solid fa-check"></i></div>
+                <div class="phase-label">Shoot Day</div>
+              </div>
+              <div class="phase-step done">
+                <div class="phase-dot"><i class="fa-solid fa-check"></i></div>
+                <div class="phase-label">Upload</div>
+              </div>
+              <div class="phase-step done">
+                <div class="phase-dot"><i class="fa-solid fa-check"></i></div>
+                <div class="phase-label">Delivered</div>
+              </div>
+            </div>
+
+            <div class="job-right">
+              <div class="avatar-stack">
+                <div class="avatar-chip avatar-a">RC</div>
+              </div>
+              <div class="job-right-bottom">
+                <div class="gallery-count"><i class="fa-regular fa-images" style="margin-right:4px;"></i>87 galleries</div>
+                <button class="chevron-btn"><i class="fa-solid fa-chevron-right"></i></button>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /jobs-list -->
+      </div><!-- /page-inner -->
+      </div><!-- /view-jobs-list -->
+
+      <!-- ── VIEW: JOB DETAIL ── -->
+      <div id="view-job-detail" class="view">
+        <div class="job-detail-inner">
+
+          <!-- ── JOB HEADER (sticky) ── -->
+          <div class="job-header">
+
+            <!-- Row 1: Identity bar -->
+            <div class="job-header-row1">
+              <button class="back-btn" onclick="showView('view-jobs-list')">
+                <i class="fa-solid fa-arrow-left"></i>
+              </button>
+              <div class="job-cover-thumb">
+                <i class="fa-solid fa-futbol"></i>
+              </div>
+              <div class="job-header-title-group">
+                <div class="job-header-name">
+                  Riverside Youth Soccer League — Spring 2026
+                  <i class="fa-solid fa-pencil edit-pencil"></i>
+                </div>
+                <div class="job-header-subtitle">
+                  <i class="fa-solid fa-camera" style="font-size:11px;"></i>
+                  Shoot: May 14, 2026
+                  <span class="dot-sep">·</span>
+                  <i class="fa-solid fa-location-dot" style="font-size:11px;"></i>
+                  Riverside Park, York, PA
+                </div>
+              </div>
+              <div class="job-header-actions">
+                <button class="btn btn-ghost">Preview Folder</button>
+                <button class="btn btn-brand">
+                  Share <i class="fa-solid fa-chevron-down" style="font-size:10px; margin-left:2px;"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Row 2: Tab bar -->
+            <div class="job-tabs">
+              <div class="job-tab active"   onclick="switchJobTab(this,'tab-overview')">Overview</div>
+              <div class="job-tab"          onclick="switchJobTab(this,'tab-galleries')">Galleries</div>
+              <div class="job-tab"          onclick="switchJobTab(this,'tab-contacts')">Contacts</div>
+              <div class="job-tab"          onclick="switchJobTab(this,'tab-team')">Team</div>
+              <div class="job-tab"          onclick="switchJobTab(this,'tab-documents')">Documents</div>
+              <div class="job-tab"          onclick="switchJobTab(this,'tab-settings')">Settings</div>
+              <div class="job-tab"          onclick="switchJobTab(this,'tab-reports')">Reports</div>
+            </div>
+          </div>
+
+          <!-- ── TAB PANELS ── -->
+          <div class="job-tab-content">
+
+            <!-- OVERVIEW TAB -->
+            <div id="tab-overview" class="tab-panel active">
+              <div class="overview-grid">
+
+                <!-- Left: Job Details card -->
+                <div class="detail-card">
+                  <div class="detail-card-header">Job Details</div>
+                  <div class="detail-fields">
+                    <div class="detail-field-row">
+                      <span class="detail-field-label">Job Name</span>
+                      <span class="detail-field-value">Riverside Youth Soccer League — Spring 2026</span>
+                      <i class="fa-solid fa-pencil field-pencil"></i>
+                    </div>
+                    <div class="detail-field-row">
+                      <span class="detail-field-label">Organization</span>
+                      <span class="detail-field-value">Riverside Youth Sports Association</span>
+                      <i class="fa-solid fa-pencil field-pencil"></i>
+                    </div>
+                    <div class="detail-field-row">
+                      <span class="detail-field-label">Shoot Date</span>
+                      <span class="detail-field-value">May 14, 2026</span>
+                      <i class="fa-solid fa-pencil field-pencil"></i>
+                    </div>
+                    <div class="detail-field-row">
+                      <span class="detail-field-label">Delivery Deadline</span>
+                      <span class="detail-field-value">May 28, 2026</span>
+                      <i class="fa-solid fa-pencil field-pencil"></i>
+                    </div>
+                    <div class="detail-field-row">
+                      <span class="detail-field-label">Location</span>
+                      <span class="detail-field-value">Riverside Park, York, PA</span>
+                      <i class="fa-solid fa-pencil field-pencil"></i>
+                    </div>
+                    <div class="detail-field-row">
+                      <span class="detail-field-label">Primary Contact</span>
+                      <span class="detail-field-value">
+                        Karen Mello<br>
+                        <a href="#">karen.mello@riversideysa.org</a>
+                      </span>
+                      <i class="fa-solid fa-pencil field-pencil"></i>
+                    </div>
+                    <div class="detail-field-row" style="align-items:flex-start;">
+                      <span class="detail-field-label" style="padding-top:1px;">Notes</span>
+                      <span class="detail-field-value notes-value">Coordinate with Coach Davis for team photo schedule. Rain date: May 21.</span>
+                      <i class="fa-solid fa-pencil field-pencil"></i>
+                    </div>
+                  </div>
+                  <div class="detail-card-footer">
+                    <button class="btn btn-ghost-sm">Edit Job Details</button>
+                  </div>
+                </div>
+
+                <!-- Right: Phase Tracker card -->
+                <div class="detail-card">
+                  <div class="detail-card-header">Job Progress</div>
+
+                  <div class="stepper-v">
+
+                    <!-- Step 1: Setup — done -->
+                    <div class="stepper-step">
+                      <div class="stepper-dot-col">
+                        <div class="stepper-dot done"><i class="fa-solid fa-check"></i></div>
+                        <div class="stepper-line done"></div>
+                      </div>
+                      <div class="stepper-content">
+                        <div class="stepper-title">Setup</div>
+                        <div class="stepper-desc">Job created, galleries generated, contacts imported</div>
+                        <div class="stepper-ts done">Completed Apr 28</div>
+                      </div>
+                    </div>
+
+                    <!-- Step 2: Shoot Day — done -->
+                    <div class="stepper-step">
+                      <div class="stepper-dot-col">
+                        <div class="stepper-dot done"><i class="fa-solid fa-check"></i></div>
+                        <div class="stepper-line active"></div>
+                      </div>
+                      <div class="stepper-content">
+                        <div class="stepper-title">Shoot Day</div>
+                        <div class="stepper-desc">QR workflow ready, photographers assigned</div>
+                        <div class="stepper-ts done">Completed May 14</div>
+                      </div>
+                    </div>
+
+                    <!-- Step 3: Upload — active -->
+                    <div class="stepper-step">
+                      <div class="stepper-dot-col">
+                        <div class="stepper-dot active"><i class="fa-solid fa-arrow-up"></i></div>
+                        <div class="stepper-line gray"></div>
+                      </div>
+                      <div class="stepper-content">
+                        <div class="stepper-title">
+                          Upload
+                          <span class="stepper-badge active">In Progress</span>
+                        </div>
+                        <div class="stepper-desc">42 of 42 galleries have uploads · 3,847 photos</div>
+                      </div>
+                    </div>
+
+                    <!-- Step 4: Delivered — upcoming -->
+                    <div class="stepper-step">
+                      <div class="stepper-dot-col">
+                        <div class="stepper-dot upcoming"><i class="fa-solid fa-share-nodes"></i></div>
+                      </div>
+                      <div class="stepper-content">
+                        <div class="stepper-title">
+                          Delivered
+                          <span class="stepper-badge upcoming">Upcoming</span>
+                        </div>
+                        <div class="stepper-desc">Share galleries with contacts</div>
+                      </div>
+                    </div>
+
+                  </div><!-- /stepper-v -->
+
+                  <button class="btn btn-brand" style="width:100%; justify-content:center;">
+                    Go to Upload Status <i class="fa-solid fa-arrow-right" style="margin-left:6px;"></i>
+                  </button>
+                </div>
+
+              </div><!-- /overview-grid -->
+            </div><!-- /tab-overview -->
+
+            <!-- GALLERIES TAB -->
+            <div id="tab-galleries" class="tab-panel">
+
+              <div class="gallery-toolbar">
+                <div class="gallery-search">
+                  <i class="fa-solid fa-magnifying-glass"></i>
+                  <input type="text" placeholder="Search galleries…">
+                </div>
+                <div class="gallery-toolbar-actions">
+                  <button class="btn btn-ghost-sm"><i class="fa-solid fa-plus" style="font-size:10px;"></i> Add Gallery</button>
+                  <button class="btn btn-ghost-sm"><i class="fa-solid fa-qrcode" style="font-size:11px;"></i> QR Code Workflow</button>
+                  <button class="btn btn-ghost-sm">Bulk Actions <i class="fa-solid fa-chevron-down" style="font-size:10px; margin-left:2px;"></i></button>
+                </div>
+              </div>
+
+              <div class="gallery-table-wrap">
+                <table class="gallery-table">
+                  <thead>
+                    <tr>
+                      <th class="col-check"><input type="checkbox"></th>
+                      <th class="col-thumb"></th>
+                      <th class="col-name">Gallery</th>
+                      <th class="col-status">Status</th>
+                      <th class="col-photos" style="text-align:right;">Photos</th>
+                      <th class="col-modified">Last Modified</th>
+                      <th class="col-contacts" style="text-align:center;">Contacts</th>
+                      <th class="col-actions"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+
+                    <tr>
+                      <td><input type="checkbox"></td>
+                      <td><div class="gallery-thumb has-photos"><i class="fa-solid fa-image"></i></div></td>
+                      <td><a class="gallery-name-link">Smith, Jordan</a></td>
+                      <td><span class="pill-has-photos">Has Photos</span></td>
+                      <td class="count-cell col-photos">24</td>
+                      <td class="modified-cell">Jun 1, 2026</td>
+                      <td class="count-cell col-contacts">1</td>
+                      <td class="col-actions"><button class="kebab-btn"><i class="fa-solid fa-ellipsis"></i></button></td>
+                    </tr>
+
+                    <tr>
+                      <td><input type="checkbox"></td>
+                      <td><div class="gallery-thumb has-photos"><i class="fa-solid fa-image"></i></div></td>
+                      <td><a class="gallery-name-link">Williams, Marcus</a></td>
+                      <td><span class="pill-has-photos">Has Photos</span></td>
+                      <td class="count-cell col-photos">31</td>
+                      <td class="modified-cell">May 31, 2026</td>
+                      <td class="count-cell col-contacts">1</td>
+                      <td class="col-actions"><button class="kebab-btn"><i class="fa-solid fa-ellipsis"></i></button></td>
+                    </tr>
+
+                    <tr>
+                      <td><input type="checkbox"></td>
+                      <td><div class="gallery-thumb has-photos"><i class="fa-solid fa-people-group"></i></div></td>
+                      <td><a class="gallery-name-link">Team — Riverside Raptors U12</a></td>
+                      <td><span class="pill-has-photos">Has Photos</span></td>
+                      <td class="count-cell col-photos">18</td>
+                      <td class="modified-cell">May 30, 2026</td>
+                      <td class="count-cell col-contacts">0</td>
+                      <td class="col-actions"><button class="kebab-btn"><i class="fa-solid fa-ellipsis"></i></button></td>
+                    </tr>
+
+                    <tr>
+                      <td><input type="checkbox"></td>
+                      <td><div class="gallery-thumb has-photos"><i class="fa-solid fa-image"></i></div></td>
+                      <td><a class="gallery-name-link">Johnson, Aiden</a></td>
+                      <td><span class="pill-has-photos">Has Photos</span></td>
+                      <td class="count-cell col-photos">27</td>
+                      <td class="modified-cell">Jun 2, 2026</td>
+                      <td class="count-cell col-contacts">1</td>
+                      <td class="col-actions"><button class="kebab-btn"><i class="fa-solid fa-ellipsis"></i></button></td>
+                    </tr>
+
+                    <tr>
+                      <td><input type="checkbox"></td>
+                      <td><div class="gallery-thumb is-empty"><i class="fa-regular fa-image"></i></div></td>
+                      <td><a class="gallery-name-link">Davis, Lily</a></td>
+                      <td><span class="pill-empty">Empty</span></td>
+                      <td class="count-cell col-photos">—</td>
+                      <td class="modified-cell">—</td>
+                      <td class="count-cell col-contacts">1</td>
+                      <td class="col-actions"><button class="kebab-btn"><i class="fa-solid fa-ellipsis"></i></button></td>
+                    </tr>
+
+                    <tr>
+                      <td><input type="checkbox"></td>
+                      <td><div class="gallery-thumb has-photos"><i class="fa-solid fa-image"></i></div></td>
+                      <td><a class="gallery-name-link">Martinez, Ethan</a></td>
+                      <td><span class="pill-has-photos">Has Photos</span></td>
+                      <td class="count-cell col-photos">34</td>
+                      <td class="modified-cell">Jun 2, 2026</td>
+                      <td class="count-cell col-contacts">1</td>
+                      <td class="col-actions"><button class="kebab-btn"><i class="fa-solid fa-ellipsis"></i></button></td>
+                    </tr>
+
+                    <tr>
+                      <td><input type="checkbox"></td>
+                      <td><div class="gallery-thumb is-empty"><i class="fa-regular fa-image"></i></div></td>
+                      <td><a class="gallery-name-link">Thompson, Maya</a></td>
+                      <td><span class="pill-empty">Empty</span></td>
+                      <td class="count-cell col-photos">—</td>
+                      <td class="modified-cell">—</td>
+                      <td class="count-cell col-contacts">1</td>
+                      <td class="col-actions"><button class="kebab-btn"><i class="fa-solid fa-ellipsis"></i></button></td>
+                    </tr>
+
+                    <tr>
+                      <td><input type="checkbox"></td>
+                      <td><div class="gallery-thumb is-empty"><i class="fa-solid fa-people-group"></i></div></td>
+                      <td><a class="gallery-name-link">Team — Eagles U10</a></td>
+                      <td><span class="pill-empty">Empty</span></td>
+                      <td class="count-cell col-photos">—</td>
+                      <td class="modified-cell">—</td>
+                      <td class="count-cell col-contacts">0</td>
+                      <td class="col-actions"><button class="kebab-btn"><i class="fa-solid fa-ellipsis"></i></button></td>
+                    </tr>
+
+                  </tbody>
+                </table>
+              </div>
+
+            </div>
+
+            <!-- CONTACTS TAB -->
+            <div id="tab-contacts" class="tab-panel">
+              <div class="coming-soon">
+                <i class="fa-solid fa-address-book"></i>
+                <p>Contacts — coming soon</p>
+              </div>
+            </div>
+
+            <!-- TEAM TAB (Phase 5) -->
+            <div id="tab-team" class="tab-panel">
+              <div class="coming-soon">
+                <i class="fa-solid fa-people-group"></i>
+                <p>Team — Phase 5</p>
+              </div>
+            </div>
+
+            <!-- DOCUMENTS TAB -->
+            <div id="tab-documents" class="tab-panel">
+              <div class="coming-soon">
+                <i class="fa-solid fa-file-lines"></i>
+                <p>Documents — coming soon</p>
+              </div>
+            </div>
+
+            <!-- SETTINGS TAB -->
+            <div id="tab-settings" class="tab-panel">
+              <div class="coming-soon">
+                <i class="fa-solid fa-gear"></i>
+                <p>Settings — coming soon</p>
+              </div>
+            </div>
+
+            <!-- REPORTS TAB (Phase 6) -->
+            <div id="tab-reports" class="tab-panel">
+              <div class="coming-soon">
+                <i class="fa-solid fa-chart-bar"></i>
+                <p>Reports — Phase 6</p>
+              </div>
+            </div>
+
+          </div><!-- /job-tab-content -->
+        </div><!-- /job-detail-inner -->
+      </div><!-- /view-job-detail -->
+
+    </main>
+  </div>
+</div>
+
+<script>
+function showView(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelector('.content-area').scrollTop = 0;
+}
+
+function switchJobTab(el, panelId) {
+  document.querySelectorAll('.job-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById(panelId).classList.add('active');
+  document.querySelector('.content-area').scrollTop = 0;
+}
+</script>
+
+</body>
+</html>
