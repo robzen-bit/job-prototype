@@ -2460,7 +2460,7 @@ html, body {
               <i class="fa-solid fa-arrow-up"></i>
               17 galleries still empty after shoot day
               <span class="att-job">Riverside Youth Soccer</span>
-              <a onclick="showView('view-job-detail'); switchJobTabById('tab-galleries')">Review uploads</a>
+              <a onclick="goToUploads()">Review uploads</a>
             </div>
             <div class="attention-row">
               <i class="fa-solid fa-file-signature"></i>
@@ -2541,7 +2541,7 @@ html, body {
           </div>
 
           <!-- Job 2: Lincoln Elementary — Shoot Day phase -->
-          <div class="job-card" data-status="shootday">
+          <div class="job-card" data-status="shootday" style="cursor:pointer;" onclick="showView('view-job-detail')">
             <div class="job-info">
               <span class="job-status-pill pill-shootday">Shoot Day</span>
               <div class="job-name">Lincoln Elementary School Picture Day</div>
@@ -2582,13 +2582,13 @@ html, body {
               </div>
               <div class="job-right-bottom">
                 <div class="gallery-count"><i class="fa-regular fa-images" style="margin-right:4px;"></i>0 galleries</div>
-                <button class="chevron-btn"><i class="fa-solid fa-chevron-right"></i></button>
+                <button class="chevron-btn" onclick="event.stopPropagation(); showView('view-job-detail')"><i class="fa-solid fa-chevron-right"></i></button>
               </div>
             </div>
           </div>
 
           <!-- Job 3: Keystone Dance — Setup phase -->
-          <div class="job-card" data-status="planning">
+          <div class="job-card" data-status="planning" style="cursor:pointer;" onclick="showView('view-job-detail')">
             <div class="job-info">
               <span class="job-status-pill pill-planning">Planning</span>
               <div class="job-name">Keystone Dance Academy — Recital 2026</div>
@@ -2630,13 +2630,13 @@ html, body {
               </div>
               <div class="job-right-bottom">
                 <div class="gallery-count"><i class="fa-regular fa-images" style="margin-right:4px;"></i>0 galleries</div>
-                <button class="chevron-btn"><i class="fa-solid fa-chevron-right"></i></button>
+                <button class="chevron-btn" onclick="event.stopPropagation(); showView('view-job-detail')"><i class="fa-solid fa-chevron-right"></i></button>
               </div>
             </div>
           </div>
 
           <!-- Job 4: York Little League — Delivered phase -->
-          <div class="job-card" data-status="delivered">
+          <div class="job-card" data-status="delivered" style="cursor:pointer;" onclick="showView('view-job-detail')">
             <div class="job-info">
               <span class="job-status-pill pill-delivered">Delivered</span>
               <div class="job-name">York Central Little League — Summer 2026</div>
@@ -2677,7 +2677,7 @@ html, body {
               </div>
               <div class="job-right-bottom">
                 <div class="gallery-count"><i class="fa-regular fa-images" style="margin-right:4px;"></i>87 galleries</div>
-                <button class="chevron-btn"><i class="fa-solid fa-chevron-right"></i></button>
+                <button class="chevron-btn" onclick="event.stopPropagation(); showView('view-job-detail')"><i class="fa-solid fa-chevron-right"></i></button>
               </div>
             </div>
           </div>
@@ -2715,8 +2715,8 @@ html, body {
                 </div>
               </div>
               <div class="job-header-actions">
-                <button class="btn btn-ghost">Preview Folder</button>
-                <button class="btn btn-brand">
+                <button class="btn btn-ghost" onclick="toast('Opening visitor preview of this job…')">Preview Job</button>
+                <button class="btn btn-brand" onclick="openMenu(event,'menu-share')">
                   Share <i class="fa-solid fa-chevron-down" style="font-size:10px; margin-left:2px;"></i>
                 </button>
               </div>
@@ -2816,7 +2816,7 @@ html, body {
                     </div>
                   </div>
                   <div class="detail-card-footer">
-                    <button class="btn btn-ghost-sm">Edit Job Details</button>
+                    <button class="btn btn-ghost-sm" onclick="toast('Edit Job Details — fields become editable in the product')">Edit Job Details</button>
                   </div>
                 </div>
 
@@ -2883,7 +2883,7 @@ html, body {
 
                   </div><!-- /stepper-v -->
 
-                  <button class="btn btn-brand" style="width:100%; justify-content:center;">
+                  <button class="btn btn-brand" style="width:100%; justify-content:center;" onclick="goToUploads()">
                     Go to Upload Status <i class="fa-solid fa-arrow-right" style="margin-left:6px;"></i>
                   </button>
                 </div>
@@ -2936,10 +2936,19 @@ html, body {
                   <input type="text" placeholder="Search this job…">
                 </div>
                 <div class="gallery-toolbar-actions">
-                  <button class="btn btn-ghost-sm"><i class="fa-solid fa-plus" style="font-size:10px;"></i> Add Gallery</button>
-                  <button class="btn btn-ghost-sm"><i class="fa-solid fa-folder-plus" style="font-size:11px;"></i> Add Folder</button>
-                  <button class="btn btn-ghost-sm"><i class="fa-solid fa-qrcode" style="font-size:11px;"></i> QR Code Workflow</button>
+                  <button class="btn btn-ghost-sm" onclick="toast('Add Gallery — name and preset picker opens in product')"><i class="fa-solid fa-plus" style="font-size:10px;"></i> Add Gallery</button>
+                  <button class="btn btn-ghost-sm" onclick="toast('Add Folder — creates a subfolder in this job')"><i class="fa-solid fa-folder-plus" style="font-size:11px;"></i> Add Folder</button>
+                  <button class="btn btn-ghost-sm" onclick="openModal('modal-roster')"><i class="fa-solid fa-file-csv" style="font-size:11px;"></i> Import Roster</button>
+                  <button class="btn btn-ghost-sm" onclick="toast('Generating printable QR card PDF for 142 subjects…')"><i class="fa-solid fa-qrcode" style="font-size:11px;"></i> QR Code Workflow</button>
                   <button class="btn btn-ghost-sm" onclick="openMenu(event,'menu-bulk')">Bulk Actions <i class="fa-solid fa-chevron-down" style="font-size:10px; margin-left:2px;"></i></button>
+                </div>
+              </div>
+
+              <div class="jobs-filterbar" style="padding:0 0 14px;">
+                <div class="subtabs">
+                  <div class="subtab active" onclick="orgFilter(this,'all')">All Items <span class="cnt">45</span></div>
+                  <div class="subtab" onclick="orgFilter(this,'has')">Has Photos <span class="cnt">25</span></div>
+                  <div class="subtab" id="org-missing-chip" onclick="orgFilter(this,'missing')">Missing Photos <span class="cnt">17</span></div>
                 </div>
               </div>
 
@@ -2960,7 +2969,7 @@ html, body {
                   </thead>
                   <tbody>
 
-                    <tr>
+                    <tr data-g="folder">
                       <td><input type="checkbox"></td>
                       <td><div class="gallery-thumb is-folder"><i class="fa-solid fa-folder"></i></div></td>
                       <td><a class="gallery-name-link">Riverside Raptors U12</a></td>
@@ -2972,7 +2981,7 @@ html, body {
                       <td class="col-actions"><button class="kebab-btn" onclick="openMenu(event,'menu-gallery')"><i class="fa-solid fa-ellipsis"></i></button></td>
                     </tr>
 
-                    <tr>
+                    <tr data-g="folder">
                       <td><input type="checkbox"></td>
                       <td><div class="gallery-thumb is-folder"><i class="fa-solid fa-folder"></i></div></td>
                       <td><a class="gallery-name-link">Eagles U10</a></td>
@@ -2984,7 +2993,7 @@ html, body {
                       <td class="col-actions"><button class="kebab-btn" onclick="openMenu(event,'menu-gallery')"><i class="fa-solid fa-ellipsis"></i></button></td>
                     </tr>
 
-                    <tr>
+                    <tr data-g="folder">
                       <td><input type="checkbox"></td>
                       <td><div class="gallery-thumb is-folder"><i class="fa-solid fa-folder"></i></div></td>
                       <td><a class="gallery-name-link">Individual Portraits</a></td>
@@ -2996,7 +3005,7 @@ html, body {
                       <td class="col-actions"><button class="kebab-btn" onclick="openMenu(event,'menu-gallery')"><i class="fa-solid fa-ellipsis"></i></button></td>
                     </tr>
 
-                    <tr>
+                    <tr data-g="has">
                       <td><input type="checkbox"></td>
                       <td><div class="gallery-thumb has-photos"><i class="fa-solid fa-image"></i></div></td>
                       <td><a class="gallery-name-link">Smith, Jordan</a></td>
@@ -3008,7 +3017,7 @@ html, body {
                       <td class="col-actions"><button class="kebab-btn" onclick="openMenu(event,'menu-gallery')"><i class="fa-solid fa-ellipsis"></i></button></td>
                     </tr>
 
-                    <tr>
+                    <tr data-g="has">
                       <td><input type="checkbox"></td>
                       <td><div class="gallery-thumb has-photos"><i class="fa-solid fa-image"></i></div></td>
                       <td><a class="gallery-name-link">Williams, Marcus</a></td>
@@ -3020,7 +3029,7 @@ html, body {
                       <td class="col-actions"><button class="kebab-btn" onclick="openMenu(event,'menu-gallery')"><i class="fa-solid fa-ellipsis"></i></button></td>
                     </tr>
 
-                    <tr>
+                    <tr data-g="has">
                       <td><input type="checkbox"></td>
                       <td><div class="gallery-thumb has-photos"><i class="fa-solid fa-people-group"></i></div></td>
                       <td><a class="gallery-name-link">Team — Riverside Raptors U12</a></td>
@@ -3032,7 +3041,7 @@ html, body {
                       <td class="col-actions"><button class="kebab-btn" onclick="openMenu(event,'menu-gallery')"><i class="fa-solid fa-ellipsis"></i></button></td>
                     </tr>
 
-                    <tr>
+                    <tr data-g="has">
                       <td><input type="checkbox"></td>
                       <td><div class="gallery-thumb has-photos"><i class="fa-solid fa-image"></i></div></td>
                       <td><a class="gallery-name-link">Johnson, Aiden</a></td>
@@ -3044,7 +3053,7 @@ html, body {
                       <td class="col-actions"><button class="kebab-btn" onclick="openMenu(event,'menu-gallery')"><i class="fa-solid fa-ellipsis"></i></button></td>
                     </tr>
 
-                    <tr>
+                    <tr data-g="empty">
                       <td><input type="checkbox"></td>
                       <td><div class="gallery-thumb is-empty"><i class="fa-regular fa-image"></i></div></td>
                       <td><a class="gallery-name-link">Davis, Lily</a></td>
@@ -3056,7 +3065,7 @@ html, body {
                       <td class="col-actions"><button class="kebab-btn" onclick="openMenu(event,'menu-gallery')"><i class="fa-solid fa-ellipsis"></i></button></td>
                     </tr>
 
-                    <tr>
+                    <tr data-g="has">
                       <td><input type="checkbox"></td>
                       <td><div class="gallery-thumb has-photos"><i class="fa-solid fa-image"></i></div></td>
                       <td><a class="gallery-name-link">Martinez, Ethan</a></td>
@@ -3068,7 +3077,7 @@ html, body {
                       <td class="col-actions"><button class="kebab-btn" onclick="openMenu(event,'menu-gallery')"><i class="fa-solid fa-ellipsis"></i></button></td>
                     </tr>
 
-                    <tr>
+                    <tr data-g="empty">
                       <td><input type="checkbox"></td>
                       <td><div class="gallery-thumb is-empty"><i class="fa-regular fa-image"></i></div></td>
                       <td><a class="gallery-name-link">Thompson, Maya</a></td>
@@ -3080,7 +3089,7 @@ html, body {
                       <td class="col-actions"><button class="kebab-btn" onclick="openMenu(event,'menu-gallery')"><i class="fa-solid fa-ellipsis"></i></button></td>
                     </tr>
 
-                    <tr>
+                    <tr data-g="empty">
                       <td><input type="checkbox"></td>
                       <td><div class="gallery-thumb is-empty"><i class="fa-solid fa-people-group"></i></div></td>
                       <td><a class="gallery-name-link">Team — Eagles U10</a></td>
@@ -3117,7 +3126,7 @@ html, body {
                   <span class="contact-add-title">Add Manually</span>
                   <div class="contact-add-links">
                     <a onclick="toast('Add from Contacts — opens your CRM contact picker')">Add from Contacts</a>
-                    <a onclick="toast('Import CSV — roster import flow')">Import CSV</a>
+                    <a onclick="openModal('modal-roster')">Import CSV</a>
                   </div>
                 </div>
                 <div class="f-row">
@@ -4183,6 +4192,39 @@ html, body {
   </div>
 </div>
 
+<!-- ══════════ IMPORT ROSTER MODAL ══════════ -->
+<div class="modal-overlay" id="modal-roster">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">Import Roster</div>
+        <div class="modal-subtitle">Add or update subjects for this job — galleries and QR codes are generated automatically.</div>
+      </div>
+      <button class="modal-close" onclick="closeModal('modal-roster')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="csv-preview" style="margin-top:0;">
+        <div class="csv-preview-head"><i class="fa-solid fa-circle-check"></i> spring_roster_additions.csv — 9 new subjects detected <a class="gallery-name-link" style="margin-left:auto; font-weight:500;" onclick="toast('File picker would open here')">Replace file</a></div>
+        <table>
+          <thead><tr><th>Last</th><th>First</th><th>Group</th><th>Parent Email</th></tr></thead>
+          <tbody>
+            <tr><td>Nakamura</td><td>Kai</td><td>Raptors U12</td><td>nakamura.fam@yopmail.com</td></tr>
+            <tr><td>O'Brien</td><td>Finn</td><td>Eagles U10</td><td>obrien22@yopmail.com</td></tr>
+            <tr><td>Reyes</td><td>Camila</td><td>Raptors U12</td><td>c.reyes@yopmail.com</td></tr>
+            <tr><td colspan="4" style="color:var(--text-3);">+ 6 more rows…</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="wiz-info"><i class="fa-solid fa-wand-magic-sparkles"></i><div>Existing subjects are matched by name and left untouched. <b>9 new galleries</b> will be created in their group folders, each with a QR code, and parents will be added to Contacts.</div></div>
+    </div>
+    <div class="modal-footer">
+      <div class="spacer"></div>
+      <button class="btn btn-ghost-sm" onclick="closeModal('modal-roster')">Cancel</button>
+      <button class="btn btn-brand" onclick="generateRoster()">Generate 9 Galleries</button>
+    </div>
+  </div>
+</div>
+
 <!-- ══════════ KEBAB MENUS ══════════ -->
 <div class="menu-pop" id="menu-gallery">
   <div class="menu-pop-item" onclick="menuAction('Move')"><i class="fa-solid fa-folder-tree"></i> Move</div>
@@ -4208,6 +4250,13 @@ html, body {
   <div class="menu-pop-item" onclick="menuAction('Edit assignment')"><i class="fa-solid fa-pencil"></i> Edit assignment</div>
   <div class="menu-pop-item" onclick="menuAction('Copy upload link')"><i class="fa-solid fa-link"></i> Copy upload link</div>
   <div class="menu-pop-item danger" onclick="menuAction('Remove from job')"><i class="fa-solid fa-user-minus"></i> Remove from job</div>
+</div>
+
+<div class="menu-pop" id="menu-share">
+  <div class="menu-pop-item" onclick="menuAction2('Job link copied to clipboard')"><i class="fa-solid fa-link"></i> Copy job link</div>
+  <div class="menu-pop-item" onclick="menuAction2('Sharing 25 completed galleries with their contacts…')"><i class="fa-solid fa-share-nodes"></i> Share completed galleries</div>
+  <div class="menu-pop-item" onclick="menuAction2('Email composer opens — all 128 job contacts selected')"><i class="fa-solid fa-envelope"></i> Email all contacts</div>
+  <div class="menu-pop-item" onclick="menuAction2('Generating printable QR card PDF for 142 subjects…')"><i class="fa-solid fa-qrcode"></i> Download QR cards</div>
 </div>
 
 <div class="menu-pop" id="menu-doc">
@@ -4322,8 +4371,48 @@ function menuAction(label) {
   toast(label + ' — mocked in prototype');
 }
 
-document.addEventListener('click', () => {
+function menuAction2(msg) {
   document.querySelectorAll('.menu-pop').forEach(m => m.classList.remove('open'));
+  toast(msg);
+}
+
+/* Organize tab: has/missing photo filter */
+function orgFilter(el, mode) {
+  el.parentElement.querySelectorAll('.subtab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  let visible = 0;
+  document.querySelectorAll('#tab-galleries tbody tr[data-g]').forEach(tr => {
+    const g = tr.dataset.g;
+    const show = mode === 'all' || (mode === 'has' && g === 'has') || (mode === 'missing' && g === 'empty');
+    tr.style.display = show ? '' : 'none';
+    if (show) visible++;
+  });
+  const foot = document.querySelector('#tab-galleries .table-foot span');
+  if (foot) {
+    foot.textContent = mode === 'all' ? 'Showing 11 of 45 items'
+      : mode === 'has' ? 'Showing ' + visible + ' of 25 galleries with photos'
+      : 'Showing ' + visible + ' of 17 galleries missing photos';
+  }
+}
+
+function goToUploads() {
+  showView('view-job-detail');
+  switchJobTabById('tab-galleries');
+  const chip = document.getElementById('org-missing-chip');
+  if (chip) orgFilter(chip, 'missing');
+}
+
+function generateRoster() {
+  closeModal('modal-roster');
+  toast('9 galleries created with QR codes — parents added to Contacts');
+}
+
+document.addEventListener('click', (e) => {
+  document.querySelectorAll('.menu-pop').forEach(m => m.classList.remove('open'));
+  const link = e.target.closest('.gallery-name-link');
+  if (link && !link.getAttribute('onclick') && !link.href) {
+    toast('Opens “' + link.textContent.trim() + '” — gallery pages ship in the product');
+  }
 });
 
 /* Chart tooltip */
