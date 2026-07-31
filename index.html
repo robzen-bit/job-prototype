@@ -1139,6 +1139,18 @@ html, body {
   min-width: 0;
 }
 
+/* Dashboard tiles double as jobs-list filters */
+.dash-strip .stat-tile {
+  cursor: pointer;
+  transition: box-shadow 0.15s ease;
+}
+
+.dash-strip .stat-tile:hover { box-shadow: var(--shadow-md); }
+
+.dash-strip .stat-tile.selected {
+  box-shadow: 0 0 0 2px var(--orange), var(--shadow-sm);
+}
+
 .stat-label {
   font-size: 12px;
   color: var(--text-3);
@@ -2426,27 +2438,27 @@ html, body {
 
         <!-- ── GLOBAL JOB DASHBOARD ── -->
         <div class="dash-strip">
-          <div class="stat-tile">
+          <div class="stat-tile" onclick="tileFilter(this,'active')" title="Show all active jobs">
             <div class="stat-label">Active jobs</div>
             <div class="stat-value">4</div>
             <div class="stat-delta flat">1 delivered this month</div>
           </div>
-          <div class="stat-tile">
+          <div class="stat-tile" onclick="tileFilter(this,'upcoming')" title="Show jobs with an upcoming shoot">
             <div class="stat-label">Upcoming shoots</div>
             <div class="stat-value">2</div>
             <div class="stat-delta flat">Next: Jun 2 · Lincoln Elementary</div>
           </div>
-          <div class="stat-tile">
+          <div class="stat-tile" onclick="tileFilter(this,'awaiting-upload')" title="Show jobs with galleries awaiting upload">
             <div class="stat-label">Galleries awaiting upload</div>
             <div class="stat-value">17</div>
             <div class="stat-delta down"><i class="fa-solid fa-triangle-exclamation"></i> 2 jobs blocked</div>
           </div>
-          <div class="stat-tile">
+          <div class="stat-tile" onclick="tileFilter(this,'ready-share')" title="Show jobs with galleries ready to share">
             <div class="stat-label">Ready to share</div>
             <div class="stat-value">25</div>
             <div class="stat-delta up"><i class="fa-solid fa-arrow-up"></i> 25 galleries complete</div>
           </div>
-          <div class="stat-tile">
+          <div class="stat-tile" onclick="tileFilter(this,'revenue')" title="Show jobs generating revenue">
             <div class="stat-label">Revenue · last 30 days</div>
             <div class="stat-value">$12,648</div>
             <div class="stat-delta up"><i class="fa-solid fa-arrow-up"></i> 18% vs prior 30 days</div>
@@ -2490,7 +2502,7 @@ html, body {
         <div class="jobs-list">
 
           <!-- Job 1: Riverside Soccer — Upload phase — CLICKABLE -->
-          <div class="job-card" data-status="uploading" id="job-riverside" style="cursor:pointer;" onclick="showView('view-job-detail')">
+          <div class="job-card" data-status="uploading" data-tags="active awaiting-upload ready-share revenue" id="job-riverside" style="cursor:pointer;" onclick="showView('view-job-detail')">
             <div class="job-info">
               <span class="job-status-pill pill-uploading">Uploading</span>
               <div class="job-name">Riverside Youth Soccer League — Spring 2026</div>
@@ -2541,7 +2553,7 @@ html, body {
           </div>
 
           <!-- Job 2: Lincoln Elementary — Shoot Day phase -->
-          <div class="job-card" data-status="shootday" style="cursor:pointer;" onclick="showView('view-job-detail')">
+          <div class="job-card" data-status="shootday" data-tags="active upcoming awaiting-upload" style="cursor:pointer;" onclick="showView('view-job-detail')">
             <div class="job-info">
               <span class="job-status-pill pill-shootday">Shoot Day</span>
               <div class="job-name">Lincoln Elementary School Picture Day</div>
@@ -2588,7 +2600,7 @@ html, body {
           </div>
 
           <!-- Job 3: Keystone Dance — Setup phase -->
-          <div class="job-card" data-status="planning" style="cursor:pointer;" onclick="showView('view-job-detail')">
+          <div class="job-card" data-status="planning" data-tags="active upcoming" style="cursor:pointer;" onclick="showView('view-job-detail')">
             <div class="job-info">
               <span class="job-status-pill pill-planning">Planning</span>
               <div class="job-name">Keystone Dance Academy — Recital 2026</div>
@@ -2636,7 +2648,7 @@ html, body {
           </div>
 
           <!-- Job 4: York Little League — Delivered phase -->
-          <div class="job-card" data-status="selling" style="cursor:pointer;" onclick="showView('view-job-detail')">
+          <div class="job-card" data-status="selling" data-tags="active revenue" style="cursor:pointer;" onclick="showView('view-job-detail')">
             <div class="job-info">
               <span class="job-status-pill pill-delivered">Selling</span>
               <div class="job-name">York Central Little League — Summer 2026</div>
@@ -4318,9 +4330,27 @@ function switchJobTab(el, panelId) {
 
 function filterJobs(el, status) {
   document.querySelectorAll('#view-jobs-list .jobs-filterbar .subtab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('#view-jobs-list .dash-strip .stat-tile').forEach(t => t.classList.remove('selected'));
   el.classList.add('active');
   document.querySelectorAll('.jobs-list .job-card').forEach(c => {
     c.style.display = (status === 'all' || c.dataset.status === status) ? '' : 'none';
+  });
+}
+
+/* Dashboard tiles filter the jobs list; click again to clear */
+function tileFilter(tile, tag) {
+  const wasSelected = tile.classList.contains('selected');
+  document.querySelectorAll('#view-jobs-list .dash-strip .stat-tile').forEach(t => t.classList.remove('selected'));
+  document.querySelectorAll('#view-jobs-list .jobs-filterbar .subtab').forEach(t => t.classList.remove('active'));
+  if (wasSelected) {
+    document.querySelector('#view-jobs-list .jobs-filterbar .subtab[data-f="all"]').classList.add('active');
+    document.querySelectorAll('.jobs-list .job-card').forEach(c => { c.style.display = ''; });
+    return;
+  }
+  tile.classList.add('selected');
+  document.querySelectorAll('.jobs-list .job-card').forEach(c => {
+    const tags = (c.dataset.tags || '').split(' ');
+    c.style.display = tags.indexOf(tag) >= 0 ? '' : 'none';
   });
 }
 
@@ -4714,7 +4744,7 @@ function createJob() {
   const dateTxt = fmtInputDate(fval('wz-date')) || 'Date TBD';
   const galleries = wizMode === 'csv' ? '142 galleries' : '0 galleries';
   const card =
-    '<div class="job-card" data-status="planning" style="cursor:pointer;" onclick="showView(\'view-job-detail\')">' +
+    '<div class="job-card" data-status="planning" data-tags="active upcoming" style="cursor:pointer;" onclick="showView(\'view-job-detail\')">' +
       '<div class="job-info">' +
         '<span class="job-status-pill pill-planning">Planning</span>' +
         '<div class="job-name">' + name + '</div>' +
