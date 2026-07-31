@@ -391,11 +391,8 @@ html, body {
   box-shadow: var(--shadow-md);
 }
 
-/* Status pill — positioned top-right */
+/* Status pill — sits above the job title */
 .job-status-pill {
-  position: absolute;
-  top: 16px;
-  right: 16px;
   display: inline-flex;
   align-items: center;
   height: 22px;
@@ -404,6 +401,7 @@ html, body {
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.2px;
+  margin-bottom: 8px;
 }
 
 .pill-planning  { background: #F0F0F2; color: var(--text-3); }
@@ -423,7 +421,21 @@ html, body {
   font-weight: 600;
   color: var(--text);
   line-height: 1.3;
-  padding-right: 90px; /* clear the status pill */
+}
+
+/* Jobs status filter bar */
+.jobs-filterbar {
+  padding: 0 32px 14px;
+  display: flex;
+  align-items: center;
+}
+
+.jobs-filterbar .subtabs { margin-bottom: 0; }
+
+.subtab .cnt {
+  color: var(--text-3);
+  font-weight: 500;
+  margin-left: 4px;
 }
 
 .job-meta {
@@ -2465,13 +2477,22 @@ html, body {
           </div>
         </div>
 
+        <div class="jobs-filterbar">
+          <div class="subtabs">
+            <div class="subtab active" data-f="all" onclick="filterJobs(this,'all')">All <span class="cnt"></span></div>
+            <div class="subtab" data-f="planning" onclick="filterJobs(this,'planning')">Planning <span class="cnt"></span></div>
+            <div class="subtab" data-f="shootday" onclick="filterJobs(this,'shootday')">Shoot Day <span class="cnt"></span></div>
+            <div class="subtab" data-f="uploading" onclick="filterJobs(this,'uploading')">Uploading <span class="cnt"></span></div>
+            <div class="subtab" data-f="delivered" onclick="filterJobs(this,'delivered')">Delivered <span class="cnt"></span></div>
+          </div>
+        </div>
+
         <div class="jobs-list">
 
           <!-- Job 1: Riverside Soccer — Upload phase — CLICKABLE -->
-          <div class="job-card" id="job-riverside" style="cursor:pointer;" onclick="showView('view-job-detail')">
-            <span class="job-status-pill pill-uploading">Uploading</span>
-
+          <div class="job-card" data-status="uploading" id="job-riverside" style="cursor:pointer;" onclick="showView('view-job-detail')">
             <div class="job-info">
+              <span class="job-status-pill pill-uploading">Uploading</span>
               <div class="job-name">Riverside Youth Soccer League — Spring 2026</div>
               <div class="job-meta">
                 <div class="job-meta-row shoot-date">
@@ -2520,10 +2541,9 @@ html, body {
           </div>
 
           <!-- Job 2: Lincoln Elementary — Shoot Day phase -->
-          <div class="job-card">
-            <span class="job-status-pill pill-shootday">Shoot Day</span>
-
+          <div class="job-card" data-status="shootday">
             <div class="job-info">
+              <span class="job-status-pill pill-shootday">Shoot Day</span>
               <div class="job-name">Lincoln Elementary School Picture Day</div>
               <div class="job-meta">
                 <div class="job-meta-row shoot-date">
@@ -2568,10 +2588,9 @@ html, body {
           </div>
 
           <!-- Job 3: Keystone Dance — Setup phase -->
-          <div class="job-card">
-            <span class="job-status-pill pill-planning">Planning</span>
-
+          <div class="job-card" data-status="planning">
             <div class="job-info">
+              <span class="job-status-pill pill-planning">Planning</span>
               <div class="job-name">Keystone Dance Academy — Recital 2026</div>
               <div class="job-meta">
                 <div class="job-meta-row shoot-date">
@@ -2617,10 +2636,9 @@ html, body {
           </div>
 
           <!-- Job 4: York Little League — Delivered phase -->
-          <div class="job-card">
-            <span class="job-status-pill pill-delivered">Delivered</span>
-
+          <div class="job-card" data-status="delivered">
             <div class="job-info">
+              <span class="job-status-pill pill-delivered">Delivered</span>
               <div class="job-name">York Central Little League — Summer 2026</div>
               <div class="job-meta">
                 <div class="job-meta-row shoot-date">
@@ -4217,6 +4235,23 @@ function switchJobTab(el, panelId) {
   document.querySelector('.content-area').scrollTop = 0;
 }
 
+function filterJobs(el, status) {
+  document.querySelectorAll('.jobs-filterbar .subtab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.jobs-list .job-card').forEach(c => {
+    c.style.display = (status === 'all' || c.dataset.status === status) ? '' : 'none';
+  });
+}
+
+function refreshJobCounts() {
+  const cards = document.querySelectorAll('.jobs-list .job-card');
+  const counts = { all: cards.length };
+  cards.forEach(c => { counts[c.dataset.status] = (counts[c.dataset.status] || 0) + 1; });
+  document.querySelectorAll('.jobs-filterbar .subtab').forEach(t => {
+    t.querySelector('.cnt').textContent = counts[t.dataset.f] || 0;
+  });
+}
+
 function switchJobTabById(panelId) {
   const tab = document.querySelector('.job-tab[data-panel="' + panelId + '"]');
   if (tab) switchJobTab(tab, panelId);
@@ -4555,9 +4590,9 @@ function createJob() {
   }
   const galleries = wizMode === 'csv' ? '142 galleries' : '0 galleries';
   const card =
-    '<div class="job-card" style="cursor:pointer;" onclick="showView(\'view-job-detail\')">' +
-      '<span class="job-status-pill pill-planning">Planning</span>' +
+    '<div class="job-card" data-status="planning" style="cursor:pointer;" onclick="showView(\'view-job-detail\')">' +
       '<div class="job-info">' +
+        '<span class="job-status-pill pill-planning">Planning</span>' +
         '<div class="job-name">' + name + '</div>' +
         '<div class="job-meta">' +
           '<div class="job-meta-row shoot-date"><i class="fa-solid fa-camera"></i> Shoot: ' + dateTxt + '</div>' +
@@ -4579,6 +4614,9 @@ function createJob() {
       '</div>' +
     '</div>';
   document.querySelector('.jobs-list').insertAdjacentHTML('afterbegin', card);
+  const allChip = document.querySelector('.jobs-filterbar .subtab[data-f="all"]');
+  filterJobs(allChip, 'all');
+  refreshJobCounts();
   closeModal('modal-wizard');
   showView('view-jobs-list');
   toast(wizMode === 'csv'
@@ -4717,6 +4755,7 @@ computeAll();
 populateGalleryFilter();
 renderOrders();
 updateRuleSentence();
+refreshJobCounts();
 </script>
 
 </body>
