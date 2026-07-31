@@ -4556,10 +4556,17 @@ function wizPaint() {
   if (wizStep === 4) buildReview();
 }
 
+function fmtInputDate(raw) {
+  if (!raw) return '';
+  const parts = raw.split('-');
+  const mn = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][parseInt(parts[1], 10) - 1];
+  return mn + ' ' + parseInt(parts[2], 10) + ', ' + parts[0];
+}
+
 function buildReview() {
   const name = fval('wz-name') || 'Untitled Job';
   const org = fval('wz-org') || '—';
-  const date = fval('wz-date') || '—';
+  const date = fmtInputDate(fval('wz-date')) || '—';
   const loc = fval('wz-loc') || '—';
   const contact = fval('wz-contact') || '—';
   const teamN = document.querySelectorAll('#wiz-3 .check-item.checked').length;
@@ -4581,13 +4588,7 @@ function buildReview() {
 function createJob() {
   const name = fval('wz-name') || 'Untitled Job';
   const loc = fval('wz-loc') || 'Location TBD';
-  const rawDate = fval('wz-date');
-  let dateTxt = 'Date TBD';
-  if (rawDate) {
-    const parts = rawDate.split('-');
-    const mn = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][parseInt(parts[1], 10) - 1];
-    dateTxt = mn + ' ' + parseInt(parts[2], 10) + ', ' + parts[0];
-  }
+  const dateTxt = fmtInputDate(fval('wz-date')) || 'Date TBD';
   const galleries = wizMode === 'csv' ? '142 galleries' : '0 galleries';
   const card =
     '<div class="job-card" data-status="planning" style="cursor:pointer;" onclick="showView(\'view-job-detail\')">' +
