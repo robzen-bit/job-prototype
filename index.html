@@ -2285,6 +2285,132 @@ html, body {
 .menu-pop-item.danger i { color: #C43C3C; }
 
 /* ──────────────────────────────────────
+   FOLDER LOCATION PICKER
+────────────────────────────────────── */
+.loc-search { position: relative; margin-top: 10px; }
+
+.loc-search i {
+  position: absolute;
+  left: 12px; top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-3);
+  font-size: 12px;
+  pointer-events: none;
+}
+
+.loc-search input { padding-left: 34px; }
+
+.loc-eyebrow {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  color: var(--text-3);
+  text-transform: uppercase;
+  margin-top: 16px;
+}
+
+.loc-counts { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+
+.loc-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 250px;
+  overflow-y: auto;
+  margin-top: 10px;
+  padding-right: 4px;
+}
+
+.loc-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  padding: 9px 12px;
+  cursor: pointer;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  transition: border-color 0.15s ease;
+  flex-shrink: 0;
+}
+
+.loc-row:hover { border-color: var(--text-3); }
+.loc-row.selected { border-color: var(--orange); }
+
+.loc-radio {
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  border: 1.5px solid #C9C9CF;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.loc-row.selected .loc-radio { border-color: var(--orange); }
+
+.loc-row.selected .loc-radio::after {
+  content: '';
+  position: absolute;
+  inset: 2.5px;
+  border-radius: 50%;
+  background: var(--orange);
+}
+
+.loc-folder-ico {
+  width: 34px; height: 34px;
+  border-radius: 8px;
+  background: rgba(242,107,58,0.12);
+  color: var(--orange);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.loc-name { font-size: 13px; font-weight: 600; color: var(--text); }
+.loc-sub  { font-size: 11.5px; color: var(--text-3); margin-top: 1px; }
+
+.loc-chevron {
+  margin-left: auto;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-3);
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.loc-chevron:hover { background: var(--bg); color: var(--text); }
+
+.loc-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--teal);
+  cursor: pointer;
+  margin-top: 14px;
+}
+
+.loc-back:hover { text-decoration: underline; }
+
+.btn[disabled] { opacity: 0.45; cursor: default; pointer-events: none; }
+
+.loc-trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.loc-trigger:hover { border-color: var(--text-3); }
+
+/* ──────────────────────────────────────
    TOAST
 ────────────────────────────────────── */
 .toast {
@@ -2902,7 +3028,7 @@ html, body {
                 </div>
                 <div class="gallery-toolbar-actions">
                   <button class="btn btn-ghost-sm" onclick="toast('Add Gallery — name and preset picker opens in product')"><i class="fa-solid fa-plus" style="font-size:10px;"></i> Add Gallery</button>
-                  <button class="btn btn-ghost-sm" onclick="toast('Add Folder — creates a subfolder in this job')"><i class="fa-solid fa-folder-plus" style="font-size:11px;"></i> Add Folder</button>
+                  <button class="btn btn-ghost-sm" onclick="openLocPicker('add')"><i class="fa-solid fa-folder-plus" style="font-size:11px;"></i> Add Folder</button>
                   <button class="btn btn-ghost-sm" onclick="openModal('modal-roster')"><i class="fa-solid fa-file-csv" style="font-size:11px;"></i> Import Roster</button>
                   <button class="btn btn-ghost-sm" onclick="toast('Generating printable QR card PDF for 142 subjects…')"><i class="fa-solid fa-qrcode" style="font-size:11px;"></i> QR Code Workflow</button>
                   <button class="btn btn-ghost-sm" onclick="openMenu(event,'menu-bulk')">Bulk Actions <i class="fa-solid fa-chevron-down" style="font-size:10px; margin-left:2px;"></i></button>
@@ -3899,15 +4025,11 @@ html, body {
         </div>
         <div class="f-field">
           <label class="f-label">Create Job Folder In</label>
-          <select class="f-input" id="wz-parent" onchange="parentFolderChanged(this)">
-            <option value="All Photographs">📁 All Photographs</option>
-            <option value="All Photographs / Client Work">📁 &emsp;Client Work</option>
-            <option value="All Photographs / Client Work / Schools">📁 &emsp;&emsp;Schools</option>
-            <option value="All Photographs / Client Work / Sports Leagues" selected>📁 &emsp;&emsp;Sports Leagues</option>
-            <option value="All Photographs / Client Work / Dance &amp; Events">📁 &emsp;&emsp;Dance &amp; Events</option>
-            <option value="All Photographs / Personal Projects">📁 &emsp;Personal Projects</option>
-            <option value="__new">＋ Create new folder…</option>
-          </select>
+          <button type="button" class="f-input loc-trigger" onclick="openLocPicker('pick')">
+            <i class="fa-solid fa-folder" style="color:var(--orange); font-size:13px;"></i>
+            <span id="wz-parent-label" style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">All Photographs / Client Work / Sports Leagues</span>
+            <i class="fa-solid fa-chevron-down" style="margin-left:auto; font-size:10px; color:var(--text-3);"></i>
+          </button>
           <div style="font-size:11.5px; color:var(--text-3);">The job is a folder in your Galleries — its sub-folders and galleries live inside it.</div>
         </div>
         <div class="f-row">
@@ -4164,6 +4286,42 @@ html, body {
       <div class="spacer"></div>
       <button class="btn btn-ghost-sm" onclick="closeModal('modal-rule')">Cancel</button>
       <button class="btn btn-brand" onclick="createRule()">Create Automation</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ FOLDER LOCATION / ADD FOLDER MODAL ══════════ -->
+<div class="modal-overlay" id="modal-folder">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="loc-title">Add a new folder</div>
+      </div>
+      <button class="modal-close" onclick="closeModal('modal-folder')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="f-field" id="loc-name-field">
+        <label class="f-label">Folder name <span style="color:var(--orange);">*</span></label>
+        <input class="f-input" id="loc-name" placeholder="e.g. Weddings 2026" oninput="locValidate()">
+      </div>
+      <div style="display:flex; align-items:baseline; gap:8px;">
+        <span class="f-label">Choose a location</span>
+        <span style="font-size:12px; color:var(--text-3);">Where do you want to place your new folder?</span>
+      </div>
+      <div class="loc-search">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input class="f-input" id="loc-query" placeholder="Search locations..." oninput="renderLoc()">
+      </div>
+      <div id="loc-eyebrow-wrap">
+        <div class="loc-eyebrow" id="loc-eyebrow">My Folders</div>
+        <div class="loc-counts" id="loc-counts">12 folders • 37 galleries</div>
+      </div>
+      <div class="loc-list" id="loc-list"></div>
+      <span class="loc-back" id="loc-back" style="display:none;" onclick="locDrill(null)"><i class="fa-solid fa-arrow-left"></i> Back to My Folders</span>
+    </div>
+    <div class="modal-footer">
+      <div class="spacer"></div>
+      <button class="btn btn-brand" id="loc-confirm" disabled onclick="locConfirm()">Add</button>
     </div>
   </div>
 </div>
@@ -5150,10 +5308,103 @@ function clearFilters() {
 /* ══════════ NEW JOB WIZARD ══════════ */
 let wizStep = 1, wizMode = 'csv', newJobSeq = 0;
 
-function parentFolderChanged(sel) {
-  if (sel.value === '__new') {
-    toast('New folder dialog opens in the product — defaulting to All Photographs');
-    sel.selectedIndex = 0;
+/* ══════════ FOLDER LOCATION PICKER ══════════ */
+const FOLDER_TREE = [
+  { name: 'All Photographs', sub: 'Top level', path: 'All Photographs' },
+  { name: 'Client Work', sub: '3 Folders, 4 Galleries', path: 'All Photographs / Client Work', children: [
+    { name: 'Schools', sub: '3 Galleries', path: 'All Photographs / Client Work / Schools' },
+    { name: 'Sports Leagues', sub: '2 Galleries', path: 'All Photographs / Client Work / Sports Leagues' },
+    { name: 'Dance & Events', sub: '1 Gallery', path: 'All Photographs / Client Work / Dance & Events' }
+  ] },
+  { name: 'Personal Projects', sub: '5 Galleries', path: 'All Photographs / Personal Projects' },
+  { name: 'Marketing Assets', sub: '4 Galleries', path: 'All Photographs / Marketing Assets' },
+  { name: 'Registration Test', sub: '2 Galleries', path: 'All Photographs / Registration Test' }
+];
+
+let wzParent = 'All Photographs / Client Work / Sports Leagues';
+let locMode = 'pick', locSel = null, locLevel = null;
+
+function openLocPicker(mode) {
+  locMode = mode; locSel = null; locLevel = null;
+  document.getElementById('loc-query').value = '';
+  document.getElementById('loc-name').value = '';
+  document.getElementById('loc-name-field').style.display = mode === 'add' ? 'flex' : 'none';
+  setText('loc-title', mode === 'add' ? 'Add a new folder' : 'Choose a location');
+  setText('loc-confirm', mode === 'add' ? 'Add' : 'Select');
+  renderLoc();
+  locValidate();
+  openModal('modal-folder');
+}
+
+function locDrill(folderName) {
+  locLevel = folderName;
+  document.getElementById('loc-query').value = '';
+  renderLoc();
+}
+
+function locRowHTML(f, subOverride) {
+  const hasKids = f.children && f.children.length;
+  return '<div class="loc-row' + (locSel === f.path ? ' selected' : '') + '" onclick="locSelect(\'' + f.path + '\')">' +
+    '<span class="loc-radio"></span>' +
+    '<div class="loc-folder-ico"><i class="fa-regular fa-folder"></i></div>' +
+    '<div style="min-width:0;"><div class="loc-name">' + f.name + '</div><div class="loc-sub">' + (subOverride || f.sub) + '</div></div>' +
+    (hasKids ? '<span class="loc-chevron" onclick="event.stopPropagation(); locDrill(\'' + f.name + '\')"><i class="fa-solid fa-chevron-right"></i></span>' : '') +
+  '</div>';
+}
+
+function renderLoc() {
+  const q = document.getElementById('loc-query').value.trim().toLowerCase();
+  const listEl = document.getElementById('loc-list');
+  const back = document.getElementById('loc-back');
+  let rows = [];
+  if (q) {
+    const walk = (nodes) => nodes.forEach(n => {
+      if (n.name.toLowerCase().indexOf(q) >= 0) rows.push(locRowHTML(n, n.path));
+      if (n.children) walk(n.children);
+    });
+    walk(FOLDER_TREE);
+    setText('loc-eyebrow', 'Search results');
+    setText('loc-counts', rows.length + ' matching location' + (rows.length === 1 ? '' : 's'));
+    back.style.display = 'none';
+    listEl.innerHTML = rows.join('') || '<div style="padding:18px; text-align:center; color:var(--text-3); font-size:12.5px;">No folders match.</div>';
+    return;
+  }
+  if (locLevel) {
+    const parent = FOLDER_TREE.find(f => f.name === locLevel);
+    rows = (parent.children || []).map(f => locRowHTML(f));
+    setText('loc-eyebrow', parent.name);
+    setText('loc-counts', parent.sub);
+    back.style.display = 'inline-flex';
+  } else {
+    rows = FOLDER_TREE.map(f => locRowHTML(f));
+    setText('loc-eyebrow', 'My Folders');
+    setText('loc-counts', '12 folders • 37 galleries');
+    back.style.display = 'none';
+  }
+  listEl.innerHTML = rows.join('');
+}
+
+function locSelect(path) {
+  locSel = path;
+  renderLoc();
+  locValidate();
+}
+
+function locValidate() {
+  const ok = !!locSel && (locMode !== 'add' || fval('loc-name').trim().length > 0);
+  const btn = document.getElementById('loc-confirm');
+  if (ok) btn.removeAttribute('disabled'); else btn.setAttribute('disabled', '');
+}
+
+function locConfirm() {
+  if (locMode === 'pick') {
+    wzParent = locSel;
+    setText('wz-parent-label', wzParent);
+    closeModal('modal-folder');
+  } else {
+    const nm = fval('loc-name').trim();
+    closeModal('modal-folder');
+    toast('Folder “' + nm + '” created in ' + locSel);
   }
 }
 
@@ -5208,7 +5459,7 @@ function buildReview() {
   const contact = fval('wz-contact') || '—';
   const teamN = document.querySelectorAll('#wiz-3 .check-item.checked').length;
   const priceList = fval('wz-pricelist');
-  const parent = fval('wz-parent') === '__new' ? 'All Photographs' : fval('wz-parent');
+  const parent = wzParent;
   const modeTxt = {
     csv: 'Roster CSV — 142 galleries + QR codes will be generated',
     prereg: 'Pre-registration link with pre-orders enabled',
@@ -5240,7 +5491,7 @@ function createJob() {
   JOBS[key] = {
     key: key, seed: 5 + newJobSeq, icon: 'fa-briefcase',
     name: name, org2: org, shoot: dateTxt, deadline: '—', loc: loc,
-    path: (fval('wz-parent') === '__new' ? 'All Photographs' : fval('wz-parent')),
+    path: wzParent,
     contact: [contact, ''], notes: '',
     created: 'Jun 3, 2026', modified: 'Jun 3, 2026',
     phase: 0,
