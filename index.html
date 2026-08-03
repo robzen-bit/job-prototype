@@ -2718,23 +2718,22 @@ html, body {
 
 .collapse-btn i { transition: transform 0.15s ease; }
 
-.shoot-block.collapsed .shoot-block-head .collapse-btn i,
-.loc-card.collapsed .loc-head .collapse-btn i { transform: rotate(-90deg); }
+.shoot-block.collapsed .shoot-block-head .collapse-btn i { transform: rotate(-90deg); }
 
-.shoot-block.collapsed .ws-date { display: none; }
 .shoot-block.collapsed .ws-locsel-head { display: none; }
 #wz-shoots .ws-locs .loc-card:first-child .locsel-row { display: none; }
-.shoot-block.collapsed > .ws-locs,
-.shoot-block.collapsed > .add-inline-btn { display: none; }
-.shoot-block.collapsed .shoot-block-head { margin-bottom: 0; }
 
-.shoot-sum { display: none; font-size: 12.5px; color: var(--text); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.shoot-block.collapsed .shoot-sum { display: inline; }
+/* collapsed shoot: date stays, locations render as summary rows */
+.loc-head { display: none; align-items: center; gap: 8px; }
+.shoot-block.collapsed .loc-head { display: flex; cursor: pointer; }
+.shoot-block.collapsed .loc-body { display: none; }
+.shoot-block.collapsed .loc-card { padding: 9px 12px; }
 
-.loc-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.loc-chev { color: var(--text-3); font-size: 11px; width: 18px; text-align: center; flex-shrink: 0; }
+
 .loc-sum-body { font-size: 12.5px; color: var(--text); display: flex; align-items: center; min-width: 0; overflow: hidden; white-space: nowrap; }
-.loc-card.collapsed .loc-body { display: none; }
-.loc-card.collapsed .loc-head { margin-bottom: 0; }
+
+.loc-time { color: var(--text-3); font-size: 11.5px; margin-left: 10px; font-weight: 400; }
 
 /* Org summary box */
 .org-summary {
@@ -5496,7 +5495,7 @@ function shootItemHTML(s) {
         : '<div class="sd-mon">Date</div><div class="sd-day">—</div><div class="sd-year">TBD</div>') +
     '</div>' +
     '<div class="shoot-item-body">' + s.locs.map(L =>
-      '<div class="shoot-loc-line"><span class="shoot-loc-venue">' + L.v + '</span>' + (L.a ? '<span class="shoot-loc-addr">' + L.a + '</span>' : '') + (L.t ? '<span class="shoot-loc-addr"><i class="fa-regular fa-clock" style="font-size:10px; margin-right:3px;"></i>' + L.t + '</span>' : '') + '</div>' +
+      '<div class="shoot-loc-line"><span class="shoot-loc-venue">' + L.v + '</span>' + (L.a ? '<span class="shoot-loc-addr">' + L.a + '</span>' : '') + '<span class="shoot-loc-addr"><i class="fa-regular fa-clock" style="font-size:10px; margin-right:3px;"></i>' + (L.t || 'No time confirmed') + '</span>' + '</div>' +
       '<div class="shoot-photog-chips">' + ((L.p && L.p.length)
         ? L.p.map(photogChip).join('')
         : '<span class="chip chip-gray" style="height:18px; font-size:10px;">Photographer TBD</span>') + '</div>'
@@ -5591,10 +5590,10 @@ function addLocCard(container, pre) {
   const div = document.createElement('div');
   div.className = 'loc-card';
   div.innerHTML =
-    '<div class="loc-head">' +
-      '<button type="button" class="collapse-btn" onclick="toggleLoc(this)" title="Collapse / expand"><i class="fa-solid fa-chevron-down"></i></button>' +
+    '<div class="loc-head" onclick="expandShootFromLoc(this)" title="Expand shoot to edit">' +
+      '<span class="loc-chev"><i class="fa-solid fa-chevron-right"></i></span>' +
       '<span class="loc-sum-body"></span>' +
-      '<button type="button" class="row-x" onclick="removeLocCard(this)" title="Remove location"><i class="fa-solid fa-xmark"></i></button>' +
+      '<button type="button" class="row-x" onclick="event.stopPropagation(); removeLocCard(this)" title="Remove location"><i class="fa-solid fa-xmark"></i></button>' +
     '</div>' +
     '<div class="loc-body">' +
     '<div class="loc-card-row locsel-row">' +
@@ -5603,6 +5602,7 @@ function addLocCard(container, pre) {
     '<div class="loc-card-row">' +
       '<input class="f-input ws-venue grow" placeholder="Location name / label — e.g. Main Gym" value="' + (pre.v || '') + '" oninput="updateLocSum(this.closest(\'.loc-card\'))">' +
       '<input class="f-input ws-street grow" placeholder="Street address" value="' + (pre.street || '') + '">' +
+      '<button type="button" class="row-x" onclick="removeLocCard(this)" title="Remove location"><i class="fa-solid fa-xmark"></i></button>' +
     '</div>' +
     '<div class="loc-card-row">' +
       '<input class="f-input ws-city w-city" placeholder="City" value="' + (pre.city || '') + '">' +
@@ -5646,21 +5646,14 @@ function syncHeadLocSel(block) {
 function toggleShoot(btn) {
   const b = btn.closest('.shoot-block');
   b.classList.toggle('collapsed');
-  if (b.classList.contains('collapsed')) updateShootSum(b);
+  if (b.classList.contains('collapsed')) {
+    b.querySelectorAll('.loc-card').forEach(updateLocSum);
+  }
 }
 
-function updateShootSum(b) {
-  const raw = b.querySelector('.ws-date').value;
-  const date = fmtInputDate(raw) || 'Date TBD';
-  const locs = Array.prototype.map.call(b.querySelectorAll('.loc-card'), parseLocCard).filter(Boolean);
-  const locTxt = locs.length === 0 ? 'no locations yet' : (locs.length === 1 ? locs[0].v : locs.length + ' locations');
-  b.querySelector('.shoot-sum').innerHTML = '<b>' + date + '</b><span style="color:var(--text-3);"> · ' + locTxt + '</span>';
-}
-
-function toggleLoc(btn) {
-  const lc = btn.closest('.loc-card');
-  lc.classList.toggle('collapsed');
-  updateLocSum(lc);
+function expandShootFromLoc(el) {
+  const b = el.closest('.shoot-block');
+  if (b) b.classList.remove('collapsed');
 }
 
 function updateLocSum(lc) {
@@ -5672,9 +5665,12 @@ function updateLocSum(lc) {
     const m = PHOTOG_META[n];
     return '<span class="pgdot" style="background:' + m.bg + '; width:18px; height:18px; font-size:8px; margin-left:-4px;" title="' + n + '">' + m.ini + '</span>';
   }).join('');
+  const start = lc.querySelector('.ws-start').value, end = lc.querySelector('.ws-end').value;
+  const timeTxt = start ? (end ? fmtTime(start) + ' – ' + fmtTime(end) : 'Starts ' + fmtTime(start)) : 'No time confirmed';
   el.innerHTML = '<b>' + v + '</b>' + (names.length
     ? '<span style="display:inline-flex; margin-left:10px;">' + dots + '</span>'
-    : '<span style="color:var(--text-3); margin-left:10px; font-size:11.5px;">no photographers yet</span>');
+    : '<span style="color:var(--text-3); margin-left:10px; font-size:11.5px;">no photographers yet</span>') +
+    '<span class="loc-time">' + timeTxt + '</span>';
 }
 
 function removeLocCard(btn) {
@@ -5700,7 +5696,7 @@ function parseLocCard(lc) {
   const v = g('ws-venue'), street = g('ws-street'), city = g('ws-city'), state = g('ws-state'), zip = g('ws-zip');
   const p = Array.prototype.map.call(lc.querySelectorAll('.pgdd-item.on'), c => c.dataset.name);
   const start = lc.querySelector('.ws-start').value, end = lc.querySelector('.ws-end').value;
-  const t = start ? fmtTime(start) + (end ? ' – ' + fmtTime(end) : '') : '';
+  const t = start ? (end ? fmtTime(start) + ' – ' + fmtTime(end) : 'Starts ' + fmtTime(start)) : '';
   const addr = [street, city, (state + ' ' + zip).trim()].filter(Boolean).join(', ');
   if (!v && !street && !city) return null;
   return { v: v || 'Location', a: addr, t: t, p: p };
@@ -6350,7 +6346,6 @@ function wizAddShoot(copyPrev) {
     '<span class="shoot-block-num"></span>' +
     '<input class="f-input ws-date" type="date" onchange="sortShoots()">' +
     '<select class="f-input ws-locsel-head" onchange="headLocChanged(this)" style="flex:1; min-width:0;">' + locOptionsHTML(activeOrgLocs(cont), '') + '</select>' +
-    '<span class="shoot-sum"></span>' +
     '<button type="button" class="row-x" onclick="removeShootBlock(this)" title="Remove this date"><i class="fa-solid fa-xmark"></i></button></div>' +
     '<div class="ws-locs"></div>' +
     '<button type="button" class="add-inline-btn" onclick="addLocCard(this.previousElementSibling)"><i class="fa-solid fa-plus"></i> Add another location to this date</button>';
@@ -6373,7 +6368,7 @@ function removeShootBlock(btn) {
 function renumberShoots() {
   const nums = document.querySelectorAll('#wz-shoots .shoot-block .shoot-block-num');
   nums.forEach((n, i) => {
-    n.textContent = nums.length > 1 ? 'Shoot ' + (i + 1) : '';
+    n.textContent = nums.length > 1 ? 'Day ' + (i + 1) : 'Shoot Date';
   });
 }
 
