@@ -5731,6 +5731,12 @@ function addLocCard(container, pre) {
   updateLocSum(div);
 }
 
+function addLocAndExpand(btn) {
+  const block = btn.closest('.shoot-block');
+  if (block) block.classList.remove('collapsed');
+  addLocCard(btn.previousElementSibling);
+}
+
 function headLocChanged(sel) {
   const block = sel.closest('.shoot-block');
   const firstLc = block.querySelector('.loc-card');
@@ -6621,7 +6627,7 @@ function wizAddShoot(copyPrev) {
     '<select class="f-input ws-locsel-head" onchange="headLocChanged(this)" style="flex:1; min-width:0;">' + locOptionsHTML(activeOrgLocs(cont), '') + '</select>' +
     '<button type="button" class="row-x" onclick="removeShootBlock(this)" title="Remove this date"><i class="fa-solid fa-xmark"></i></button></div>' +
     '<div class="ws-locs"></div>' +
-    '<button type="button" class="add-inline-btn" onclick="addLocCard(this.previousElementSibling)"><i class="fa-solid fa-plus"></i> Add another location to this date</button>';
+    '<button type="button" class="add-inline-btn" onclick="addLocAndExpand(this)"><i class="fa-solid fa-plus"></i> Add another location to this date</button>';
   cont.appendChild(div);
   const locsEl = div.querySelector('.ws-locs');
   if (locVals.length) locVals.forEach(vv => addLocCard(locsEl, vv));
