@@ -6258,7 +6258,6 @@ const ORGS = [
 ];
 
 let selectedOrgIdx = null;
-let lastNameSuggestion = '';
 const ACCOUNT_DEFAULT_FOLDER = 'All Photographs / Client Work';
 let destTouched = false;
 
@@ -6340,19 +6339,9 @@ function orgChanged() {
     document.getElementById('wz-jc-name').value = o.contact === '—' ? '' : o.contact;
     document.getElementById('wz-jc-email').value = o.email;
     document.getElementById('wz-jc-phone').value = o.phone;
-    /* suggested job name — never overwrite what the user typed */
-    const nameEl = document.getElementById('wz-name');
-    if (!nameEl.value.trim() || nameEl.value === lastNameSuggestion) {
-      lastNameSuggestion = o.name + ' 2026';
-      nameEl.value = lastNameSuggestion;
-    }
   } else {
     sum.style.display = 'none';
     jc.style.display = 'none';
-    if (document.getElementById('wz-name').value === lastNameSuggestion) {
-      document.getElementById('wz-name').value = '';
-      lastNameSuggestion = '';
-    }
   }
   applyOrgFolderDefault(o);
   refreshLocSelects();
@@ -6574,7 +6563,6 @@ function parseShoots() {
 function openWizard() {
   wizStep = 1;
   selectedOrgIdx = null;
-  lastNameSuggestion = '';
   destTouched = false;
   const label = document.getElementById('wz-orgdd-label');
   label.textContent = 'Select an organization (optional)';
