@@ -4372,7 +4372,7 @@ html, body {
             <input class="f-input" id="wz-name" placeholder="e.g. Lincoln Picture Day — Fall 2026">
           </div>
           <div class="f-field">
-            <label class="f-label">Organization</label>
+            <label class="f-label">Organization <span class="opt">(optional)</span></label>
             <select class="f-input" id="wz-org-sel" onchange="orgChanged()"></select>
           </div>
         </div>
@@ -4437,15 +4437,22 @@ html, body {
           <label class="perm-item" style="margin-top:2px;"><input type="checkbox" id="wz-orgn-save" checked> Save this organization for future jobs</label>
         </div>
 
-        <div class="f-row" id="wz-org-manual" style="display:none;">
-          <div class="f-field">
-            <label class="f-label">Primary Contact</label>
-            <input class="f-input" id="wz-contact" placeholder="Name">
+        <div id="wz-org-manual" style="display:none;">
+          <div class="f-row">
+            <div class="f-field">
+              <label class="f-label">Primary Contact</label>
+              <input class="f-input" id="wz-contact" placeholder="Name">
+            </div>
+            <div class="f-field">
+              <label class="f-label">Contact Email</label>
+              <input class="f-input" id="wz-contact-email" placeholder="email@example.com">
+            </div>
+            <div class="f-field">
+              <label class="f-label">Phone <span class="opt">(optional)</span></label>
+              <input class="f-input" id="wz-contact-phone" placeholder="(717) 555-0100">
+            </div>
           </div>
-          <div class="f-field">
-            <label class="f-label">Contact Email</label>
-            <input class="f-input" id="wz-contact-email" placeholder="email@example.com">
-          </div>
+          <div style="font-size:11.5px; color:var(--text-3); margin:-8px 0 14px;">No organization selected — please enter a primary contact for this job.</div>
         </div>
 
         <div style="display:flex; align-items:baseline; gap:8px; margin-bottom:8px;">
@@ -6218,7 +6225,7 @@ function populateOrgSelect() {
 function orgChanged() {
   const v = fval('wz-org-sel');
   document.getElementById('wz-org-new').style.display = v === '__new' ? 'block' : 'none';
-  document.getElementById('wz-org-manual').style.display = v === '__none' ? 'flex' : 'none';
+  document.getElementById('wz-org-manual').style.display = (v === '' || v === '__none') ? 'block' : 'none';
   const sum = document.getElementById('wz-org-summary');
   const jc = document.getElementById('wz-job-contact');
   if (v !== '' && v !== '__new' && v !== '__none') {
@@ -6303,7 +6310,7 @@ function resolveOrg(save) {
     return o;
   }
   if (v === '' || v === '__none') {
-    return { name: '—', contact: fval('wz-contact') || '—', email: fval('wz-contact-email') || '', phone: '', addr: '' };
+    return { name: '—', contact: fval('wz-contact') || '—', email: fval('wz-contact-email') || '', phone: fval('wz-contact-phone') || '', addr: '' };
   }
   const base = ORGS[parseInt(v, 10)];
   return {
@@ -6408,7 +6415,7 @@ function openWizard() {
   populateOrgSelect();
   document.getElementById('wz-org-sel').value = '';
   orgChanged();
-  ['wz-orgn-name','wz-orgn-contact','wz-orgn-email','wz-orgn-phone','wz-orgn-street','wz-orgn-city','wz-orgn-state','wz-orgn-zip','wz-jc-name','wz-jc-email','wz-jc-phone'].forEach(id => { document.getElementById(id).value = ''; });
+  ['wz-orgn-name','wz-orgn-contact','wz-orgn-email','wz-orgn-phone','wz-orgn-street','wz-orgn-city','wz-orgn-state','wz-orgn-zip','wz-jc-name','wz-jc-email','wz-jc-phone','wz-contact','wz-contact-email','wz-contact-phone'].forEach(id => { document.getElementById(id).value = ''; });
   schedMode = 'now';
   document.querySelectorAll('#wiz-1 .choice-card[data-sched]').forEach(c => c.classList.toggle('selected', c.dataset.sched === 'now'));
   document.getElementById('wz-schedule').style.display = 'block';
