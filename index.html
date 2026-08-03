@@ -2612,6 +2612,128 @@ html, body {
   margin-left: 2px;
 }
 
+/* Photographer multiselect dropdown */
+.mini-field { display: flex; flex-direction: column; gap: 3px; flex-shrink: 0; }
+.mini-label { font-size: 10px; font-weight: 700; letter-spacing: 0.4px; text-transform: uppercase; color: var(--text-3); }
+.mini-field input[type="time"] { width: 108px; }
+
+.pgdd { position: relative; flex: 1; min-width: 0; }
+
+.pgdd-trigger {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  min-height: 32px;
+  height: auto;
+  padding: 3px 10px;
+  flex-wrap: wrap;
+}
+
+.pgdd-trigger:hover { border-color: var(--text-3); }
+
+.pgdd-trigger > i { margin-left: auto; font-size: 10px; color: var(--text-3); }
+
+.pgdd-placeholder { color: var(--text-3); font-size: 12.5px; }
+
+.pgdd-chips { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+
+.pgdot {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 8.5px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 2px solid var(--surface);
+  box-shadow: 0 0 0 1px var(--line);
+}
+
+.pgdd-panel {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  box-shadow: var(--shadow-lg);
+  z-index: 260;
+  padding: 5px;
+  display: none;
+}
+
+.pgdd-panel.open { display: block; }
+
+.pgdd-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 9px;
+  border-radius: 7px;
+  cursor: pointer;
+  font-size: 12.5px;
+  color: var(--text);
+}
+
+.pgdd-item:hover { background: var(--bg); }
+
+.pgdd-check {
+  width: 15px; height: 15px;
+  border-radius: 4px;
+  border: 1.5px solid #C9C9CF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  color: transparent;
+  flex-shrink: 0;
+}
+
+.pgdd-item.on .pgdd-check {
+  background: var(--orange);
+  border-color: var(--orange);
+  color: #fff;
+}
+
+/* Collapsible shoot blocks + location cards */
+.collapse-btn {
+  width: 24px; height: 24px;
+  border: none;
+  background: transparent;
+  color: var(--text-3);
+  cursor: pointer;
+  border-radius: 50%;
+  font-size: 11px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.collapse-btn:hover { background: #ECECF0; color: var(--text); }
+
+.collapse-btn i { transition: transform 0.15s ease; }
+
+.shoot-block.collapsed .shoot-block-head .collapse-btn i,
+.loc-card.collapsed .loc-head .collapse-btn i { transform: rotate(-90deg); }
+
+.shoot-block.collapsed .ws-date { display: none; }
+.shoot-block.collapsed > .ws-locs,
+.shoot-block.collapsed > .add-inline-btn { display: none; }
+.shoot-block.collapsed .shoot-block-head { margin-bottom: 0; }
+
+.shoot-sum { display: none; font-size: 12.5px; color: var(--text); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.shoot-block.collapsed .shoot-sum { display: inline; }
+
+.loc-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.loc-sum-body { font-size: 12.5px; color: var(--text); display: flex; align-items: center; min-width: 0; overflow: hidden; white-space: nowrap; }
+.loc-card.collapsed .loc-body { display: none; }
+.loc-card.collapsed .loc-head { margin-bottom: 0; }
+
 /* Org summary box */
 .org-summary {
   display: flex;
@@ -4902,6 +5024,7 @@ function generateRoster() {
 
 document.addEventListener('click', (e) => {
   document.querySelectorAll('.menu-pop').forEach(m => m.classList.remove('open'));
+  document.querySelectorAll('.pgdd-panel.open').forEach(pp => pp.classList.remove('open'));
   const link = e.target.closest('.gallery-name-link');
   if (link && !link.getAttribute('onclick') && !link.href) {
     toast('Opens “' + link.textContent.trim() + '” — gallery pages ship in the product');
@@ -4967,9 +5090,9 @@ const JOBS = {
     tiles: { gal: '42', galSub: '25 with photos · 17 empty', ph: '3,847', phSub: '412 in last 24h', ct: '128', ctSub: '96 registered · 32 imported' },
     shoots: [
       { date: 'May 14, 2026', st: 'done', locs: [
-        { v: 'Main Fields — Individuals', a: '420 Riverside Dr, York, PA 17401', p: ['Robert Campbell'] },
-        { v: 'East Fields — Raptors U12', a: '420 Riverside Dr, York, PA 17401', p: ['Sofia Khan'] },
-        { v: 'West Fields — Eagles U10', a: '420 Riverside Dr, York, PA 17401', p: ['James Torres'] }
+        { v: 'Main Fields — Individuals', a: '420 Riverside Dr, York, PA 17401', t: '8:00 AM – 12:00 PM', p: ['Robert Campbell'] },
+        { v: 'East Fields — Raptors U12', a: '420 Riverside Dr, York, PA 17401', t: '8:00 AM – 11:00 AM', p: ['Sofia Khan'] },
+        { v: 'West Fields — Eagles U10', a: '420 Riverside Dr, York, PA 17401', t: '12:30 PM – 3:30 PM', p: ['James Torres'] }
       ] }
     ],
     shootday: { title: 'Shoot Day — May 14', big: '148', cap: 'subjects photographed', fill: 100,
@@ -5054,7 +5177,7 @@ const JOBS = {
     tiles: { gal: '142', galSub: '0 with photos · 142 awaiting', ph: '0', phSub: 'uploads begin after the shoot', ct: '90', ctSub: '89 registered · 1 primary' },
     shoots: [
       { date: 'Jun 2, 2026', st: 'today', locs: [
-        { v: 'Main Gymnasium', a: '1200 Lincoln Ave, York, PA 17404', p: ['Robert Campbell'] }
+        { v: 'Main Gymnasium', a: '1200 Lincoln Ave, York, PA 17404', t: '8:30 AM – 2:00 PM', p: ['Robert Campbell'] }
       ] }
     ],
     shootday: { title: 'Shoot Day — In Progress', big: '112', cap: 'of 142 subjects photographed', fill: 79,
@@ -5128,7 +5251,7 @@ const JOBS = {
     tiles: { gal: '0', galSub: 'import a roster to generate', ph: '0', phSub: '—', ct: '1', ctSub: 'primary contact only' },
     shoots: [
       { date: 'Jun 18, 2026', st: 'upcoming', locs: [
-        { v: 'Main Stage — Keystone PAC', a: '55 Arts Center Blvd, York, PA 17402', p: ['Robert Campbell', 'Sofia Khan'] }
+        { v: 'Main Stage — Keystone PAC', a: '55 Arts Center Blvd, York, PA 17402', t: '1:00 PM – 7:00 PM', p: ['Robert Campbell', 'Sofia Khan'] }
       ] }
     ],
     shootday: { title: 'Shoot Day — Jun 18', big: '0', cap: 'QR cards not generated yet — import the roster first', fill: 0,
@@ -5177,11 +5300,11 @@ const JOBS = {
     tiles: { gal: '87', galSub: '87 with photos · 0 empty', ph: '6,912', phSub: 'upload complete Jul 14', ct: '214', ctSub: '198 registered · 16 imported' },
     shoots: [
       { date: 'Jul 10, 2026', st: 'done', locs: [
-        { v: 'Memorial Stadium — Field A', a: '300 Stadium Way, York, PA 17403', p: ['Robert Campbell'] },
-        { v: 'Memorial Stadium — Field B', a: '300 Stadium Way, York, PA 17403', p: ['Robert Campbell'] }
+        { v: 'Memorial Stadium — Field A', a: '300 Stadium Way, York, PA 17403', t: '9:00 AM – 1:00 PM', p: ['Robert Campbell'] },
+        { v: 'Memorial Stadium — Field B', a: '300 Stadium Way, York, PA 17403', t: '1:30 PM – 5:00 PM', p: ['Robert Campbell'] }
       ] },
       { date: 'Jul 11, 2026', st: 'done', locs: [
-        { v: 'Main Diamond — Team Photos', a: '300 Stadium Way, York, PA 17403', p: ['Robert Campbell'] }
+        { v: 'Main Diamond — Team Photos', a: '300 Stadium Way, York, PA 17403', t: '10:00 AM – 2:00 PM', p: ['Robert Campbell'] }
       ] }
     ],
     shootday: { title: 'Shoot Day — Jul 10', big: '206', cap: 'subjects photographed', fill: 100,
@@ -5380,7 +5503,7 @@ function shootItemHTML(s) {
         : '<div class="sd-mon">Date</div><div class="sd-day">—</div><div class="sd-year">TBD</div>') +
     '</div>' +
     '<div class="shoot-item-body">' + s.locs.map(L =>
-      '<div class="shoot-loc-line"><span class="shoot-loc-venue">' + L.v + '</span>' + (L.a ? '<span class="shoot-loc-addr">' + L.a + '</span>' : '') + '</div>' +
+      '<div class="shoot-loc-line"><span class="shoot-loc-venue">' + L.v + '</span>' + (L.a ? '<span class="shoot-loc-addr">' + L.a + '</span>' : '') + (L.t ? '<span class="shoot-loc-addr"><i class="fa-regular fa-clock" style="font-size:10px; margin-right:3px;"></i>' + L.t + '</span>' : '') + '</div>' +
       '<div class="shoot-photog-chips">' + ((L.p && L.p.length)
         ? L.p.map(photogChip).join('')
         : '<span class="chip chip-gray" style="height:18px; font-size:10px;">Photographer TBD</span>') + '</div>'
@@ -5412,10 +5535,56 @@ function buildShoots(j) {
 /* ── Add Shoot modal ── */
 const PHOTOG_NAMES = ['Robert Campbell', 'Sofia Khan', 'James Torres', 'Emma Liu'];
 
-function pgChipHTML(name, on) {
+function pgddItemHTML(name, on) {
   const m = PHOTOG_META[name];
-  return '<span class="pg-chip' + (on ? ' on' : '') + '" data-name="' + name + '" onclick="togglePgChip(this)">' +
-    '<span class="dot" style="background:' + m.bg + ';">' + m.ini + '</span>' + name.split(' ')[0] + '</span>';
+  return '<div class="pgdd-item' + (on ? ' on' : '') + '" data-name="' + name + '" onclick="pgddItemToggle(event, this)">' +
+    '<span class="pgdd-check"><i class="fa-solid fa-check"></i></span>' +
+    '<span class="pgdot" style="background:' + m.bg + ';">' + m.ini + '</span>' + name + '</div>';
+}
+
+function pgddToggle(e, trigger) {
+  e.stopPropagation();
+  const panel = trigger.parentElement.querySelector('.pgdd-panel');
+  const wasOpen = panel.classList.contains('open');
+  document.querySelectorAll('.pgdd-panel.open').forEach(pp => pp.classList.remove('open'));
+  if (!wasOpen) panel.classList.add('open');
+}
+
+function pgddItemToggle(e, item) {
+  e.stopPropagation();
+  item.classList.toggle('on');
+  pgddSync(item.closest('.pgdd'));
+  const lc = item.closest('.loc-card');
+  if (lc) updateLocSum(lc);
+}
+
+function pgddSync(dd) {
+  const names = Array.prototype.map.call(dd.querySelectorAll('.pgdd-item.on'), i => i.dataset.name);
+  const chips = dd.querySelector('.pgdd-chips');
+  if (!names.length) {
+    chips.innerHTML = '<span class="pgdd-placeholder">Assign photographers…</span>';
+    return;
+  }
+  if (names.length >= 3) {
+    /* tight on space — collapse to avatars only */
+    chips.innerHTML = names.map(n => {
+      const m = PHOTOG_META[n];
+      return '<span class="pgdot" style="background:' + m.bg + '; margin-left:-4px;" title="' + n + '">' + m.ini + '</span>';
+    }).join('');
+    return;
+  }
+  chips.innerHTML = names.map(n => {
+    const m = PHOTOG_META[n];
+    return '<span class="mini-photog-chip" style="height:22px;"><span class="dot" style="background:' + m.bg + '; width:14px; height:14px; font-size:7.5px;">' + m.ini + '</span>' + n.split(' ')[0] + '</span>';
+  }).join('');
+}
+
+function pgddHTML(selected) {
+  selected = selected || [];
+  return '<div class="pgdd">' +
+    '<div class="pgdd-trigger f-input" onclick="pgddToggle(event, this)"><span class="pgdd-chips"></span><i class="fa-solid fa-chevron-down"></i></div>' +
+    '<div class="pgdd-panel">' + PHOTOG_NAMES.map(n => pgddItemHTML(n, selected.indexOf(n) >= 0)).join('') + '</div>' +
+  '</div>';
 }
 
 function addLocCard(container, pre) {
@@ -5429,12 +5598,17 @@ function addLocCard(container, pre) {
   const div = document.createElement('div');
   div.className = 'loc-card';
   div.innerHTML =
-    '<div class="loc-card-row">' +
-      '<select class="f-input ws-locsel grow" onchange="locSelChanged(this)">' + locOptionsHTML(locs, selVal) + '</select>' +
+    '<div class="loc-head">' +
+      '<button type="button" class="collapse-btn" onclick="toggleLoc(this)" title="Collapse / expand"><i class="fa-solid fa-chevron-down"></i></button>' +
+      '<span class="loc-sum-body"></span>' +
       '<button type="button" class="row-x" onclick="removeLocCard(this)" title="Remove location"><i class="fa-solid fa-xmark"></i></button>' +
     '</div>' +
+    '<div class="loc-body">' +
     '<div class="loc-card-row">' +
-      '<input class="f-input ws-venue grow" placeholder="Location name / label — e.g. Main Gym" value="' + (pre.v || '') + '">' +
+      '<select class="f-input ws-locsel grow" onchange="locSelChanged(this)">' + locOptionsHTML(locs, selVal) + '</select>' +
+    '</div>' +
+    '<div class="loc-card-row">' +
+      '<input class="f-input ws-venue grow" placeholder="Location name / label — e.g. Main Gym" value="' + (pre.v || '') + '" oninput="updateLocSum(this.closest(\'.loc-card\'))">' +
       '<input class="f-input ws-street grow" placeholder="Street address" value="' + (pre.street || '') + '">' +
     '</div>' +
     '<div class="loc-card-row">' +
@@ -5442,10 +5616,49 @@ function addLocCard(container, pre) {
       '<input class="f-input ws-state w-state" placeholder="ST" value="' + (pre.state || '') + '">' +
       '<input class="f-input ws-zip w-zip" placeholder="ZIP" value="' + (pre.zip || '') + '">' +
     '</div>' +
-    '<div class="pg-row"><span class="pg-row-label">Photographers</span>' +
-      PHOTOG_NAMES.map(n => pgChipHTML(n, (pre.p || []).indexOf(n) >= 0)).join('') +
+    '<div class="loc-card-row" style="align-items:flex-end;">' +
+      '<div class="mini-field"><span class="mini-label">Start</span><input type="time" class="f-input ws-start" value="' + (pre.start || '') + '"></div>' +
+      '<div class="mini-field"><span class="mini-label">End · optional</span><input type="time" class="f-input ws-end" value="' + (pre.end || '') + '"></div>' +
+      '<div class="mini-field grow" style="flex:1;"><span class="mini-label">Photographers</span>' + pgddHTML(pre.p || []) + '</div>' +
+    '</div>' +
     '</div>';
   container.appendChild(div);
+  pgddSync(div.querySelector('.pgdd'));
+  updateLocSum(div);
+}
+
+function toggleShoot(btn) {
+  const b = btn.closest('.shoot-block');
+  b.classList.toggle('collapsed');
+  if (b.classList.contains('collapsed')) updateShootSum(b);
+}
+
+function updateShootSum(b) {
+  const raw = b.querySelector('.ws-date').value;
+  const date = fmtInputDate(raw) || 'Date TBD';
+  const locs = Array.prototype.map.call(b.querySelectorAll('.loc-card'), parseLocCard).filter(Boolean);
+  const locTxt = locs.length === 0 ? 'no locations yet' : (locs.length === 1 ? locs[0].v : locs.length + ' locations');
+  b.querySelector('.shoot-sum').innerHTML = '<b>' + date + '</b><span style="color:var(--text-3);"> · ' + locTxt + '</span>';
+}
+
+function toggleLoc(btn) {
+  const lc = btn.closest('.loc-card');
+  lc.classList.toggle('collapsed');
+  updateLocSum(lc);
+}
+
+function updateLocSum(lc) {
+  const el = lc.querySelector('.loc-sum-body');
+  if (!el) return;
+  const v = lc.querySelector('.ws-venue').value.trim() || 'New location';
+  const names = Array.prototype.map.call(lc.querySelectorAll('.pgdd-item.on'), i => i.dataset.name);
+  const dots = names.map(n => {
+    const m = PHOTOG_META[n];
+    return '<span class="pgdot" style="background:' + m.bg + '; width:18px; height:18px; font-size:8px; margin-left:-4px;" title="' + n + '">' + m.ini + '</span>';
+  }).join('');
+  el.innerHTML = '<b>' + v + '</b>' + (names.length
+    ? '<span style="display:inline-flex; margin-left:10px;">' + dots + '</span>'
+    : '<span style="color:var(--text-3); margin-left:10px; font-size:11.5px;">no photographers yet</span>');
 }
 
 function removeLocCard(btn) {
@@ -5454,13 +5667,25 @@ function removeLocCard(btn) {
   if (wrap.querySelectorAll('.loc-card').length > 1) card.remove();
 }
 
+function fmtTime(v) {
+  if (!v) return '';
+  const parts = v.split(':');
+  let hh = parseInt(parts[0], 10);
+  const mm = parts[1];
+  const ap = hh >= 12 ? 'PM' : 'AM';
+  hh = hh % 12 || 12;
+  return hh + (mm === '00' ? '' : ':' + mm) + ' ' + ap;
+}
+
 function parseLocCard(lc) {
   const g = cls => lc.querySelector('.' + cls).value.trim();
   const v = g('ws-venue'), street = g('ws-street'), city = g('ws-city'), state = g('ws-state'), zip = g('ws-zip');
-  const p = Array.prototype.map.call(lc.querySelectorAll('.pg-chip.on'), c => c.dataset.name);
+  const p = Array.prototype.map.call(lc.querySelectorAll('.pgdd-item.on'), c => c.dataset.name);
+  const start = lc.querySelector('.ws-start').value, end = lc.querySelector('.ws-end').value;
+  const t = start ? fmtTime(start) + (end ? ' – ' + fmtTime(end) : '') : '';
   const addr = [street, city, (state + ' ' + zip).trim()].filter(Boolean).join(', ');
   if (!v && !street && !city) return null;
-  return { v: v || 'Location', a: addr, p: p };
+  return { v: v || 'Location', a: addr, t: t, p: p };
 }
 
 function openAddShoot() {
@@ -6040,9 +6265,10 @@ function locSelChanged(sel) {
   lc.querySelector('.ws-city').value = L.city;
   lc.querySelector('.ws-state').value = L.state;
   lc.querySelector('.ws-zip').value = L.zip;
+  updateLocSum(lc);
 }
 
-function togglePgChip(el) { el.classList.toggle('on'); }
+
 
 function resolveOrg(save) {
   const v = fval('wz-org-sel');
@@ -6093,14 +6319,18 @@ function wizAddShoot(copyPrev) {
       v: lc.querySelector('.ws-venue').value, street: lc.querySelector('.ws-street').value,
       city: lc.querySelector('.ws-city').value, state: lc.querySelector('.ws-state').value,
       zip: lc.querySelector('.ws-zip').value,
-      p: Array.prototype.map.call(lc.querySelectorAll('.pg-chip.on'), c => c.dataset.name)
+      start: lc.querySelector('.ws-start').value, end: lc.querySelector('.ws-end').value,
+      p: Array.prototype.map.call(lc.querySelectorAll('.pgdd-item.on'), c => c.dataset.name)
     }));
   }
   const div = document.createElement('div');
   div.className = 'shoot-block';
   div.innerHTML =
-    '<div class="shoot-block-head"><span class="shoot-block-num"></span>' +
+    '<div class="shoot-block-head">' +
+    '<button type="button" class="collapse-btn" onclick="toggleShoot(this)" title="Collapse / expand"><i class="fa-solid fa-chevron-down"></i></button>' +
+    '<span class="shoot-block-num"></span>' +
     '<input class="f-input ws-date" type="date" onchange="sortShoots()">' +
+    '<span class="shoot-sum"></span>' +
     '<button type="button" class="row-x" onclick="removeShootBlock(this)" title="Remove this date"><i class="fa-solid fa-xmark"></i></button></div>' +
     '<div class="ws-locs"></div>' +
     '<button type="button" class="add-inline-btn" onclick="addLocCard(this.previousElementSibling)"><i class="fa-solid fa-plus"></i> Add another location to this date</button>';
