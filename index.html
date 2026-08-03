@@ -4535,31 +4535,25 @@ html, body {
           <label class="f-label">Save job to</label>
           <div class="dest-row">
             <span class="crumb" id="wz-dest-crumb"></span>
-            <button type="button" class="add-inline-btn" id="wz-dest-change" onclick="toggleDestPicker()">Change</button>
+            <button type="button" class="add-inline-btn" onclick="openDestPicker()">Change</button>
           </div>
           <div style="font-size:11.5px; color:var(--text-3); display:none;" id="wz-dest-note">From organization default</div>
-          <div class="dest-picker" id="wz-dest-picker" style="display:none;">
-            <div class="loc-search" style="margin-top:0;">
-              <i class="fa-solid fa-magnifying-glass"></i>
-              <input class="f-input" id="wloc-query" placeholder="Search folders..." oninput="renderWloc()">
-            </div>
-            <div class="loc-eyebrow" id="wloc-eyebrow">My Folders</div>
-            <div class="loc-counts" id="wloc-counts">12 folders • 37 galleries</div>
-            <div class="loc-list" id="wloc-list" style="max-height:180px;"></div>
-            <span class="loc-back" id="wloc-back" style="display:none;" onclick="wlocDrill(null)"><i class="fa-solid fa-arrow-left"></i> Back to My Folders</span>
-            <div class="dest-newsub">
-              <input class="f-input" id="wz-newsub" placeholder="New subfolder name…" style="height:30px; font-size:12px;">
-              <button type="button" class="btn btn-ghost-sm" onclick="createSubfolder()">Create in selected</button>
-            </div>
-          </div>
         </div>
 
         <!-- Shoot schedule choice -->
         <div class="f-field">
           <label class="f-label">Shoot Schedule</label>
-          <div class="subtabs" id="wz-sched-seg" style="margin-bottom:0;">
-            <div class="subtab active" data-sched="now" onclick="schedModeChanged(this)">Schedule now</div>
-            <div class="subtab" data-sched="later" onclick="schedModeChanged(this)">Add dates later</div>
+          <div class="choice-cards two" style="margin-bottom:4px;">
+            <div class="choice-card selected" data-sched="now" onclick="schedModeChanged(this)">
+              <div class="choice-icon"><i class="fa-solid fa-calendar-check"></i></div>
+              <div class="choice-name">Schedule Now</div>
+              <div class="choice-desc">Add dates, locations and photographers.</div>
+            </div>
+            <div class="choice-card" data-sched="later" onclick="schedModeChanged(this)">
+              <div class="choice-icon"><i class="fa-regular fa-clock"></i></div>
+              <div class="choice-name">Add Dates Later</div>
+              <div class="choice-desc">Create the job now — schedule shoots once details are confirmed.</div>
+            </div>
           </div>
           <div style="font-size:11.5px; color:var(--text-3);">You can add or change dates from the job at any time.</div>
         </div>
@@ -5009,7 +5003,13 @@ function flipCheck(el) {
 
 /* Modals */
 function openModal(id)  { document.getElementById(id).classList.add('open'); }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+  if (id === 'modal-folder' && locMode === 'dest') {
+    locMode = 'add';
+    openModal('modal-wizard');
+  }
+}
 
 document.querySelectorAll('.modal-overlay').forEach(ov => {
   ov.addEventListener('click', e => { if (e.target === ov) ov.classList.remove('open'); });
@@ -6109,7 +6109,8 @@ let wzParent = 'All Photographs / Client Work / Sports Leagues';
 let locMode = 'pick', locSel = null, locLevel = null;
 
 function openLocPicker(mode) {
-  locMode = mode; locSel = null; locLevel = null;
+  locMode = mode; locLevel = null;
+  locSel = mode === 'dest' ? wzParent : null;
   document.getElementById('loc-query').value = '';
   document.getElementById('loc-name').value = '';
   document.getElementById('loc-name-field').style.display = mode === 'add' ? 'flex' : 'none';
@@ -6126,68 +6127,17 @@ function locDrill(folderName) {
   renderLoc();
 }
 
-function locRowHTML(f, subOverride, scope) {
-  scope = scope || 'loc';
-  const sel = scope === 'wloc' ? wzParent : locSel;
+function locRowHTML(f, subOverride) {
+  const sel = locSel;
   const hasKids = f.children && f.children.length;
-  const selectFn = scope === 'wloc' ? 'wlocSelect' : 'locSelect';
-  const drillFn = scope === 'wloc' ? 'wlocDrill' : 'locDrill';
+  const selectFn = 'locSelect';
+  const drillFn = 'locDrill';
   return '<div class="loc-row' + (sel === f.path ? ' selected' : '') + '" onclick="' + selectFn + '(\'' + f.path + '\')">' +
     '<span class="loc-radio"></span>' +
     '<div class="loc-folder-ico"><i class="fa-regular fa-folder"></i></div>' +
     '<div style="min-width:0;"><div class="loc-name">' + f.name + '</div><div class="loc-sub">' + (subOverride || f.sub) + '</div></div>' +
     (hasKids ? '<span class="loc-chevron" onclick="event.stopPropagation(); ' + drillFn + '(\'' + f.name + '\')"><i class="fa-solid fa-chevron-right"></i></span>' : '') +
   '</div>';
-}
-
-/* Wizard-embedded picker (Step 2) — same components, no nested modal */
-let wlocLevel = null;
-
-function wlocDrill(folderName) {
-  wlocLevel = folderName;
-  document.getElementById('wloc-query').value = '';
-  renderWloc();
-}
-
-function wlocSelect(path) {
-  wzParent = path;
-  destTouched = true;
-  const note = document.getElementById('wz-dest-note');
-  if (note) note.style.display = 'none';
-  renderWloc();
-  renderCrumb();
-}
-
-function renderWloc() {
-  const q = document.getElementById('wloc-query').value.trim().toLowerCase();
-  const listEl = document.getElementById('wloc-list');
-  const back = document.getElementById('wloc-back');
-  let rows = [];
-  if (q) {
-    const walk = (nodes) => nodes.forEach(n => {
-      if (n.name.toLowerCase().indexOf(q) >= 0) rows.push(locRowHTML(n, n.path, 'wloc'));
-      if (n.children) walk(n.children);
-    });
-    walk(FOLDER_TREE);
-    setText('wloc-eyebrow', 'Search results');
-    setText('wloc-counts', rows.length + ' matching location' + (rows.length === 1 ? '' : 's'));
-    back.style.display = 'none';
-    listEl.innerHTML = rows.join('') || '<div style="padding:18px; text-align:center; color:var(--text-3); font-size:12.5px;">No folders match.</div>';
-    return;
-  }
-  if (wlocLevel) {
-    const parent = FOLDER_TREE.find(f => f.name === wlocLevel);
-    rows = (parent.children || []).map(f => locRowHTML(f, null, 'wloc'));
-    setText('wloc-eyebrow', parent.name);
-    setText('wloc-counts', parent.sub);
-    back.style.display = 'inline-flex';
-  } else {
-    rows = FOLDER_TREE.map(f => locRowHTML(f, null, 'wloc'));
-    setText('wloc-eyebrow', 'My Folders');
-    setText('wloc-counts', '12 folders • 37 galleries');
-    back.style.display = 'none';
-  }
-  listEl.innerHTML = rows.join('');
 }
 
 function renderLoc() {
@@ -6235,6 +6185,17 @@ function locValidate() {
 }
 
 function locConfirm() {
+  if (locMode === 'dest') {
+    if (locSel) {
+      wzParent = locSel;
+      destTouched = true;
+      renderCrumb();
+      const note = document.getElementById('wz-dest-note');
+      if (note) note.style.display = 'none';
+    }
+    closeModal('modal-folder');
+    return;
+  }
   const nm = fval('loc-name').trim();
   closeModal('modal-folder');
   toast('Folder “' + nm + '” created in ' + locSel);
@@ -6434,46 +6395,9 @@ function renderCrumb() {
     wzParent.split(' / ').map(s => '<span>' + s + '</span>').join('<span class="crumb-sep">/</span>');
 }
 
-function toggleDestPicker() {
-  const pk = document.getElementById('wz-dest-picker');
-  const open = pk.style.display !== 'none';
-  pk.style.display = open ? 'none' : 'block';
-  document.getElementById('wz-dest-change').textContent = open ? 'Change' : 'Done';
-  if (!open) { wlocLevel = null; document.getElementById('wloc-query').value = ''; renderWloc(); }
-}
-
-function findFolderNode(path, nodes) {
-  for (let i = 0; i < nodes.length; i++) {
-    if (nodes[i].path === path) return nodes[i];
-    if (nodes[i].children) {
-      const hit = findFolderNode(path, nodes[i].children);
-      if (hit) return hit;
-    }
-  }
-  return null;
-}
-
-function createSubfolder() {
-  const name = fval('wz-newsub').trim();
-  if (!name) { toast('Enter a name for the new subfolder'); return; }
-  const newPath = wzParent + ' / ' + name;
-  const node = { name: name, sub: '0 Galleries', path: newPath };
-  if (wzParent === 'All Photographs') {
-    FOLDER_TREE.push(node);
-  } else {
-    const parent = findFolderNode(wzParent, FOLDER_TREE);
-    if (!parent) { toast('Select a parent folder first'); return; }
-    parent.children = parent.children || [];
-    parent.children.push(node);
-    parent.sub = parent.children.length + ' Folders, ' + (parent.sub.indexOf('Galler') >= 0 ? parent.sub.replace(/^.*?, /, '') : '0 Galleries');
-  }
-  wzParent = newPath;
-  destTouched = true;
-  document.getElementById('wz-dest-note').style.display = 'none';
-  document.getElementById('wz-newsub').value = '';
-  renderWloc();
-  renderCrumb();
-  toast('Folder “' + name + '” created');
+function openDestPicker() {
+  document.getElementById('modal-wizard').classList.remove('open');
+  openLocPicker('dest');
 }
 
 function expandNotes() {
@@ -6486,8 +6410,7 @@ function expandNotes() {
 let schedMode = 'now';
 
 function schedModeChanged(el) {
-  el.parentElement.querySelectorAll('.subtab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
+  selectChoice(el);
   schedMode = el.dataset.sched;
   renderWizSteps();
   setText('wiz-count', 'Step ' + wizStep + ' of ' + wizFlow().length);
@@ -6570,7 +6493,6 @@ function parseShoots() {
 
 function openWizard() {
   wizStep = 1;
-  wlocLevel = null;
   selectedOrgIdx = null;
   lastNameSuggestion = '';
   destTouched = false;
@@ -6578,17 +6500,15 @@ function openWizard() {
   label.textContent = 'Select an organization (optional)';
   label.className = 'orgdd-placeholder';
   document.getElementById('wz-org-new').style.display = 'none';
-  ['wz-orgn-name', 'wz-org-query', 'wz-jc-name', 'wz-jc-email', 'wz-jc-phone', 'wz-contact', 'wz-contact-email', 'wz-contact-phone', 'wz-name', 'wz-newsub'].forEach(id => { document.getElementById(id).value = ''; });
+  ['wz-orgn-name', 'wz-org-query', 'wz-jc-name', 'wz-jc-email', 'wz-jc-phone', 'wz-contact', 'wz-contact-email', 'wz-contact-phone', 'wz-name'].forEach(id => { document.getElementById(id).value = ''; });
   orgChanged();
   /* destination: account default (org default arrives in Phase 2) */
   wzParent = ACCOUNT_DEFAULT_FOLDER;
   renderCrumb();
   document.getElementById('wz-dest-note').style.display = 'none';
-  document.getElementById('wz-dest-picker').style.display = 'none';
-  document.getElementById('wz-dest-change').textContent = 'Change';
   /* schedule choice */
   schedMode = 'now';
-  document.querySelectorAll('#wz-sched-seg .subtab').forEach(t => t.classList.toggle('active', t.dataset.sched === 'now'));
+  document.querySelectorAll('#wiz-1 .choice-card[data-sched]').forEach(c => c.classList.toggle('selected', c.dataset.sched === 'now'));
   document.getElementById('wz-shoots').innerHTML = '';
   wizAddShoot(false);
   document.getElementById('wz-deadline').value = '';
