@@ -2722,6 +2722,8 @@ html, body {
 .loc-card.collapsed .loc-head .collapse-btn i { transform: rotate(-90deg); }
 
 .shoot-block.collapsed .ws-date { display: none; }
+.shoot-block.collapsed .ws-locsel-head { display: none; }
+#wz-shoots .ws-locs .loc-card:first-child .locsel-row { display: none; }
 .shoot-block.collapsed > .ws-locs,
 .shoot-block.collapsed > .add-inline-btn { display: none; }
 .shoot-block.collapsed .shoot-block-head { margin-bottom: 0; }
@@ -4365,13 +4367,15 @@ html, body {
 
       <!-- STEP 1 : DETAILS -->
       <div class="wiz-pane active" id="wiz-1">
-        <div class="f-field">
-          <label class="f-label">Job Name</label>
-          <input class="f-input" id="wz-name" placeholder="e.g. Lincoln Elementary Picture Day — Fall 2026">
-        </div>
-        <div class="f-field">
-          <label class="f-label">Organization</label>
-          <select class="f-input" id="wz-org-sel" onchange="orgChanged()"></select>
+        <div class="f-row">
+          <div class="f-field">
+            <label class="f-label">Job Name</label>
+            <input class="f-input" id="wz-name" placeholder="e.g. Lincoln Picture Day — Fall 2026">
+          </div>
+          <div class="f-field">
+            <label class="f-label">Organization</label>
+            <select class="f-input" id="wz-org-sel" onchange="orgChanged()"></select>
+          </div>
         </div>
 
         <div class="org-summary" id="wz-org-summary" style="display:none;"></div>
@@ -4468,20 +4472,9 @@ html, body {
         </div>
         <div class="wiz-info" id="wz-sched-later-note" style="display:none; margin-top:0;"><i class="fa-regular fa-clock"></i><div>No problem — the job is created without a schedule. Add dates, locations and photographers any time from the job's <b>Shoots</b> card.</div></div>
 
-        <div class="f-row" style="margin-top:14px;">
-          <div class="f-field">
-            <label class="f-label">Delivery Deadline <span class="opt">(optional)</span></label>
-            <input class="f-input" id="wz-deadline" type="date">
-          </div>
-          <div class="f-field">
-            <label class="f-label">Price List</label>
-            <select class="f-input" id="wz-pricelist">
-              <option>Youth Sports 2026</option>
-              <option>School Portraits — Standard</option>
-              <option>Dance &amp; Recital 2026</option>
-              <option>Attach later</option>
-            </select>
-          </div>
+        <div class="f-field" style="margin-top:14px; max-width:220px;">
+          <label class="f-label">Delivery Deadline <span class="opt">(optional)</span></label>
+          <input class="f-input" id="wz-deadline" type="date">
         </div>
         <div class="f-field">
           <label class="f-label">Notes <span class="opt">(optional)</span></label>
@@ -5604,7 +5597,7 @@ function addLocCard(container, pre) {
       '<button type="button" class="row-x" onclick="removeLocCard(this)" title="Remove location"><i class="fa-solid fa-xmark"></i></button>' +
     '</div>' +
     '<div class="loc-body">' +
-    '<div class="loc-card-row">' +
+    '<div class="loc-card-row locsel-row">' +
       '<select class="f-input ws-locsel grow" onchange="locSelChanged(this)">' + locOptionsHTML(locs, selVal) + '</select>' +
     '</div>' +
     '<div class="loc-card-row">' +
@@ -5625,6 +5618,29 @@ function addLocCard(container, pre) {
   container.appendChild(div);
   pgddSync(div.querySelector('.pgdd'));
   updateLocSum(div);
+}
+
+function headLocChanged(sel) {
+  const block = sel.closest('.shoot-block');
+  const firstLc = block.querySelector('.loc-card');
+  if (!firstLc) return;
+  const inner = firstLc.querySelector('.ws-locsel');
+  inner.value = sel.value;
+  locSelChanged(inner);
+}
+
+function syncHeadLocSel(block) {
+  const head = block.querySelector('.ws-locsel-head');
+  if (!head) return;
+  const locs = activeOrgLocs(block);
+  const firstLc = block.querySelector('.loc-card');
+  let selVal = '';
+  if (firstLc) {
+    const venue = firstLc.querySelector('.ws-venue').value;
+    const idx = locs.findIndex(l => l.v === venue);
+    selVal = idx >= 0 ? String(idx) : (venue ? '__newloc' : '');
+  }
+  head.innerHTML = locOptionsHTML(locs, selVal);
 }
 
 function toggleShoot(btn) {
@@ -5665,6 +5681,8 @@ function removeLocCard(btn) {
   const card = btn.closest('.loc-card');
   const wrap = card.parentElement;
   if (wrap.querySelectorAll('.loc-card').length > 1) card.remove();
+  const block = btn.closest ? wrap.closest('.shoot-block') : null;
+  if (block) syncHeadLocSel(block);
 }
 
 function fmtTime(v) {
@@ -6241,6 +6259,7 @@ function locOptionsHTML(locs, selVal) {
 }
 
 function refreshLocSelects() {
+  document.querySelectorAll('#wz-shoots .shoot-block').forEach(syncHeadLocSel);
   document.querySelectorAll('#wz-shoots .ws-locsel').forEach(sel => {
     const lc = sel.closest('.loc-card');
     const locs = activeOrgLocs(sel);
@@ -6330,6 +6349,7 @@ function wizAddShoot(copyPrev) {
     '<button type="button" class="collapse-btn" onclick="toggleShoot(this)" title="Collapse / expand"><i class="fa-solid fa-chevron-down"></i></button>' +
     '<span class="shoot-block-num"></span>' +
     '<input class="f-input ws-date" type="date" onchange="sortShoots()">' +
+    '<select class="f-input ws-locsel-head" onchange="headLocChanged(this)" style="flex:1; min-width:0;">' + locOptionsHTML(activeOrgLocs(cont), '') + '</select>' +
     '<span class="shoot-sum"></span>' +
     '<button type="button" class="row-x" onclick="removeShootBlock(this)" title="Remove this date"><i class="fa-solid fa-xmark"></i></button></div>' +
     '<div class="ws-locs"></div>' +
@@ -6338,6 +6358,7 @@ function wizAddShoot(copyPrev) {
   const locsEl = div.querySelector('.ws-locs');
   if (locVals.length) locVals.forEach(vv => addLocCard(locsEl, vv));
   else addLocCard(locsEl);
+  syncHeadLocSel(div);
   sortShoots();
 }
 
@@ -6454,7 +6475,6 @@ function buildReview() {
   const name = fval('wz-foldername') || fval('wz-name') || 'Untitled Job';
   const o = resolveOrg(false);
   const teamN = document.querySelectorAll('#wiz-4 .check-item.checked').length;
-  const priceList = fval('wz-pricelist');
   const deadline = fmtInputDate(fval('wz-deadline')) || '—';
   const parent = wzParent;
   let schedHTML;
@@ -6477,7 +6497,6 @@ function buildReview() {
     '<div class="review-row"><span class="review-key">Create In</span><span class="review-val"><i class="fa-solid fa-folder" style="font-size:11px; margin-right:5px; color:var(--text-3);"></i>' + parent + ' / ' + name + '</span></div>' +
     '<div class="review-row"><span class="review-key">Schedule</span><span class="review-val">' + schedHTML + '</span></div>' +
     '<div class="review-row"><span class="review-key">Delivery Deadline</span><span class="review-val">' + deadline + '</span></div>' +
-    '<div class="review-row"><span class="review-key">Price List</span><span class="review-val">' + priceList + '</span></div>' +
     '<div class="review-row"><span class="review-key">Subject Data</span><span class="review-val">' + modeTxt + '</span></div>' +
     '<div class="review-row"><span class="review-key">Team</span><span class="review-val">' + teamN + ' photographer' + (teamN === 1 ? '' : 's') + ' assigned</span></div>';
 }
@@ -6535,8 +6554,8 @@ function createJob() {
     contacts: o.contact && o.contact !== '—' ? [[o.contact.split(' ')[0], o.contact.split(' ').slice(1).join(' ') || '—', o.email || '—', o.phone || '—', '—', chipDark('Primary Contact')]] : [],
     contactsFoot: isCsv ? '142 contacts imported' : (o.contact !== '—' ? '1 contact' : '0 contacts'),
     po: isPrereg
-      ? { setup: true, reg: '0', regTotal: '—', regSub: 'link just created', ordersSub: 'share the link to start', pricelist: fval('wz-pricelist'), link: 'zenfol.io/r/' + slug, open: true, allow: true, pkgs: [['Digital Package', 25, 0, 1], ['Print Bundle — 8×10 + wallets', 35, 0, 0], ['Deluxe — digital + prints + magnet', 55, 0, 0]], regs: [] }
-      : { setup: false, pricelist: fval('wz-pricelist'), link: 'zenfol.io/r/' + slug },
+      ? { setup: true, reg: '0', regTotal: '—', regSub: 'link just created', ordersSub: 'share the link to start', pricelist: 'Attach later', link: 'zenfol.io/r/' + slug, open: true, allow: true, pkgs: [['Digital Package', 25, 0, 1], ['Print Bundle — 8×10 + wallets', 35, 0, 0], ['Deluxe — digital + prints + magnet', 55, 0, 0]], regs: [] }
+      : { setup: false, pricelist: 'Attach later', link: 'zenfol.io/r/' + slug },
     docs: []
   };
 
