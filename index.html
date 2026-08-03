@@ -2741,6 +2741,100 @@ html, body {
 
 .loc-time { color: var(--text-3); font-size: 11.5px; margin-left: 10px; font-weight: 400; }
 
+/* Searchable organization dropdown */
+.orgdd { position: relative; }
+
+.orgdd-trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.orgdd-trigger:hover { border-color: var(--text-3); }
+.orgdd-trigger > i { margin-left: auto; font-size: 10px; color: var(--text-3); }
+.orgdd-placeholder { color: var(--text-3); }
+.orgdd-selected { color: var(--text); font-weight: 500; }
+
+.orgdd-panel {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0; right: 0;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  box-shadow: var(--shadow-lg);
+  z-index: 270;
+  display: none;
+  padding-bottom: 0;
+}
+
+.orgdd-panel.open { display: block; }
+
+.orgdd-list { max-height: 190px; overflow-y: auto; padding: 0 5px; }
+
+.orgdd-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 10px;
+  border-radius: 7px;
+  cursor: pointer;
+  font-size: 12.5px;
+  color: var(--text);
+}
+
+.orgdd-item:hover { background: var(--bg); }
+.orgdd-item.on { background: rgba(242,107,58,0.07); font-weight: 600; }
+.orgdd-item i { color: var(--text-3); font-size: 12px; width: 14px; }
+.orgdd-item.muted { color: var(--text-3); font-style: italic; }
+
+.orgdd-footer {
+  border-top: 1px solid var(--line);
+  padding: 9px 15px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--teal);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.orgdd-footer:hover { background: var(--bg); border-radius: 0 0 var(--r-sm) var(--r-sm); }
+
+/* Destination folder breadcrumb + inline picker */
+.dest-row { display: flex; align-items: center; gap: 12px; min-height: 24px; }
+
+.crumb {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text);
+  flex-wrap: wrap;
+}
+
+.crumb i { color: var(--orange); font-size: 12px; }
+.crumb-sep { color: var(--text-3); }
+
+.dest-picker {
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: 12px;
+  margin-top: 10px;
+  background: #FAFAFB;
+}
+
+.dest-newsub { display: flex; gap: 8px; margin-top: 10px; align-items: center; }
+.dest-newsub input { background: var(--surface); }
+
+/* Two-column rows stack below 768px */
+@media (max-width: 768px) {
+  .wz-2col { flex-direction: column; gap: 0; }
+}
+
 /* Org summary box */
 .org-summary {
   display: flex;
@@ -4356,28 +4450,45 @@ html, body {
       <button class="modal-close" onclick="closeModal('modal-wizard')"><i class="fa-solid fa-xmark"></i></button>
     </div>
 
-    <div class="wiz-steps" id="wiz-steps">
-      <div class="wiz-step active"><span class="wiz-step-num">1</span> Details</div>
-      <div class="wiz-connector"></div>
-      <div class="wiz-step"><span class="wiz-step-num">2</span> Location</div>
-      <div class="wiz-connector"></div>
-      <div class="wiz-step"><span class="wiz-step-num">3</span> Subject Data</div>
-      <div class="wiz-connector"></div>
-      <div class="wiz-step"><span class="wiz-step-num">4</span> Review</div>
-    </div>
+    <div class="wiz-steps" id="wiz-steps"></div>
 
     <div class="modal-body">
 
-      <!-- STEP 1 : DETAILS -->
+      <!-- STEP : DETAILS -->
       <div class="wiz-pane active" id="wiz-1">
-        <div class="f-row">
+
+        <div class="f-row wz-2col">
           <div class="f-field">
-            <label class="f-label">Job Name</label>
-            <input class="f-input" id="wz-name" placeholder="e.g. Lincoln Picture Day — Fall 2026">
+            <label class="f-label">Organization</label>
+            <div class="orgdd" id="wz-orgdd">
+              <div class="orgdd-trigger f-input" onclick="orgddToggle(event)">
+                <span id="wz-orgdd-label" class="orgdd-placeholder">Select an organization (optional)</span>
+                <i class="fa-solid fa-chevron-down"></i>
+              </div>
+              <div class="orgdd-panel" onclick="event.stopPropagation()">
+                <div class="loc-search" style="margin:4px 4px 8px;">
+                  <i class="fa-solid fa-magnifying-glass"></i>
+                  <input class="f-input" id="wz-org-query" placeholder="Search organizations…" oninput="renderOrgList()">
+                </div>
+                <div class="orgdd-list" id="wz-org-list"></div>
+                <div class="orgdd-footer" onclick="openNewOrgPanel()"><i class="fa-solid fa-plus"></i> Create new organization</div>
+              </div>
+            </div>
           </div>
           <div class="f-field">
-            <label class="f-label">Organization <span class="opt">(optional)</span></label>
-            <select class="f-input" id="wz-org-sel" onchange="orgChanged()"></select>
+            <label class="f-label">Job Name <span style="color:var(--orange);">*</span></label>
+            <input class="f-input" id="wz-name" placeholder="e.g. Lincoln Picture Day — Fall 2026">
+          </div>
+        </div>
+
+        <div class="org-new-box" id="wz-org-new" style="display:none;">
+          <div class="f-field">
+            <label class="f-label">Organization Name <span style="color:var(--orange);">*</span></label>
+            <input class="f-input" id="wz-orgn-name" placeholder="e.g. Pillsburg Public Schools">
+          </div>
+          <div style="display:flex; gap:8px;">
+            <button type="button" class="btn btn-brand" style="height:30px; padding:0 14px; font-size:12px;" onclick="saveNewOrg()">Save Organization</button>
+            <button type="button" class="btn btn-ghost-sm" onclick="closeNewOrgPanel()">Cancel</button>
           </div>
         </div>
 
@@ -4401,46 +4512,6 @@ html, body {
           <div style="font-size:11.5px; color:var(--text-3); margin:-8px 0 14px;">Prefilled with the organization's default contact — edits apply to this job only.</div>
         </div>
 
-        <div class="org-new-box" id="wz-org-new" style="display:none;">
-          <div class="f-field">
-            <label class="f-label">Organization Name</label>
-            <input class="f-input" id="wz-orgn-name" placeholder="e.g. Pillsburg Public Schools">
-          </div>
-          <div class="f-row">
-            <div class="f-field">
-              <label class="f-label">Primary Contact</label>
-              <input class="f-input" id="wz-orgn-contact" placeholder="Name">
-            </div>
-            <div class="f-field">
-              <label class="f-label">Contact Email</label>
-              <input class="f-input" id="wz-orgn-email" placeholder="email@example.com">
-            </div>
-            <div class="f-field">
-              <label class="f-label">Phone <span class="opt">(optional)</span></label>
-              <input class="f-input" id="wz-orgn-phone" placeholder="(717) 555-0100">
-            </div>
-          </div>
-          <div class="f-field">
-            <label class="f-label">Street Address</label>
-            <input class="f-input" id="wz-orgn-street" placeholder="88 School Rd">
-          </div>
-          <div class="f-row">
-            <div class="f-field" style="flex:1.4;">
-              <label class="f-label">City</label>
-              <input class="f-input" id="wz-orgn-city" placeholder="Pillsburg">
-            </div>
-            <div class="f-field" style="flex:0.5;">
-              <label class="f-label">State</label>
-              <input class="f-input" id="wz-orgn-state" placeholder="PA">
-            </div>
-            <div class="f-field" style="flex:0.7;">
-              <label class="f-label">ZIP</label>
-              <input class="f-input" id="wz-orgn-zip" placeholder="17322">
-            </div>
-          </div>
-          <label class="perm-item" style="margin-top:2px;"><input type="checkbox" id="wz-orgn-save" checked> Save this organization for future jobs</label>
-        </div>
-
         <div id="wz-org-manual" style="display:none;">
           <div class="f-row">
             <div class="f-field">
@@ -4459,59 +4530,67 @@ html, body {
           <div style="font-size:11.5px; color:var(--text-3); margin:-8px 0 14px;">No organization selected — please enter a primary contact for this job.</div>
         </div>
 
+        <!-- Destination folder -->
+        <div class="f-field">
+          <label class="f-label">Save job to</label>
+          <div class="dest-row">
+            <span class="crumb" id="wz-dest-crumb"></span>
+            <button type="button" class="add-inline-btn" id="wz-dest-change" onclick="toggleDestPicker()">Change</button>
+          </div>
+          <div style="font-size:11.5px; color:var(--text-3); display:none;" id="wz-dest-note">From organization default</div>
+          <div class="dest-picker" id="wz-dest-picker" style="display:none;">
+            <div class="loc-search" style="margin-top:0;">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input class="f-input" id="wloc-query" placeholder="Search folders..." oninput="renderWloc()">
+            </div>
+            <div class="loc-eyebrow" id="wloc-eyebrow">My Folders</div>
+            <div class="loc-counts" id="wloc-counts">12 folders • 37 galleries</div>
+            <div class="loc-list" id="wloc-list" style="max-height:180px;"></div>
+            <span class="loc-back" id="wloc-back" style="display:none;" onclick="wlocDrill(null)"><i class="fa-solid fa-arrow-left"></i> Back to My Folders</span>
+            <div class="dest-newsub">
+              <input class="f-input" id="wz-newsub" placeholder="New subfolder name…" style="height:30px; font-size:12px;">
+              <button type="button" class="btn btn-ghost-sm" onclick="createSubfolder()">Create in selected</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Shoot schedule choice -->
+        <div class="f-field">
+          <label class="f-label">Shoot Schedule</label>
+          <div class="subtabs" id="wz-sched-seg" style="margin-bottom:0;">
+            <div class="subtab active" data-sched="now" onclick="schedModeChanged(this)">Schedule now</div>
+            <div class="subtab" data-sched="later" onclick="schedModeChanged(this)">Add dates later</div>
+          </div>
+          <div style="font-size:11.5px; color:var(--text-3);">You can add or change dates from the job at any time.</div>
+        </div>
+
+        <!-- Delivery date -->
+        <div class="f-row wz-2col">
+          <div class="f-field">
+            <label class="f-label">Delivery Date <span class="opt">(optional)</span></label>
+            <input class="f-input" id="wz-deadline" type="date">
+          </div>
+          <div class="f-field"></div>
+        </div>
+
+        <!-- Notes: collapsed by default -->
+        <button type="button" class="add-inline-btn" id="wz-notes-btn" onclick="expandNotes()"><i class="fa-solid fa-plus"></i> Add notes</button>
+        <div class="f-field" id="wz-notes-wrap" style="display:none;">
+          <label class="f-label">Notes</label>
+          <textarea class="f-textarea" id="wz-notes" placeholder="Internal notes about this job…"></textarea>
+        </div>
+      </div>
+
+      <!-- STEP : SCHEDULE (conditional) -->
+      <div class="wiz-pane" id="wiz-sched">
         <div style="display:flex; align-items:baseline; gap:8px; margin-bottom:8px;">
           <span class="f-label">Shoot Schedule</span>
           <span style="font-size:12px; color:var(--text-3);">Dates, locations, and who's shooting where.</span>
         </div>
-        <div class="choice-cards two" style="margin-bottom:12px;">
-          <div class="choice-card selected" data-sched="now" onclick="schedModeChanged(this)">
-            <div class="choice-icon"><i class="fa-solid fa-calendar-check"></i></div>
-            <div class="choice-name">Schedule Now</div>
-            <div class="choice-desc">Add dates, locations and photographers.</div>
-          </div>
-          <div class="choice-card" data-sched="later" onclick="schedModeChanged(this)">
-            <div class="choice-icon"><i class="fa-regular fa-clock"></i></div>
-            <div class="choice-name">Add Later</div>
-            <div class="choice-desc">Create the job now — schedule shoots once details are confirmed.</div>
-          </div>
-        </div>
-
         <div id="wz-schedule">
           <div id="wz-shoots"></div>
           <button type="button" class="add-inline-btn orange" onclick="wizAddShoot(true)"><i class="fa-solid fa-plus"></i> Add another shoot date</button>
         </div>
-        <div class="wiz-info" id="wz-sched-later-note" style="display:none; margin-top:0;"><i class="fa-regular fa-clock"></i><div>No problem — the job is created without a schedule. Add dates, locations and photographers any time from the job's <b>Shoots</b> card.</div></div>
-
-        <div class="f-field" style="margin-top:14px; max-width:220px;">
-          <label class="f-label">Delivery Deadline <span class="opt">(optional)</span></label>
-          <input class="f-input" id="wz-deadline" type="date">
-        </div>
-        <div class="f-field">
-          <label class="f-label">Notes <span class="opt">(optional)</span></label>
-          <textarea class="f-textarea" placeholder="Internal notes about this job…"></textarea>
-        </div>
-      </div>
-
-      <!-- STEP 2 : LOCATION -->
-      <div class="wiz-pane" id="wiz-2">
-        <div class="f-field">
-          <label class="f-label">Job Folder Name</label>
-          <input class="f-input" id="wz-foldername" placeholder="Job name">
-          <div style="font-size:11.5px; color:var(--text-3);">Carried over from the job details — edit it if the folder should be named differently.</div>
-        </div>
-        <div style="display:flex; align-items:baseline; gap:8px;">
-          <span class="f-label">Choose a location</span>
-          <span style="font-size:12px; color:var(--text-3);">Where do you want to place your new job folder?</span>
-        </div>
-        <div class="loc-search">
-          <i class="fa-solid fa-magnifying-glass"></i>
-          <input class="f-input" id="wloc-query" placeholder="Search locations..." oninput="renderWloc()">
-        </div>
-        <div class="loc-eyebrow" id="wloc-eyebrow">My Folders</div>
-        <div class="loc-counts" id="wloc-counts">12 folders • 37 galleries</div>
-        <div class="loc-list" id="wloc-list"></div>
-        <span class="loc-back" id="wloc-back" style="display:none;" onclick="wlocDrill(null)"><i class="fa-solid fa-arrow-left"></i> Back to My Folders</span>
-        <div class="wiz-info" style="margin-top:14px;"><i class="fa-solid fa-folder"></i><div>Creating job folder in <b id="wloc-path">All Photographs / Client Work / Sports Leagues</b></div></div>
       </div>
 
       <!-- STEP 3 : SUBJECT DATA -->
@@ -4996,6 +5075,7 @@ function generateRoster() {
 document.addEventListener('click', (e) => {
   document.querySelectorAll('.menu-pop').forEach(m => m.classList.remove('open'));
   document.querySelectorAll('.pgdd-panel.open').forEach(pp => pp.classList.remove('open'));
+  document.querySelectorAll('.orgdd-panel.open').forEach(pp => pp.classList.remove('open'));
   const link = e.target.closest('.gallery-name-link');
   if (link && !link.getAttribute('onclick') && !link.href) {
     toast('Opens “' + link.textContent.trim() + '” — gallery pages ship in the product');
@@ -5518,6 +5598,7 @@ function pgddToggle(e, trigger) {
   const panel = trigger.parentElement.querySelector('.pgdd-panel');
   const wasOpen = panel.classList.contains('open');
   document.querySelectorAll('.pgdd-panel.open').forEach(pp => pp.classList.remove('open'));
+  document.querySelectorAll('.orgdd-panel.open').forEach(pp => pp.classList.remove('open'));
   if (!wasOpen) panel.classList.add('open');
 }
 
@@ -6070,8 +6151,11 @@ function wlocDrill(folderName) {
 
 function wlocSelect(path) {
   wzParent = path;
-  setText('wloc-path', path);
+  destTouched = true;
+  const note = document.getElementById('wz-dest-note');
+  if (note) note.style.display = 'none';
   renderWloc();
+  renderCrumb();
 }
 
 function renderWloc() {
@@ -6183,36 +6267,102 @@ const ORGS = [
   ] }
 ];
 
-function populateOrgSelect() {
-  const sel = document.getElementById('wz-org-sel');
-  if (!sel) return;
-  const cur = sel.value;
-  sel.innerHTML = '<option value="">Select an organization…</option>' +
-    ORGS.map((o, i) => '<option value="' + i + '">' + o.name + '</option>').join('') +
-    '<option value="__new">＋ Create new organization…</option>' +
-    '<option value="__none">No organization — personal / other</option>';
-  sel.value = cur || '';
+let selectedOrgIdx = null;
+let lastNameSuggestion = '';
+const ACCOUNT_DEFAULT_FOLDER = 'All Photographs / Client Work';
+let destTouched = false;
+
+function orgddToggle(e) {
+  e.stopPropagation();
+  const panel = document.querySelector('#wz-orgdd .orgdd-panel');
+  const wasOpen = panel.classList.contains('open');
+  document.querySelectorAll('.orgdd-panel.open, .pgdd-panel.open').forEach(pp => pp.classList.remove('open'));
+  if (!wasOpen) {
+    panel.classList.add('open');
+    document.getElementById('wz-org-query').value = '';
+    renderOrgList();
+    document.getElementById('wz-org-query').focus();
+  }
+}
+
+function renderOrgList() {
+  const q = fval('wz-org-query').trim().toLowerCase();
+  const items = ORGS.map((o, i) => ({ o: o, i: i }))
+    .filter(x => x.o.name.toLowerCase().indexOf(q) >= 0)
+    .sort((a, b) => a.o.name.localeCompare(b.o.name));
+  let html = '';
+  if (selectedOrgIdx !== null && !q) {
+    html += '<div class="orgdd-item muted" onclick="selectOrg(null)"><i class="fa-solid fa-xmark"></i> No organization</div>';
+  }
+  html += items.map(x =>
+    '<div class="orgdd-item' + (x.i === selectedOrgIdx ? ' on' : '') + '" onclick="selectOrg(' + x.i + ')">' +
+    '<i class="fa-solid fa-building"></i>' + x.o.name + '</div>'
+  ).join('');
+  if (!items.length) html += '<div style="padding:12px; text-align:center; color:var(--text-3); font-size:12px;">No organizations match.</div>';
+  document.getElementById('wz-org-list').innerHTML = html;
+}
+
+function selectOrg(i) {
+  selectedOrgIdx = i;
+  document.querySelector('#wz-orgdd .orgdd-panel').classList.remove('open');
+  const label = document.getElementById('wz-orgdd-label');
+  if (i === null) {
+    label.textContent = 'Select an organization (optional)';
+    label.className = 'orgdd-placeholder';
+  } else {
+    label.textContent = ORGS[i].name;
+    label.className = 'orgdd-selected';
+  }
+  orgChanged();
+}
+
+function openNewOrgPanel() {
+  document.querySelector('#wz-orgdd .orgdd-panel').classList.remove('open');
+  document.getElementById('wz-org-new').style.display = 'block';
+  document.getElementById('wz-orgn-name').focus();
+}
+
+function closeNewOrgPanel() {
+  document.getElementById('wz-org-new').style.display = 'none';
+  document.getElementById('wz-orgn-name').value = '';
+}
+
+function saveNewOrg() {
+  const name = fval('wz-orgn-name').trim();
+  if (!name) { toast('Organization name is required'); return; }
+  ORGS.push({ name: name, contact: '—', email: '', phone: '', addr: '', locs: [] });
+  closeNewOrgPanel();
+  selectOrg(ORGS.length - 1);
+  toast('Organization “' + name + '” saved');
 }
 
 function orgChanged() {
-  const v = fval('wz-org-sel');
-  document.getElementById('wz-org-new').style.display = v === '__new' ? 'block' : 'none';
-  document.getElementById('wz-org-manual').style.display = (v === '' || v === '__none') ? 'block' : 'none';
+  const o = selectedOrgIdx !== null ? ORGS[selectedOrgIdx] : null;
+  document.getElementById('wz-org-manual').style.display = o ? 'none' : 'block';
   const sum = document.getElementById('wz-org-summary');
   const jc = document.getElementById('wz-job-contact');
-  if (v !== '' && v !== '__new' && v !== '__none') {
-    const o = ORGS[parseInt(v, 10)];
+  if (o) {
     sum.style.display = 'flex';
     sum.innerHTML = '<i class="fa-solid fa-building"></i><div><b>' + o.name + '</b>' +
-      '<br><span style="color:var(--text-3);">' + o.addr + '</span>' +
+      (o.addr ? '<br><span style="color:var(--text-3);">' + o.addr + '</span>' : '') +
       (o.locs && o.locs.length ? '<br><span style="color:var(--text-3);">' + o.locs.length + ' saved locations</span>' : '') + '</div>';
     jc.style.display = 'block';
-    document.getElementById('wz-jc-name').value = o.contact;
+    document.getElementById('wz-jc-name').value = o.contact === '—' ? '' : o.contact;
     document.getElementById('wz-jc-email').value = o.email;
     document.getElementById('wz-jc-phone').value = o.phone;
+    /* suggested job name — never overwrite what the user typed */
+    const nameEl = document.getElementById('wz-name');
+    if (!nameEl.value.trim() || nameEl.value === lastNameSuggestion) {
+      lastNameSuggestion = o.name + ' 2026';
+      nameEl.value = lastNameSuggestion;
+    }
   } else {
     sum.style.display = 'none';
     jc.style.display = 'none';
+    if (document.getElementById('wz-name').value === lastNameSuggestion) {
+      document.getElementById('wz-name').value = '';
+      lastNameSuggestion = '';
+    }
   }
   refreshLocSelects();
 }
@@ -6222,9 +6372,8 @@ function activeOrgLocs(el) {
     const o = ORGS.find(x => currentJob && x.name === currentJob.org2);
     return (o && o.locs) || [];
   }
-  const v = fval('wz-org-sel');
-  if (v === '' || v === '__new' || v === '__none') return [];
-  return ORGS[parseInt(v, 10)].locs || [];
+  if (selectedOrgIdx === null) return [];
+  return ORGS[selectedOrgIdx].locs || [];
 }
 
 function locOptionsHTML(locs, selVal) {
@@ -6264,27 +6413,11 @@ function locSelChanged(sel) {
 
 
 
-function resolveOrg(save) {
-  const v = fval('wz-org-sel');
-  if (v === '__new') {
-    const o = {
-      name: fval('wz-orgn-name').trim() || 'Untitled Organization',
-      contact: fval('wz-orgn-contact').trim() || '—',
-      email: fval('wz-orgn-email').trim(),
-      phone: fval('wz-orgn-phone').trim(),
-      addr: [fval('wz-orgn-street').trim(), fval('wz-orgn-city').trim(), (fval('wz-orgn-state').trim() + ' ' + fval('wz-orgn-zip').trim()).trim()].filter(Boolean).join(', ')
-    };
-    if (save && document.getElementById('wz-orgn-save').checked) {
-      ORGS.push(o);
-      populateOrgSelect();
-      toast('Organization “' + o.name + '” saved — it will appear in the dropdown next time');
-    }
-    return o;
-  }
-  if (v === '' || v === '__none') {
+function resolveOrg() {
+  if (selectedOrgIdx === null) {
     return { name: '—', contact: fval('wz-contact') || '—', email: fval('wz-contact-email') || '', phone: fval('wz-contact-phone') || '', addr: '' };
   }
-  const base = ORGS[parseInt(v, 10)];
+  const base = ORGS[selectedOrgIdx];
   return {
     name: base.name, addr: base.addr,
     contact: fval('wz-jc-name').trim() || base.contact,
@@ -6293,14 +6426,71 @@ function resolveOrg(save) {
   };
 }
 
+/* ══════════ DESTINATION FOLDER (Step 1 inline) ══════════ */
+function renderCrumb() {
+  const el = document.getElementById('wz-dest-crumb');
+  if (!el) return;
+  el.innerHTML = '<i class="fa-solid fa-folder"></i>' +
+    wzParent.split(' / ').map(s => '<span>' + s + '</span>').join('<span class="crumb-sep">/</span>');
+}
+
+function toggleDestPicker() {
+  const pk = document.getElementById('wz-dest-picker');
+  const open = pk.style.display !== 'none';
+  pk.style.display = open ? 'none' : 'block';
+  document.getElementById('wz-dest-change').textContent = open ? 'Change' : 'Done';
+  if (!open) { wlocLevel = null; document.getElementById('wloc-query').value = ''; renderWloc(); }
+}
+
+function findFolderNode(path, nodes) {
+  for (let i = 0; i < nodes.length; i++) {
+    if (nodes[i].path === path) return nodes[i];
+    if (nodes[i].children) {
+      const hit = findFolderNode(path, nodes[i].children);
+      if (hit) return hit;
+    }
+  }
+  return null;
+}
+
+function createSubfolder() {
+  const name = fval('wz-newsub').trim();
+  if (!name) { toast('Enter a name for the new subfolder'); return; }
+  const newPath = wzParent + ' / ' + name;
+  const node = { name: name, sub: '0 Galleries', path: newPath };
+  if (wzParent === 'All Photographs') {
+    FOLDER_TREE.push(node);
+  } else {
+    const parent = findFolderNode(wzParent, FOLDER_TREE);
+    if (!parent) { toast('Select a parent folder first'); return; }
+    parent.children = parent.children || [];
+    parent.children.push(node);
+    parent.sub = parent.children.length + ' Folders, ' + (parent.sub.indexOf('Galler') >= 0 ? parent.sub.replace(/^.*?, /, '') : '0 Galleries');
+  }
+  wzParent = newPath;
+  destTouched = true;
+  document.getElementById('wz-dest-note').style.display = 'none';
+  document.getElementById('wz-newsub').value = '';
+  renderWloc();
+  renderCrumb();
+  toast('Folder “' + name + '” created');
+}
+
+function expandNotes() {
+  document.getElementById('wz-notes-btn').style.display = 'none';
+  document.getElementById('wz-notes-wrap').style.display = 'flex';
+  document.getElementById('wz-notes').focus();
+}
+
 /* ══════════ SHOOT SCHEDULE BUILDER (wizard) ══════════ */
 let schedMode = 'now';
 
 function schedModeChanged(el) {
-  selectChoice(el);
+  el.parentElement.querySelectorAll('.subtab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
   schedMode = el.dataset.sched;
-  document.getElementById('wz-schedule').style.display = schedMode === 'now' ? 'block' : 'none';
-  document.getElementById('wz-sched-later-note').style.display = schedMode === 'later' ? 'flex' : 'none';
+  renderWizSteps();
+  setText('wiz-count', 'Step ' + wizStep + ' of ' + wizFlow().length);
 }
 
 function wizAddShoot(copyPrev) {
@@ -6381,20 +6571,32 @@ function parseShoots() {
 function openWizard() {
   wizStep = 1;
   wlocLevel = null;
-  wizNameSynced = '';
-  const fn = document.getElementById('wz-foldername');
-  if (fn) fn.value = '';
-  populateOrgSelect();
-  document.getElementById('wz-org-sel').value = '';
+  selectedOrgIdx = null;
+  lastNameSuggestion = '';
+  destTouched = false;
+  const label = document.getElementById('wz-orgdd-label');
+  label.textContent = 'Select an organization (optional)';
+  label.className = 'orgdd-placeholder';
+  document.getElementById('wz-org-new').style.display = 'none';
+  ['wz-orgn-name', 'wz-org-query', 'wz-jc-name', 'wz-jc-email', 'wz-jc-phone', 'wz-contact', 'wz-contact-email', 'wz-contact-phone', 'wz-name', 'wz-newsub'].forEach(id => { document.getElementById(id).value = ''; });
   orgChanged();
-  ['wz-orgn-name','wz-orgn-contact','wz-orgn-email','wz-orgn-phone','wz-orgn-street','wz-orgn-city','wz-orgn-state','wz-orgn-zip','wz-jc-name','wz-jc-email','wz-jc-phone','wz-contact','wz-contact-email','wz-contact-phone'].forEach(id => { document.getElementById(id).value = ''; });
+  /* destination: account default (org default arrives in Phase 2) */
+  wzParent = ACCOUNT_DEFAULT_FOLDER;
+  renderCrumb();
+  document.getElementById('wz-dest-note').style.display = 'none';
+  document.getElementById('wz-dest-picker').style.display = 'none';
+  document.getElementById('wz-dest-change').textContent = 'Change';
+  /* schedule choice */
   schedMode = 'now';
-  document.querySelectorAll('#wiz-1 .choice-card[data-sched]').forEach(c => c.classList.toggle('selected', c.dataset.sched === 'now'));
-  document.getElementById('wz-schedule').style.display = 'block';
-  document.getElementById('wz-sched-later-note').style.display = 'none';
+  document.querySelectorAll('#wz-sched-seg .subtab').forEach(t => t.classList.toggle('active', t.dataset.sched === 'now'));
   document.getElementById('wz-shoots').innerHTML = '';
   wizAddShoot(false);
   document.getElementById('wz-deadline').value = '';
+  /* notes collapsed unless content */
+  const notes = document.getElementById('wz-notes');
+  notes.value = '';
+  document.getElementById('wz-notes-wrap').style.display = 'none';
+  document.getElementById('wz-notes-btn').style.display = 'inline-flex';
   wizPaint();
   openModal('modal-wizard');
 }
@@ -6406,44 +6608,54 @@ function selectDataMode(el) {
   document.getElementById('wz-prereg-block').style.display = wizMode === 'prereg' ? 'block' : 'none';
 }
 
+const WIZ_LABELS = { 'wiz-1': 'Details', 'wiz-sched': 'Schedule', 'wiz-3': 'Subjects', 'wiz-4': 'Review' };
+
+function wizFlow() {
+  return schedMode === 'now' ? ['wiz-1', 'wiz-sched', 'wiz-3', 'wiz-4'] : ['wiz-1', 'wiz-3', 'wiz-4'];
+}
+
+function renderWizSteps() {
+  const flow = wizFlow();
+  document.getElementById('wiz-steps').innerHTML = flow.map((id, i) =>
+    '<div class="wiz-step' + (i + 1 === wizStep ? ' active' : (i + 1 < wizStep ? ' done' : '')) + '">' +
+    '<span class="wiz-step-num">' + (i + 1) + '</span> ' + WIZ_LABELS[id] + '</div>'
+  ).join('<div class="wiz-connector"></div>');
+}
+
 function wizNav(dir) {
-  if (dir === 1 && wizStep === 1 && schedMode === 'now') {
+  const flow = wizFlow();
+  const cur = flow[wizStep - 1];
+  if (dir === 1 && cur === 'wiz-1' && !fval('wz-name').trim()) {
+    toast('Job name is required');
+    return;
+  }
+  if (dir === 1 && cur === 'wiz-sched') {
     const ok = Array.prototype.some.call(document.querySelectorAll('#wz-shoots .shoot-block'), b =>
       b.querySelector('.ws-date').value && b.querySelector('.ws-venue').value.trim());
     if (!ok) {
-      toast('Schedule Now needs at least one shoot date and a location name — or choose Add Later');
+      toast('Add at least one shoot date and a location name — or choose Add dates later');
       return;
     }
   }
-  if (dir === 1 && wizStep === 4) { createJob(); return; }
-  wizStep = Math.min(4, Math.max(1, wizStep + dir));
+  if (dir === 1 && wizStep === flow.length) { createJob(); return; }
+  wizStep = Math.min(flow.length, Math.max(1, wizStep + dir));
   wizPaint();
 }
 
-let wizNameSynced = '';
-
 function wizPaint() {
-  for (let i = 1; i <= 4; i++) {
-    document.getElementById('wiz-' + i).classList.toggle('active', i === wizStep);
-  }
-  const steps = document.querySelectorAll('#wiz-steps .wiz-step');
-  steps.forEach((s, idx) => {
-    s.classList.toggle('active', idx + 1 === wizStep);
-    s.classList.toggle('done', idx + 1 < wizStep);
+  const flow = wizFlow();
+  if (wizStep > flow.length) wizStep = flow.length;
+  const curPane = flow[wizStep - 1];
+  ['wiz-1', 'wiz-sched', 'wiz-3', 'wiz-4'].forEach(id => {
+    document.getElementById(id).classList.toggle('active', id === curPane);
   });
+  renderWizSteps();
   document.getElementById('wiz-back').style.visibility = wizStep === 1 ? 'hidden' : 'visible';
-  setText('wiz-count', 'Step ' + wizStep + ' of 4');
-  document.getElementById('wiz-next').innerHTML = wizStep === 4
+  setText('wiz-count', 'Step ' + wizStep + ' of ' + flow.length);
+  document.getElementById('wiz-next').innerHTML = wizStep === flow.length
     ? 'Create Job <i class="fa-solid fa-check" style="font-size:11px;"></i>'
     : 'Next <i class="fa-solid fa-arrow-right" style="font-size:11px;"></i>';
-  if (wizStep === 2) {
-    const fn = document.getElementById('wz-foldername');
-    const nm = fval('wz-name');
-    if (!fn.value || fn.value === wizNameSynced) fn.value = nm;
-    wizNameSynced = nm;
-    renderWloc();
-  }
-  if (wizStep === 4) buildReview();
+  if (curPane === 'wiz-4') buildReview();
 }
 
 function fmtInputDate(raw) {
@@ -6454,8 +6666,8 @@ function fmtInputDate(raw) {
 }
 
 function buildReview() {
-  const name = fval('wz-foldername') || fval('wz-name') || 'Untitled Job';
-  const o = resolveOrg(false);
+  const name = fval('wz-name').trim() || 'Untitled Job';
+  const o = resolveOrg();
   const deadline = fmtInputDate(fval('wz-deadline')) || '—';
   const parent = wzParent;
   const shoots = schedMode === 'later' ? [] : parseShoots();
@@ -6485,8 +6697,8 @@ function buildReview() {
 }
 
 function createJob() {
-  const name = fval('wz-foldername') || fval('wz-name') || 'Untitled Job';
-  const o = resolveOrg(true);
+  const name = fval('wz-name').trim() || 'Untitled Job';
+  const o = resolveOrg();
   const shoots = schedMode === 'later' ? [] : parseShoots();
   const nLocs = shoots.reduce((s, x) => s + x.locs.length, 0);
   const dateTxt = shoots.length
@@ -6509,7 +6721,7 @@ function createJob() {
     key: key, seed: 5 + newJobSeq, icon: 'fa-briefcase',
     name: name, org2: o.name, shoot: dateTxt, deadline: deadline, loc: locTxt,
     path: wzParent,
-    contact: [o.contact, o.email || ''], notes: '',
+    contact: [o.contact, o.email || ''], notes: fval('wz-notes').trim(),
     created: 'Jun 3, 2026', modified: 'Jun 3, 2026',
     phase: 0,
     shoots: shoots,
@@ -6713,7 +6925,6 @@ function renderQR() {
 
 /* ══════════ INIT ══════════ */
 renderQR();
-populateOrgSelect();
 updateRuleSentence();
 refreshJobCounts();
 </script>
