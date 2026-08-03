@@ -4538,6 +4538,12 @@ html, body {
             <button type="button" class="add-inline-btn" onclick="openDestPicker()">Change</button>
           </div>
           <div style="font-size:11.5px; color:var(--text-3); display:none;" id="wz-dest-note">From organization default</div>
+          <div class="wiz-info" id="wz-dest-conflict" style="display:none; margin-top:8px; padding:8px 12px;">
+            <i class="fa-solid fa-folder"></i>
+            <div>This organization has a default folder. <a class="gallery-name-link" onclick="useOrgDefault()">Use it instead?</a></div>
+            <button type="button" class="row-x" style="margin-left:auto;" onclick="dismissDestConflict()" title="Dismiss"><i class="fa-solid fa-xmark"></i></button>
+          </div>
+          <label class="perm-item" id="wz-dest-savedef" style="display:none; margin-top:8px;"><input type="checkbox" id="wz-dest-savedef-cb"> Set as default folder for this organization</label>
         </div>
 
         <!-- Shoot schedule choice -->
@@ -6096,8 +6102,14 @@ let wizStep = 1, wizMode = 'csv', newJobSeq = 0;
 const FOLDER_TREE = [
   { name: 'All Photographs', sub: 'Top level', path: 'All Photographs' },
   { name: 'Client Work', sub: '3 Folders, 4 Galleries', path: 'All Photographs / Client Work', children: [
-    { name: 'Schools', sub: '3 Galleries', path: 'All Photographs / Client Work / Schools' },
-    { name: 'Sports Leagues', sub: '2 Galleries', path: 'All Photographs / Client Work / Sports Leagues' },
+    { name: 'Schools', sub: '2 Folders, 3 Galleries', path: 'All Photographs / Client Work / Schools', children: [
+      { name: 'Lincoln Elementary', sub: '2 Galleries', path: 'All Photographs / Client Work / Schools / Lincoln Elementary' },
+      { name: 'Pillsburg Schools', sub: '1 Gallery', path: 'All Photographs / Client Work / Schools / Pillsburg Schools' }
+    ] },
+    { name: 'Sports Leagues', sub: '2 Folders, 2 Galleries', path: 'All Photographs / Client Work / Sports Leagues', children: [
+      { name: 'Riverside YSA', sub: '3 Galleries', path: 'All Photographs / Client Work / Sports Leagues / Riverside YSA' },
+      { name: 'York Little League', sub: '2 Galleries', path: 'All Photographs / Client Work / Sports Leagues / York Little League' }
+    ] },
     { name: 'Dance & Events', sub: '1 Gallery', path: 'All Photographs / Client Work / Dance & Events' }
   ] },
   { name: 'Personal Projects', sub: '5 Galleries', path: 'All Photographs / Personal Projects' },
@@ -6121,8 +6133,19 @@ function openLocPicker(mode) {
   openModal('modal-folder');
 }
 
-function locDrill(folderName) {
-  locLevel = folderName;
+function findFolderNode(path, nodes) {
+  for (let i = 0; i < nodes.length; i++) {
+    if (nodes[i].path === path) return nodes[i];
+    if (nodes[i].children) {
+      const hit = findFolderNode(path, nodes[i].children);
+      if (hit) return hit;
+    }
+  }
+  return null;
+}
+
+function locDrill(pathOrNull) {
+  locLevel = pathOrNull;
   document.getElementById('loc-query').value = '';
   renderLoc();
 }
@@ -6136,7 +6159,7 @@ function locRowHTML(f, subOverride) {
     '<span class="loc-radio"></span>' +
     '<div class="loc-folder-ico"><i class="fa-regular fa-folder"></i></div>' +
     '<div style="min-width:0;"><div class="loc-name">' + f.name + '</div><div class="loc-sub">' + (subOverride || f.sub) + '</div></div>' +
-    (hasKids ? '<span class="loc-chevron" onclick="event.stopPropagation(); ' + drillFn + '(\'' + f.name + '\')"><i class="fa-solid fa-chevron-right"></i></span>' : '') +
+    (hasKids ? '<span class="loc-chevron" onclick="event.stopPropagation(); ' + drillFn + '(\'' + f.path + '\')"><i class="fa-solid fa-chevron-right"></i></span>' : '') +
   '</div>';
 }
 
@@ -6158,10 +6181,14 @@ function renderLoc() {
     return;
   }
   if (locLevel) {
-    const parent = FOLDER_TREE.find(f => f.name === locLevel);
+    const parent = findFolderNode(locLevel, FOLDER_TREE) || FOLDER_TREE.find(f => f.name === locLevel);
     rows = (parent.children || []).map(f => locRowHTML(f));
     setText('loc-eyebrow', parent.name);
     setText('loc-counts', parent.sub);
+    const up = locLevel.indexOf(' / ') >= 0 ? locLevel.split(' / ').slice(0, -1).join(' / ') : null;
+    const upTarget = up && findFolderNode(up, FOLDER_TREE) ? up : null;
+    back.onclick = function() { locDrill(upTarget); };
+    back.innerHTML = '<i class="fa-solid fa-arrow-left"></i> Back to ' + (upTarget ? upTarget.split(' / ').pop() : 'My Folders');
     back.style.display = 'inline-flex';
   } else {
     rows = FOLDER_TREE.map(f => locRowHTML(f));
@@ -6192,6 +6219,8 @@ function locConfirm() {
       renderCrumb();
       const note = document.getElementById('wz-dest-note');
       if (note) note.style.display = 'none';
+      dismissDestConflict();
+      updateSaveDefaultCheckbox();
     }
     closeModal('modal-folder');
     return;
@@ -6203,24 +6232,24 @@ function locConfirm() {
 
 /* ══════════ ORGANIZATIONS ══════════ */
 const ORGS = [
-  { name: 'Riverside Youth Sports Association', contact: 'Karen Mello', email: 'karen.mello@riversideysa.org', phone: '(717) 555-0134', addr: '420 Riverside Dr, York, PA 17401', locs: [
+  { folder: 'All Photographs / Client Work / Sports Leagues / Riverside YSA', name: 'Riverside Youth Sports Association', contact: 'Karen Mello', email: 'karen.mello@riversideysa.org', phone: '(717) 555-0134', addr: '420 Riverside Dr, York, PA 17401', locs: [
     { v: 'Riverside Park — Main Fields', street: '420 Riverside Dr', city: 'York', state: 'PA', zip: '17401' },
     { v: 'Riverside Park — East Fields', street: '420 Riverside Dr', city: 'York', state: 'PA', zip: '17401' }
   ] },
-  { name: 'Lincoln Elementary PTA', contact: 'Alan Pierce', email: 'a.pierce@lincolnpta.org', phone: '(717) 555-0301', addr: '1200 Lincoln Ave, York, PA 17404', locs: [
+  { folder: 'All Photographs / Client Work / Schools / Lincoln Elementary', name: 'Lincoln Elementary PTA', contact: 'Alan Pierce', email: 'a.pierce@lincolnpta.org', phone: '(717) 555-0301', addr: '1200 Lincoln Ave, York, PA 17404', locs: [
     { v: 'Main Gymnasium', street: '1200 Lincoln Ave', city: 'York', state: 'PA', zip: '17404' },
     { v: 'Cafeteria', street: '1200 Lincoln Ave', city: 'York', state: 'PA', zip: '17404' }
   ] },
-  { name: 'Keystone Performing Arts Boosters', contact: 'Dana Whitfield', email: 'dana@keystonearts.org', phone: '(717) 555-0455', addr: '55 Arts Center Blvd, York, PA 17402', locs: [
+  { folder: 'All Photographs / Client Work / Dance & Events', name: 'Keystone Performing Arts Boosters', contact: 'Dana Whitfield', email: 'dana@keystonearts.org', phone: '(717) 555-0455', addr: '55 Arts Center Blvd, York, PA 17402', locs: [
     { v: 'Main Stage — Keystone PAC', street: '55 Arts Center Blvd', city: 'York', state: 'PA', zip: '17402' },
     { v: 'Studio B', street: '55 Arts Center Blvd', city: 'York', state: 'PA', zip: '17402' }
   ] },
-  { name: 'York Central Little League', contact: 'Ray Delgado', email: 'ray@yorklittleleague.org', phone: '(717) 555-0512', addr: '300 Stadium Way, York, PA 17403', locs: [
+  { folder: 'All Photographs / Client Work / Sports Leagues / York Little League', name: 'York Central Little League', contact: 'Ray Delgado', email: 'ray@yorklittleleague.org', phone: '(717) 555-0512', addr: '300 Stadium Way, York, PA 17403', locs: [
     { v: 'Memorial Stadium — Field A', street: '300 Stadium Way', city: 'York', state: 'PA', zip: '17403' },
     { v: 'Memorial Stadium — Field B', street: '300 Stadium Way', city: 'York', state: 'PA', zip: '17403' },
     { v: 'Main Diamond', street: '300 Stadium Way', city: 'York', state: 'PA', zip: '17403' }
   ] },
-  { name: 'Pillsburg Public Schools', contact: 'Mara Quinn', email: 'm.quinn@pillsburgk12.org', phone: '(717) 555-0611', addr: '88 School Rd, Pillsburg, PA 17322', locs: [
+  { folder: 'All Photographs / Client Work / Schools / Pillsburg Schools', name: 'Pillsburg Public Schools', contact: 'Mara Quinn', email: 'm.quinn@pillsburgk12.org', phone: '(717) 555-0611', addr: '88 School Rd, Pillsburg, PA 17322', locs: [
     { v: 'Main Gym', street: '88 School Rd', city: 'Pillsburg', state: 'PA', zip: '17322' },
     { v: 'City Park', street: '12 Park Ave', city: 'Pillsburg', state: 'PA', zip: '17322' },
     { v: 'Park A', street: '340 Meadow Ln', city: 'Pillsburg', state: 'PA', zip: '17322' },
@@ -6325,7 +6354,58 @@ function orgChanged() {
       lastNameSuggestion = '';
     }
   }
+  applyOrgFolderDefault(o);
   refreshLocSelects();
+}
+
+function applyOrgFolderDefault(o) {
+  const note = document.getElementById('wz-dest-note');
+  const conflict = document.getElementById('wz-dest-conflict');
+  if (!note) return;
+  if (o && o.folder) {
+    if (!destTouched) {
+      wzParent = o.folder;
+      renderCrumb();
+      note.style.display = 'block';
+      conflict.style.display = 'none';
+    } else if (wzParent !== o.folder) {
+      note.style.display = 'none';
+      conflict.style.display = 'flex';
+    } else {
+      conflict.style.display = 'none';
+    }
+  } else {
+    conflict.style.display = 'none';
+    if (!destTouched) {
+      wzParent = ACCOUNT_DEFAULT_FOLDER;
+      renderCrumb();
+    }
+    note.style.display = 'none';
+  }
+  updateSaveDefaultCheckbox();
+}
+
+function useOrgDefault() {
+  const o = selectedOrgIdx !== null ? ORGS[selectedOrgIdx] : null;
+  if (!o || !o.folder) return;
+  wzParent = o.folder;
+  renderCrumb();
+  document.getElementById('wz-dest-conflict').style.display = 'none';
+  document.getElementById('wz-dest-note').style.display = 'block';
+  updateSaveDefaultCheckbox();
+}
+
+function dismissDestConflict() {
+  document.getElementById('wz-dest-conflict').style.display = 'none';
+}
+
+function updateSaveDefaultCheckbox() {
+  const wrap = document.getElementById('wz-dest-savedef');
+  if (!wrap) return;
+  const o = selectedOrgIdx !== null ? ORGS[selectedOrgIdx] : null;
+  const show = !!o && wzParent !== o.folder;
+  wrap.style.display = show ? 'flex' : 'none';
+  if (!show) document.getElementById('wz-dest-savedef-cb').checked = false;
 }
 
 function activeOrgLocs(el) {
@@ -6506,6 +6586,9 @@ function openWizard() {
   wzParent = ACCOUNT_DEFAULT_FOLDER;
   renderCrumb();
   document.getElementById('wz-dest-note').style.display = 'none';
+  document.getElementById('wz-dest-conflict').style.display = 'none';
+  document.getElementById('wz-dest-savedef').style.display = 'none';
+  document.getElementById('wz-dest-savedef-cb').checked = false;
   /* schedule choice */
   schedMode = 'now';
   document.querySelectorAll('#wiz-1 .choice-card[data-sched]').forEach(c => c.classList.toggle('selected', c.dataset.sched === 'now'));
@@ -6619,6 +6702,10 @@ function buildReview() {
 function createJob() {
   const name = fval('wz-name').trim() || 'Untitled Job';
   const o = resolveOrg();
+  if (selectedOrgIdx !== null && document.getElementById('wz-dest-savedef-cb').checked) {
+    ORGS[selectedOrgIdx].folder = wzParent;
+    toast('Default folder updated for ' + ORGS[selectedOrgIdx].name);
+  }
   const shoots = schedMode === 'later' ? [] : parseShoots();
   const nLocs = shoots.reduce((s, x) => s + x.locs.length, 0);
   const dateTxt = shoots.length
