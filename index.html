@@ -2724,6 +2724,9 @@ html, body {
 .shoot-block.collapsed .ws-locsel-head { display: none; }
 #wz-shoots .ws-locs .loc-card:first-child .locsel-row { display: none; }
 
+/* new-org modal: first contact row required, no remove */
+#no-contacts .loc-card:first-child .row-x { display: none; }
+
 /* required minimums: first shoot date + first location have no remove control */
 #wz-shoots .shoot-block:first-child > .shoot-block-head .row-x { display: none; }
 .ws-locs .loc-card:first-child .row-x { display: none; }
@@ -4471,24 +4474,13 @@ html, body {
                   <input class="f-input" id="wz-org-query" placeholder="Search organizations…" oninput="renderOrgList()">
                 </div>
                 <div class="orgdd-list" id="wz-org-list"></div>
-                <div class="orgdd-footer" onclick="openNewOrgPanel()"><i class="fa-solid fa-plus"></i> Create new organization</div>
+                <div class="orgdd-footer" onclick="openNewOrgModal()"><i class="fa-solid fa-plus"></i> Create new organization</div>
               </div>
             </div>
           </div>
           <div class="f-field">
             <label class="f-label">Job Name <span style="color:var(--orange);">*</span></label>
             <input class="f-input" id="wz-name" placeholder="e.g. Lincoln Picture Day — Fall 2026">
-          </div>
-        </div>
-
-        <div class="org-new-box" id="wz-org-new" style="display:none;">
-          <div class="f-field">
-            <label class="f-label">Organization Name <span style="color:var(--orange);">*</span></label>
-            <input class="f-input" id="wz-orgn-name" placeholder="e.g. Pillsburg Public Schools">
-          </div>
-          <div style="display:flex; gap:8px;">
-            <button type="button" class="btn btn-brand" style="height:30px; padding:0 14px; font-size:12px;" onclick="saveNewOrg()">Save Organization</button>
-            <button type="button" class="btn btn-ghost-sm" onclick="closeNewOrgPanel()">Cancel</button>
           </div>
         </div>
 
@@ -4770,6 +4762,59 @@ html, body {
       <div class="spacer"></div>
       <button class="btn btn-ghost-sm" onclick="closeModal('modal-rule')">Cancel</button>
       <button class="btn btn-brand" onclick="createRule()">Create Automation</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ CREATE NEW ORGANIZATION MODAL ══════════ -->
+<div class="modal-overlay" id="modal-neworg">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">Create New Organization</div>
+        <div class="modal-subtitle">Saved organizations prefill contacts, folders, and locations for future jobs.</div>
+      </div>
+      <button class="modal-close" onclick="cancelNewOrgModal()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+
+      <div class="f-field">
+        <label class="f-label">Organization Name <span style="color:var(--orange);">*</span></label>
+        <input class="f-input" id="no-org-name" placeholder="e.g. Pillsburg Public Schools">
+      </div>
+
+      <div class="f-field">
+        <label class="f-label">Street Address <span class="opt">(optional)</span></label>
+        <input class="f-input" id="no-org-street" placeholder="88 School Rd">
+      </div>
+      <div class="f-row">
+        <div class="f-field" style="flex:1.4;">
+          <label class="f-label">City</label>
+          <input class="f-input" id="no-org-city" placeholder="Pillsburg">
+        </div>
+        <div class="f-field" style="flex:0.5;">
+          <label class="f-label">State</label>
+          <input class="f-input" id="no-org-state" placeholder="PA">
+        </div>
+        <div class="f-field" style="flex:0.7;">
+          <label class="f-label">ZIP</label>
+          <input class="f-input" id="no-org-zip" placeholder="17322">
+        </div>
+      </div>
+
+      <div class="f-label" style="margin-bottom:8px;">Primary Contact <span style="color:var(--orange);">*</span></div>
+      <div id="no-contacts"></div>
+      <button type="button" class="add-inline-btn" onclick="addNoContactRow()"><i class="fa-solid fa-plus"></i> Add another contact</button>
+
+      <div class="f-label" style="margin-top:18px; margin-bottom:8px;">Locations <span class="opt">(optional)</span></div>
+      <div id="no-locs"></div>
+      <button type="button" class="add-inline-btn" onclick="addNoLocRow()"><i class="fa-solid fa-plus"></i> Add a location</button>
+
+    </div>
+    <div class="modal-footer">
+      <div class="spacer"></div>
+      <button class="btn btn-ghost-sm" onclick="cancelNewOrgModal()">Cancel</button>
+      <button class="btn btn-brand" onclick="saveNewOrgFull()">Save Organization</button>
     </div>
   </div>
 </div>
@@ -6305,22 +6350,89 @@ function selectOrg(i) {
   orgChanged();
 }
 
-function openNewOrgPanel() {
-  document.querySelector('#wz-orgdd .orgdd-panel').classList.remove('open');
-  document.getElementById('wz-org-new').style.display = 'block';
-  document.getElementById('wz-orgn-name').focus();
+function noContactRowHTML() {
+  return '<div class="loc-card">' +
+    '<div class="loc-card-row">' +
+      '<input class="f-input no-cname grow" placeholder="Contact name">' +
+      '<input class="f-input no-cemail grow" placeholder="Email">' +
+      '<input class="f-input no-cphone" style="width:150px; flex-shrink:0;" placeholder="Phone">' +
+      '<button type="button" class="row-x" onclick="removeNoRow(this)" title="Remove contact"><i class="fa-solid fa-xmark"></i></button>' +
+    '</div>' +
+  '</div>';
 }
 
-function closeNewOrgPanel() {
-  document.getElementById('wz-org-new').style.display = 'none';
-  document.getElementById('wz-orgn-name').value = '';
+function noLocRowHTML() {
+  return '<div class="loc-card">' +
+    '<div class="loc-card-row">' +
+      '<input class="f-input no-lv grow" placeholder="Location name — e.g. Main Gym">' +
+      '<input class="f-input no-lstreet grow" placeholder="Street address">' +
+      '<button type="button" class="row-x" onclick="removeNoRow(this)" title="Remove location"><i class="fa-solid fa-xmark"></i></button>' +
+    '</div>' +
+    '<div class="loc-card-row">' +
+      '<input class="f-input no-lcity w-city" placeholder="City">' +
+      '<input class="f-input no-lstate w-state" placeholder="ST">' +
+      '<input class="f-input no-lzip w-zip" placeholder="ZIP">' +
+    '</div>' +
+  '</div>';
 }
 
-function saveNewOrg() {
-  const name = fval('wz-orgn-name').trim();
+function addNoContactRow() { document.getElementById('no-contacts').insertAdjacentHTML('beforeend', noContactRowHTML()); }
+function addNoLocRow() { document.getElementById('no-locs').insertAdjacentHTML('beforeend', noLocRowHTML()); }
+
+function removeNoRow(btn) {
+  const card = btn.closest('.loc-card');
+  const wrap = card.parentElement;
+  if (wrap.id === 'no-contacts' && wrap.querySelectorAll('.loc-card').length <= 1) return;
+  card.remove();
+}
+
+function openNewOrgModal() {
+  document.querySelectorAll('.orgdd-panel.open').forEach(pp => pp.classList.remove('open'));
+  document.getElementById('modal-wizard').classList.remove('open');
+  ['no-org-name', 'no-org-street', 'no-org-city', 'no-org-state', 'no-org-zip'].forEach(id => { document.getElementById(id).value = ''; });
+  document.getElementById('no-contacts').innerHTML = noContactRowHTML();
+  document.getElementById('no-locs').innerHTML = '';
+  openModal('modal-neworg');
+  document.getElementById('no-org-name').focus();
+}
+
+function cancelNewOrgModal() {
+  closeModal('modal-neworg');
+  openModal('modal-wizard');
+}
+
+function saveNewOrgFull() {
+  const name = fval('no-org-name').trim();
   if (!name) { toast('Organization name is required'); return; }
-  ORGS.push({ name: name, contact: '—', email: '', phone: '', addr: '', locs: [] });
-  closeNewOrgPanel();
+
+  const contacts = [];
+  document.querySelectorAll('#no-contacts .loc-card').forEach(row => {
+    const cn = row.querySelector('.no-cname').value.trim();
+    if (!cn) return;
+    contacts.push({ name: cn, email: row.querySelector('.no-cemail').value.trim(), phone: row.querySelector('.no-cphone').value.trim() });
+  });
+  if (!contacts.length) { toast('Add at least one primary contact'); return; }
+
+  const locs = [];
+  document.querySelectorAll('#no-locs .loc-card').forEach(row => {
+    const v = row.querySelector('.no-lv').value.trim();
+    const street = row.querySelector('.no-lstreet').value.trim();
+    const city = row.querySelector('.no-lcity').value.trim();
+    if (!v && !street && !city) return;
+    locs.push({ v: v || 'Location', street: street, city: city, state: row.querySelector('.no-lstate').value.trim(), zip: row.querySelector('.no-lzip').value.trim() });
+  });
+
+  const street = fval('no-org-street').trim(), city = fval('no-org-city').trim(), state = fval('no-org-state').trim(), zip = fval('no-org-zip').trim();
+  const addr = [street, city, (state + ' ' + zip).trim()].filter(Boolean).join(', ');
+
+  ORGS.push({
+    name: name, addr: addr,
+    contact: contacts[0].name, email: contacts[0].email, phone: contacts[0].phone,
+    contacts: contacts, locs: locs
+  });
+
+  closeModal('modal-neworg');
+  openModal('modal-wizard');
   selectOrg(ORGS.length - 1);
   toast('Organization “' + name + '” saved');
 }
@@ -6567,8 +6679,7 @@ function openWizard() {
   const label = document.getElementById('wz-orgdd-label');
   label.textContent = 'Select an organization (optional)';
   label.className = 'orgdd-placeholder';
-  document.getElementById('wz-org-new').style.display = 'none';
-  ['wz-orgn-name', 'wz-org-query', 'wz-jc-name', 'wz-jc-email', 'wz-jc-phone', 'wz-contact', 'wz-contact-email', 'wz-contact-phone', 'wz-name'].forEach(id => { document.getElementById(id).value = ''; });
+  ['wz-org-query', 'wz-jc-name', 'wz-jc-email', 'wz-jc-phone', 'wz-contact', 'wz-contact-email', 'wz-contact-phone', 'wz-name'].forEach(id => { document.getElementById(id).value = ''; });
   orgChanged();
   /* destination: account default (org default arrives in Phase 2) */
   wzParent = ACCOUNT_DEFAULT_FOLDER;
