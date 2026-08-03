@@ -4581,7 +4581,7 @@ html, body {
         </div>
         <div id="wz-schedule">
           <div id="wz-shoots"></div>
-          <button type="button" class="add-inline-btn orange" onclick="wizAddShoot(true)"><i class="fa-solid fa-plus"></i> Add another shoot date</button>
+          <button type="button" class="add-inline-btn orange" onclick="wizAddShoot()"><i class="fa-solid fa-plus"></i> Add another shoot date</button>
         </div>
       </div>
 
@@ -6603,37 +6603,63 @@ function schedModeChanged(el) {
   setText('wiz-count', 'Step ' + wizStep + ' of ' + wizFlow().length);
 }
 
-function wizAddShoot(copyPrev) {
-  const cont = document.getElementById('wz-shoots');
-  const blocks = cont.querySelectorAll('.shoot-block');
-  const prev = copyPrev && blocks.length ? blocks[blocks.length - 1] : null;
+function collectLocVals(block) {
   const locVals = [];
-  if (prev) {
-    prev.querySelectorAll('.loc-card').forEach(lc => locVals.push({
-      v: lc.querySelector('.ws-venue').value, street: lc.querySelector('.ws-street').value,
-      city: lc.querySelector('.ws-city').value, state: lc.querySelector('.ws-state').value,
-      zip: lc.querySelector('.ws-zip').value,
-      start: lc.querySelector('.ws-start').value, end: lc.querySelector('.ws-end').value,
-      p: Array.prototype.map.call(lc.querySelectorAll('.pgdd-item.on'), c => c.dataset.name)
-    }));
-  }
+  block.querySelectorAll('.loc-card').forEach(lc => locVals.push({
+    v: lc.querySelector('.ws-venue').value, street: lc.querySelector('.ws-street').value,
+    city: lc.querySelector('.ws-city').value, state: lc.querySelector('.ws-state').value,
+    zip: lc.querySelector('.ws-zip').value,
+    start: lc.querySelector('.ws-start').value, end: lc.querySelector('.ws-end').value,
+    p: Array.prototype.map.call(lc.querySelectorAll('.pgdd-item.on'), c => c.dataset.name)
+  }));
+  return locVals;
+}
+
+function isoPlusOneDay(iso) {
+  if (!iso) return '';
+  const parts = iso.split('-').map(n => parseInt(n, 10));
+  const d = new Date(parts[0], parts[1] - 1, parts[2]);
+  d.setDate(d.getDate() + 1);
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return d.getFullYear() + '-' + mm + '-' + dd;
+}
+
+function createShootBlock(dateVal, locVals) {
+  const cont = document.getElementById('wz-shoots');
   const div = document.createElement('div');
   div.className = 'shoot-block';
   div.innerHTML =
     '<div class="shoot-block-head">' +
     '<button type="button" class="collapse-btn" onclick="toggleShoot(this)" title="Collapse / expand"><i class="fa-solid fa-chevron-down"></i></button>' +
     '<span class="shoot-block-num"></span>' +
-    '<input class="f-input ws-date" type="date" onchange="sortShoots()">' +
+    '<input class="f-input ws-date" type="date" onchange="sortShoots()" value="' + (dateVal || '') + '">' +
     '<select class="f-input ws-locsel-head" onchange="headLocChanged(this)" style="flex:1; min-width:0;">' + locOptionsHTML(activeOrgLocs(cont), '') + '</select>' +
+    '<button type="button" class="add-inline-btn" style="flex-shrink:0;" onclick="duplicateShootBlock(this)">Duplicate</button>' +
     '<button type="button" class="row-x" onclick="removeShootBlock(this)" title="Remove this date"><i class="fa-solid fa-xmark"></i></button></div>' +
     '<div class="ws-locs"></div>' +
     '<button type="button" class="add-inline-btn" onclick="addLocAndExpand(this)"><i class="fa-solid fa-plus"></i> Add another location to this date</button>';
   cont.appendChild(div);
   const locsEl = div.querySelector('.ws-locs');
-  if (locVals.length) locVals.forEach(vv => addLocCard(locsEl, vv));
+  if (locVals && locVals.length) locVals.forEach(vv => addLocCard(locsEl, vv));
   else addLocCard(locsEl);
   syncHeadLocSel(div);
+  return div;
+}
+
+function wizAddShoot() {
+  createShootBlock('', []);
   sortShoots();
+}
+
+function duplicateShootBlock(btn) {
+  const block = btn.closest('.shoot-block');
+  const nextDate = isoPlusOneDay(block.querySelector('.ws-date').value);
+  const locVals = collectLocVals(block);
+  const div = createShootBlock(nextDate, locVals);
+  sortShoots();
+  toast('Duplicated — new date set to the next day, all locations and photographers carried over');
+  return div;
 }
 
 function removeShootBlock(btn) {
@@ -6698,7 +6724,7 @@ function openWizard() {
   schedMode = 'now';
   document.querySelectorAll('#wiz-1 .choice-card[data-sched]').forEach(c => c.classList.toggle('selected', c.dataset.sched === 'now'));
   document.getElementById('wz-shoots').innerHTML = '';
-  wizAddShoot(false);
+  wizAddShoot();
   document.getElementById('wz-deadline').value = '';
   /* notes collapsed unless content */
   const notes = document.getElementById('wz-notes');
