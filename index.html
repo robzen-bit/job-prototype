@@ -574,6 +574,7 @@ html, body {
 .avatar-a { background: var(--orange); }
 .avatar-b { background: var(--teal); }
 .avatar-c { background: #8E8EA0; }
+.avatar-d { background: #B08FD8; }
 
 .gallery-count {
   font-size: 12px;
@@ -4362,9 +4363,7 @@ html, body {
       <div class="wiz-connector"></div>
       <div class="wiz-step"><span class="wiz-step-num">3</span> Subject Data</div>
       <div class="wiz-connector"></div>
-      <div class="wiz-step"><span class="wiz-step-num">4</span> Team</div>
-      <div class="wiz-connector"></div>
-      <div class="wiz-step"><span class="wiz-step-num">5</span> Review</div>
+      <div class="wiz-step"><span class="wiz-step-num">4</span> Review</div>
     </div>
 
     <div class="modal-body">
@@ -4564,40 +4563,8 @@ html, body {
         </div>
       </div>
 
-      <!-- STEP 4 : TEAM -->
+      <!-- STEP 4 : REVIEW -->
       <div class="wiz-pane" id="wiz-4">
-        <div class="f-label" style="margin-bottom:8px;">Assign photographers to this job</div>
-        <div class="check-list">
-          <div class="check-item checked" onclick="flipCheck(this)">
-            <input type="checkbox" checked>
-            <div class="avatar-chip avatar-a">RC</div>
-            <div><div class="check-name">Robert Campbell <span class="chip chip-orange" style="margin-left:6px;">Primary</span></div><div class="check-sub">robert@campbellphoto.com</div></div>
-            <div class="check-right">Owner</div>
-          </div>
-          <div class="check-item" onclick="flipCheck(this)">
-            <input type="checkbox">
-            <div class="avatar-chip avatar-b">SK</div>
-            <div><div class="check-name">Sofia Khan</div><div class="check-sub">sofia.khan@yopmail.com</div></div>
-            <div class="check-right">Sub-photographer</div>
-          </div>
-          <div class="check-item" onclick="flipCheck(this)">
-            <input type="checkbox">
-            <div class="avatar-chip avatar-c">JT</div>
-            <div><div class="check-name">James Torres</div><div class="check-sub">jtorres.photo@yopmail.com</div></div>
-            <div class="check-right">Sub-photographer</div>
-          </div>
-          <div class="check-item" onclick="flipCheck(this)">
-            <input type="checkbox">
-            <div class="avatar-chip" style="background:#B08FD8; margin-left:0; border:none;">EL</div>
-            <div><div class="check-name">Emma Liu</div><div class="check-sub">emma.liu.photo@yopmail.com</div></div>
-            <div class="check-right">Sub-photographer</div>
-          </div>
-        </div>
-        <div class="wiz-info"><i class="fa-solid fa-lock"></i><div><b>Access isolation:</b> sub-photographers only see this job's folders they're assigned to. They can upload remotely but can't view pricing, other jobs, or business reports.</div></div>
-      </div>
-
-      <!-- STEP 5 : REVIEW -->
-      <div class="wiz-pane" id="wiz-5">
         <div class="f-label" style="margin-bottom:8px;">Automation presets</div>
         <div style="border:1px solid var(--line); border-radius:var(--r-sm); padding:0 14px; margin-bottom:18px;">
           <div class="toggle-row">
@@ -5483,10 +5450,10 @@ function buildStepper(j) {
 }
 
 const PHOTOG_META = {
-  'Robert Campbell': { ini: 'RC', bg: '#F26B3A' },
-  'Sofia Khan':      { ini: 'SK', bg: '#2DB3A6' },
-  'James Torres':    { ini: 'JT', bg: '#8E8EA0' },
-  'Emma Liu':        { ini: 'EL', bg: '#B08FD8' }
+  'Robert Campbell': { ini: 'RC', bg: '#F26B3A', cls: 'avatar-a', email: 'robert@campbellphoto.com' },
+  'Sofia Khan':      { ini: 'SK', bg: '#2DB3A6', cls: 'avatar-b', email: 'sofia.khan@yopmail.com' },
+  'James Torres':    { ini: 'JT', bg: '#8E8EA0', cls: 'avatar-c', email: 'jtorres.photo@yopmail.com' },
+  'Emma Liu':        { ini: 'EL', bg: '#B08FD8', cls: 'avatar-d', email: 'emma.liu.photo@yopmail.com' }
 };
 
 function photogChip(name) {
@@ -6448,15 +6415,15 @@ function wizNav(dir) {
       return;
     }
   }
-  if (dir === 1 && wizStep === 5) { createJob(); return; }
-  wizStep = Math.min(5, Math.max(1, wizStep + dir));
+  if (dir === 1 && wizStep === 4) { createJob(); return; }
+  wizStep = Math.min(4, Math.max(1, wizStep + dir));
   wizPaint();
 }
 
 let wizNameSynced = '';
 
 function wizPaint() {
-  for (let i = 1; i <= 5; i++) {
+  for (let i = 1; i <= 4; i++) {
     document.getElementById('wiz-' + i).classList.toggle('active', i === wizStep);
   }
   const steps = document.querySelectorAll('#wiz-steps .wiz-step');
@@ -6465,8 +6432,8 @@ function wizPaint() {
     s.classList.toggle('done', idx + 1 < wizStep);
   });
   document.getElementById('wiz-back').style.visibility = wizStep === 1 ? 'hidden' : 'visible';
-  setText('wiz-count', 'Step ' + wizStep + ' of 5');
-  document.getElementById('wiz-next').innerHTML = wizStep === 5
+  setText('wiz-count', 'Step ' + wizStep + ' of 4');
+  document.getElementById('wiz-next').innerHTML = wizStep === 4
     ? 'Create Job <i class="fa-solid fa-check" style="font-size:11px;"></i>'
     : 'Next <i class="fa-solid fa-arrow-right" style="font-size:11px;"></i>';
   if (wizStep === 2) {
@@ -6476,7 +6443,7 @@ function wizPaint() {
     wizNameSynced = nm;
     renderWloc();
   }
-  if (wizStep === 5) buildReview();
+  if (wizStep === 4) buildReview();
 }
 
 function fmtInputDate(raw) {
@@ -6489,18 +6456,19 @@ function fmtInputDate(raw) {
 function buildReview() {
   const name = fval('wz-foldername') || fval('wz-name') || 'Untitled Job';
   const o = resolveOrg(false);
-  const teamN = document.querySelectorAll('#wiz-4 .check-item.checked').length;
   const deadline = fmtInputDate(fval('wz-deadline')) || '—';
   const parent = wzParent;
+  const shoots = schedMode === 'later' ? [] : parseShoots();
   let schedHTML;
   if (schedMode === 'later') {
     schedHTML = '<span style="color:var(--text-3);">To be scheduled — add shoots from the job later</span>';
   } else {
-    const shoots = parseShoots();
     schedHTML = shoots.length ? shoots.map(s =>
       s.date + ' — ' + s.locs.map(L => L.v + (L.p.length ? ' (' + L.p.map(n => n.split(' ')[0]).join(', ') + ')' : '')).join(' · ')
     ).join('<br>') : '<span style="color:var(--text-3);">To be scheduled</span>';
   }
+  const uniqP = [];
+  shoots.forEach(s => s.locs.forEach(L => (L.p || []).forEach(n => { if (uniqP.indexOf(n) < 0) uniqP.push(n); })));
   const modeTxt = {
     csv: 'Roster CSV — 142 galleries + QR codes will be generated',
     prereg: 'Pre-registration link with pre-orders enabled',
@@ -6513,7 +6481,7 @@ function buildReview() {
     '<div class="review-row"><span class="review-key">Schedule</span><span class="review-val">' + schedHTML + '</span></div>' +
     '<div class="review-row"><span class="review-key">Delivery Deadline</span><span class="review-val">' + deadline + '</span></div>' +
     '<div class="review-row"><span class="review-key">Subject Data</span><span class="review-val">' + modeTxt + '</span></div>' +
-    '<div class="review-row"><span class="review-key">Team</span><span class="review-val">' + teamN + ' photographer' + (teamN === 1 ? '' : 's') + ' assigned</span></div>';
+    '<div class="review-row"><span class="review-key">Photographers</span><span class="review-val">' + (uniqP.length ? uniqP.map(n => n.split(' ')[0]).join(', ') : '<span style="color:var(--text-3);">Assign later</span>') + '</span></div>';
 }
 
 function createJob() {
@@ -6531,7 +6499,11 @@ function createJob() {
   const isCsv = wizMode === 'csv', isPrereg = wizMode === 'prereg';
   const key = 'newjob' + (++newJobSeq);
   const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 30) || 'new-job';
-  const teamChecked = document.querySelectorAll('#wiz-4 .check-item.checked').length;
+  const uniqP = [];
+  shoots.forEach(s => s.locs.forEach(L => (L.p || []).forEach(n => { if (uniqP.indexOf(n) < 0) uniqP.push(n); })));
+  if (uniqP.indexOf('Robert Campbell') < 0) uniqP.unshift('Robert Campbell');
+  uniqP.sort((a, b) => (a === 'Robert Campbell' ? -1 : b === 'Robert Campbell' ? 1 : 0));
+  const teamN = uniqP.length;
 
   JOBS[key] = {
     key: key, seed: 5 + newJobSeq, icon: 'fa-briefcase',
@@ -6554,12 +6526,12 @@ function createJob() {
       ct: isCsv ? '142' : (isPrereg ? '0' : '1'), ctSub: isCsv ? 'imported from roster' : (isPrereg ? 'grows as families register' : 'primary contact only')
     },
     summary: {
-      team: [teamChecked + ' photographer' + (teamChecked === 1 ? '' : 's'), 'Robert (lead)'],
+      team: [teamN + ' photographer' + (teamN === 1 ? '' : 's'), 'Robert (lead)' + (teamN > 1 ? ' · ' + uniqP.slice(1).map(n => n.split(' ')[0]).join(' · ') : '')],
       docs: ['0 files', 'upload contracts to keep them here'],
       auto: ['2 active rules', 'presets enabled']
     },
-    photogs: [{ name: 'Robert Campbell', ini: 'RC', cls: 'avatar-a', email: 'robert@campbellphoto.com', folder: isCsv ? 'All folders' : '—', uploads: '0', lead: true }],
-    teamFoot: teamChecked > 1 ? (teamChecked - 1) + ' sub-photographer(s) invited' : 'Robert shoots this job solo',
+    photogs: uniqP.map(n => ({ name: n, ini: PHOTOG_META[n].ini, cls: PHOTOG_META[n].cls, email: PHOTOG_META[n].email, folder: n === 'Robert Campbell' ? (isCsv ? 'All folders' : '—') : 'Assigned locations', uploads: '0', lead: n === 'Robert Campbell', status: 'Invited' })),
+    teamFoot: teamN > 1 ? (teamN - 1) + ' sub-photographer' + (teamN === 2 ? '' : 's') + ' assigned from the shoot schedule' : 'Robert shoots this job solo',
     buckets: [], preMix: [0, 0, 0], preWin: [], saleWin: [], weeks: [],
     views: ['0', '—'], conv: ['—', '—'], revSub7: '—',
     eng: { pct: 0, cap: 'No galleries shared yet', legend: '<span><b>0</b> viewed</span><span><b>0</b> not yet viewed</span><span><b>' + (isCsv ? '142' : '0') + '</b> not yet shared</span>', link: ['Reports light up once galleries are shared', ''] },
