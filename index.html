@@ -4004,11 +4004,13 @@ html, body {
     <div class="wiz-steps" id="wiz-steps">
       <div class="wiz-step active"><span class="wiz-step-num">1</span> Details</div>
       <div class="wiz-connector"></div>
-      <div class="wiz-step"><span class="wiz-step-num">2</span> Subject Data</div>
+      <div class="wiz-step"><span class="wiz-step-num">2</span> Location</div>
       <div class="wiz-connector"></div>
-      <div class="wiz-step"><span class="wiz-step-num">3</span> Team</div>
+      <div class="wiz-step"><span class="wiz-step-num">3</span> Subject Data</div>
       <div class="wiz-connector"></div>
-      <div class="wiz-step"><span class="wiz-step-num">4</span> Review</div>
+      <div class="wiz-step"><span class="wiz-step-num">4</span> Team</div>
+      <div class="wiz-connector"></div>
+      <div class="wiz-step"><span class="wiz-step-num">5</span> Review</div>
     </div>
 
     <div class="modal-body">
@@ -4022,15 +4024,6 @@ html, body {
         <div class="f-field">
           <label class="f-label">Organization <span class="opt">(optional)</span></label>
           <input class="f-input" id="wz-org" placeholder="e.g. Lincoln Elementary PTA">
-        </div>
-        <div class="f-field">
-          <label class="f-label">Create Job Folder In</label>
-          <button type="button" class="f-input loc-trigger" onclick="openLocPicker('pick')">
-            <i class="fa-solid fa-folder" style="color:var(--orange); font-size:13px;"></i>
-            <span id="wz-parent-label" style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">All Photographs / Client Work / Sports Leagues</span>
-            <i class="fa-solid fa-chevron-down" style="margin-left:auto; font-size:10px; color:var(--text-3);"></i>
-          </button>
-          <div style="font-size:11.5px; color:var(--text-3);">The job is a folder in your Galleries — its sub-folders and galleries live inside it.</div>
         </div>
         <div class="f-row">
           <div class="f-field">
@@ -4077,8 +4070,30 @@ html, body {
         </div>
       </div>
 
-      <!-- STEP 2 : SUBJECT DATA -->
+      <!-- STEP 2 : LOCATION -->
       <div class="wiz-pane" id="wiz-2">
+        <div class="f-field">
+          <label class="f-label">Job Folder Name</label>
+          <input class="f-input" id="wz-foldername" placeholder="Job name">
+          <div style="font-size:11.5px; color:var(--text-3);">Carried over from the job details — edit it if the folder should be named differently.</div>
+        </div>
+        <div style="display:flex; align-items:baseline; gap:8px;">
+          <span class="f-label">Choose a location</span>
+          <span style="font-size:12px; color:var(--text-3);">Where do you want to place your new job folder?</span>
+        </div>
+        <div class="loc-search">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input class="f-input" id="wloc-query" placeholder="Search locations..." oninput="renderWloc()">
+        </div>
+        <div class="loc-eyebrow" id="wloc-eyebrow">My Folders</div>
+        <div class="loc-counts" id="wloc-counts">12 folders • 37 galleries</div>
+        <div class="loc-list" id="wloc-list"></div>
+        <span class="loc-back" id="wloc-back" style="display:none;" onclick="wlocDrill(null)"><i class="fa-solid fa-arrow-left"></i> Back to My Folders</span>
+        <div class="wiz-info" style="margin-top:14px;"><i class="fa-solid fa-folder"></i><div>Creating job folder in <b id="wloc-path">All Photographs / Client Work / Sports Leagues</b></div></div>
+      </div>
+
+      <!-- STEP 3 : SUBJECT DATA -->
+      <div class="wiz-pane" id="wiz-3">
         <div class="f-label" style="margin-bottom:8px;">How do you want to set up subjects and galleries?</div>
         <div class="choice-cards">
           <div class="choice-card selected" data-mode="csv" onclick="selectDataMode(this)">
@@ -4126,8 +4141,8 @@ html, body {
         </div>
       </div>
 
-      <!-- STEP 3 : TEAM -->
-      <div class="wiz-pane" id="wiz-3">
+      <!-- STEP 4 : TEAM -->
+      <div class="wiz-pane" id="wiz-4">
         <div class="f-label" style="margin-bottom:8px;">Assign photographers to this job</div>
         <div class="check-list">
           <div class="check-item checked" onclick="flipCheck(this)">
@@ -4158,8 +4173,8 @@ html, body {
         <div class="wiz-info"><i class="fa-solid fa-lock"></i><div><b>Access isolation:</b> sub-photographers only see this job's folders they're assigned to. They can upload remotely but can't view pricing, other jobs, or business reports.</div></div>
       </div>
 
-      <!-- STEP 4 : REVIEW -->
-      <div class="wiz-pane" id="wiz-4">
+      <!-- STEP 5 : REVIEW -->
+      <div class="wiz-pane" id="wiz-5">
         <div class="f-label" style="margin-bottom:8px;">Automation presets</div>
         <div style="border:1px solid var(--line); border-radius:var(--r-sm); padding:0 14px; margin-bottom:18px;">
           <div class="toggle-row">
@@ -5342,14 +5357,65 @@ function locDrill(folderName) {
   renderLoc();
 }
 
-function locRowHTML(f, subOverride) {
+function locRowHTML(f, subOverride, scope) {
+  scope = scope || 'loc';
+  const sel = scope === 'wloc' ? wzParent : locSel;
   const hasKids = f.children && f.children.length;
-  return '<div class="loc-row' + (locSel === f.path ? ' selected' : '') + '" onclick="locSelect(\'' + f.path + '\')">' +
+  const selectFn = scope === 'wloc' ? 'wlocSelect' : 'locSelect';
+  const drillFn = scope === 'wloc' ? 'wlocDrill' : 'locDrill';
+  return '<div class="loc-row' + (sel === f.path ? ' selected' : '') + '" onclick="' + selectFn + '(\'' + f.path + '\')">' +
     '<span class="loc-radio"></span>' +
     '<div class="loc-folder-ico"><i class="fa-regular fa-folder"></i></div>' +
     '<div style="min-width:0;"><div class="loc-name">' + f.name + '</div><div class="loc-sub">' + (subOverride || f.sub) + '</div></div>' +
-    (hasKids ? '<span class="loc-chevron" onclick="event.stopPropagation(); locDrill(\'' + f.name + '\')"><i class="fa-solid fa-chevron-right"></i></span>' : '') +
+    (hasKids ? '<span class="loc-chevron" onclick="event.stopPropagation(); ' + drillFn + '(\'' + f.name + '\')"><i class="fa-solid fa-chevron-right"></i></span>' : '') +
   '</div>';
+}
+
+/* Wizard-embedded picker (Step 2) — same components, no nested modal */
+let wlocLevel = null;
+
+function wlocDrill(folderName) {
+  wlocLevel = folderName;
+  document.getElementById('wloc-query').value = '';
+  renderWloc();
+}
+
+function wlocSelect(path) {
+  wzParent = path;
+  setText('wloc-path', path);
+  renderWloc();
+}
+
+function renderWloc() {
+  const q = document.getElementById('wloc-query').value.trim().toLowerCase();
+  const listEl = document.getElementById('wloc-list');
+  const back = document.getElementById('wloc-back');
+  let rows = [];
+  if (q) {
+    const walk = (nodes) => nodes.forEach(n => {
+      if (n.name.toLowerCase().indexOf(q) >= 0) rows.push(locRowHTML(n, n.path, 'wloc'));
+      if (n.children) walk(n.children);
+    });
+    walk(FOLDER_TREE);
+    setText('wloc-eyebrow', 'Search results');
+    setText('wloc-counts', rows.length + ' matching location' + (rows.length === 1 ? '' : 's'));
+    back.style.display = 'none';
+    listEl.innerHTML = rows.join('') || '<div style="padding:18px; text-align:center; color:var(--text-3); font-size:12.5px;">No folders match.</div>';
+    return;
+  }
+  if (wlocLevel) {
+    const parent = FOLDER_TREE.find(f => f.name === wlocLevel);
+    rows = (parent.children || []).map(f => locRowHTML(f, null, 'wloc'));
+    setText('wloc-eyebrow', parent.name);
+    setText('wloc-counts', parent.sub);
+    back.style.display = 'inline-flex';
+  } else {
+    rows = FOLDER_TREE.map(f => locRowHTML(f, null, 'wloc'));
+    setText('wloc-eyebrow', 'My Folders');
+    setText('wloc-counts', '12 folders • 37 galleries');
+    back.style.display = 'none';
+  }
+  listEl.innerHTML = rows.join('');
 }
 
 function renderLoc() {
@@ -5397,19 +5463,17 @@ function locValidate() {
 }
 
 function locConfirm() {
-  if (locMode === 'pick') {
-    wzParent = locSel;
-    setText('wz-parent-label', wzParent);
-    closeModal('modal-folder');
-  } else {
-    const nm = fval('loc-name').trim();
-    closeModal('modal-folder');
-    toast('Folder “' + nm + '” created in ' + locSel);
-  }
+  const nm = fval('loc-name').trim();
+  closeModal('modal-folder');
+  toast('Folder “' + nm + '” created in ' + locSel);
 }
 
 function openWizard() {
   wizStep = 1;
+  wlocLevel = null;
+  wizNameSynced = '';
+  const fn = document.getElementById('wz-foldername');
+  if (fn) fn.value = '';
   wizPaint();
   openModal('modal-wizard');
 }
@@ -5422,13 +5486,15 @@ function selectDataMode(el) {
 }
 
 function wizNav(dir) {
-  if (dir === 1 && wizStep === 4) { createJob(); return; }
-  wizStep = Math.min(4, Math.max(1, wizStep + dir));
+  if (dir === 1 && wizStep === 5) { createJob(); return; }
+  wizStep = Math.min(5, Math.max(1, wizStep + dir));
   wizPaint();
 }
 
+let wizNameSynced = '';
+
 function wizPaint() {
-  for (let i = 1; i <= 4; i++) {
+  for (let i = 1; i <= 5; i++) {
     document.getElementById('wiz-' + i).classList.toggle('active', i === wizStep);
   }
   const steps = document.querySelectorAll('#wiz-steps .wiz-step');
@@ -5437,11 +5503,18 @@ function wizPaint() {
     s.classList.toggle('done', idx + 1 < wizStep);
   });
   document.getElementById('wiz-back').style.visibility = wizStep === 1 ? 'hidden' : 'visible';
-  setText('wiz-count', 'Step ' + wizStep + ' of 4');
-  document.getElementById('wiz-next').innerHTML = wizStep === 4
+  setText('wiz-count', 'Step ' + wizStep + ' of 5');
+  document.getElementById('wiz-next').innerHTML = wizStep === 5
     ? 'Create Job <i class="fa-solid fa-check" style="font-size:11px;"></i>'
     : 'Next <i class="fa-solid fa-arrow-right" style="font-size:11px;"></i>';
-  if (wizStep === 4) buildReview();
+  if (wizStep === 2) {
+    const fn = document.getElementById('wz-foldername');
+    const nm = fval('wz-name');
+    if (!fn.value || fn.value === wizNameSynced) fn.value = nm;
+    wizNameSynced = nm;
+    renderWloc();
+  }
+  if (wizStep === 5) buildReview();
 }
 
 function fmtInputDate(raw) {
@@ -5452,12 +5525,12 @@ function fmtInputDate(raw) {
 }
 
 function buildReview() {
-  const name = fval('wz-name') || 'Untitled Job';
+  const name = fval('wz-foldername') || fval('wz-name') || 'Untitled Job';
   const org = fval('wz-org') || '—';
   const date = fmtInputDate(fval('wz-date')) || '—';
   const loc = fval('wz-loc') || '—';
   const contact = fval('wz-contact') || '—';
-  const teamN = document.querySelectorAll('#wiz-3 .check-item.checked').length;
+  const teamN = document.querySelectorAll('#wiz-4 .check-item.checked').length;
   const priceList = fval('wz-pricelist');
   const parent = wzParent;
   const modeTxt = {
@@ -5478,7 +5551,7 @@ function buildReview() {
 }
 
 function createJob() {
-  const name = fval('wz-name') || 'Untitled Job';
+  const name = fval('wz-foldername') || fval('wz-name') || 'Untitled Job';
   const org = fval('wz-org') || '—';
   const loc = fval('wz-loc') || 'Location TBD';
   const contact = fval('wz-contact') || '—';
@@ -5486,7 +5559,7 @@ function createJob() {
   const isCsv = wizMode === 'csv', isPrereg = wizMode === 'prereg';
   const key = 'newjob' + (++newJobSeq);
   const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 30) || 'new-job';
-  const teamChecked = document.querySelectorAll('#wiz-3 .check-item.checked').length;
+  const teamChecked = document.querySelectorAll('#wiz-4 .check-item.checked').length;
 
   JOBS[key] = {
     key: key, seed: 5 + newJobSeq, icon: 'fa-briefcase',
