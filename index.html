@@ -4480,7 +4480,7 @@ html, body {
           </div>
           <div class="f-field">
             <label class="f-label">Job Name <span style="color:var(--orange);">*</span></label>
-            <input class="f-input" id="wz-name" placeholder="e.g. Lincoln Picture Day — Fall 2026">
+            <input class="f-input" id="wz-name" placeholder="e.g. Lincoln Picture Day — Fall 2026" oninput="updateWizNextState()">
           </div>
         </div>
 
@@ -5711,7 +5711,7 @@ function addLocCard(container, pre) {
       '<select class="f-input ws-locsel grow" onchange="locSelChanged(this)">' + locOptionsHTML(locs, selVal) + '</select>' +
     '</div>' +
     '<div class="loc-card-row">' +
-      '<input class="f-input ws-venue grow" placeholder="Location name / label — e.g. Main Gym" value="' + (pre.v || '') + '" oninput="updateLocSum(this.closest(\'.loc-card\'))">' +
+      '<input class="f-input ws-venue grow" placeholder="Location name / label — e.g. Main Gym" value="' + (pre.v || '') + '" oninput="updateLocSum(this.closest(\'.loc-card\')); updateWizNextState()">' +
       '<input class="f-input ws-street grow" placeholder="Street address" value="' + (pre.street || '') + '">' +
       '<button type="button" class="row-x" onclick="removeLocCard(this)" title="Remove location"><i class="fa-solid fa-xmark"></i></button>' +
     '</div>' +
@@ -5796,6 +5796,7 @@ function removeLocCard(btn) {
   if (wrap.querySelectorAll('.loc-card').length > 1) card.remove();
   const block = btn.closest ? wrap.closest('.shoot-block') : null;
   if (block) syncHeadLocSel(block);
+  updateWizNextState();
 }
 
 function fmtTime(v) {
@@ -6547,6 +6548,7 @@ function locSelChanged(sel) {
   if (sel.value === '__newloc') {
     ['ws-venue', 'ws-street', 'ws-city', 'ws-state', 'ws-zip'].forEach(c => { lc.querySelector('.' + c).value = ''; });
     lc.querySelector('.ws-venue').focus();
+    updateWizNextState();
     return;
   }
   const L = activeOrgLocs(sel)[parseInt(sel.value, 10)];
@@ -6557,6 +6559,7 @@ function locSelChanged(sel) {
   lc.querySelector('.ws-state').value = L.state;
   lc.querySelector('.ws-zip').value = L.zip;
   updateLocSum(lc);
+  updateWizNextState();
 }
 
 
@@ -6675,6 +6678,7 @@ function renumberShoots() {
   nums.forEach((n, i) => {
     n.textContent = nums.length > 1 ? 'Day ' + (i + 1) : 'Shoot Date';
   });
+  updateWizNextState();
 }
 
 function sortShoots() {
@@ -6756,21 +6760,30 @@ function renderWizSteps() {
   ).join('<div class="wiz-connector"></div>');
 }
 
+function stepValid(paneId) {
+  if (paneId === 'wiz-1') {
+    return fval('wz-name').trim().length > 0;
+  }
+  if (paneId === 'wiz-sched') {
+    return Array.prototype.some.call(document.querySelectorAll('#wz-shoots .shoot-block'), b =>
+      b.querySelector('.ws-date').value && b.querySelector('.ws-venue').value.trim());
+  }
+  return true;
+}
+
+function updateWizNextState() {
+  const flow = wizFlow();
+  const cur = flow[wizStep - 1];
+  const btn = document.getElementById('wiz-next');
+  if (!btn) return;
+  if (stepValid(cur)) btn.removeAttribute('disabled');
+  else btn.setAttribute('disabled', '');
+}
+
 function wizNav(dir) {
   const flow = wizFlow();
   const cur = flow[wizStep - 1];
-  if (dir === 1 && cur === 'wiz-1' && !fval('wz-name').trim()) {
-    toast('Job name is required');
-    return;
-  }
-  if (dir === 1 && cur === 'wiz-sched') {
-    const ok = Array.prototype.some.call(document.querySelectorAll('#wz-shoots .shoot-block'), b =>
-      b.querySelector('.ws-date').value && b.querySelector('.ws-venue').value.trim());
-    if (!ok) {
-      toast('Add at least one shoot date and a location name — or choose Add dates later');
-      return;
-    }
-  }
+  if (dir === 1 && !stepValid(cur)) return;
   if (dir === 1 && wizStep === flow.length) { createJob(); return; }
   wizStep = Math.min(flow.length, Math.max(1, wizStep + dir));
   wizPaint();
@@ -6790,6 +6803,7 @@ function wizPaint() {
     ? 'Create Job <i class="fa-solid fa-check" style="font-size:11px;"></i>'
     : 'Next <i class="fa-solid fa-arrow-right" style="font-size:11px;"></i>';
   if (curPane === 'wiz-4') buildReview();
+  updateWizNextState();
 }
 
 function fmtInputDate(raw) {
