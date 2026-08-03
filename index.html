@@ -2723,6 +2723,11 @@ html, body {
 .shoot-block.collapsed .ws-locsel-head { display: none; }
 #wz-shoots .ws-locs .loc-card:first-child .locsel-row { display: none; }
 
+/* required minimums: first shoot date + first location have no remove control */
+#wz-shoots .shoot-block:first-child > .shoot-block-head .row-x { display: none; }
+.ws-locs .loc-card:first-child .row-x { display: none; }
+#sh-locs .loc-card:first-child .row-x { display: none; }
+
 /* collapsed shoot: date stays, locations render as summary rows */
 .loc-head { display: none; align-items: center; gap: 8px; }
 .shoot-block.collapsed .loc-head { display: flex; cursor: pointer; }
@@ -6435,6 +6440,14 @@ function selectDataMode(el) {
 }
 
 function wizNav(dir) {
+  if (dir === 1 && wizStep === 1 && schedMode === 'now') {
+    const ok = Array.prototype.some.call(document.querySelectorAll('#wz-shoots .shoot-block'), b =>
+      b.querySelector('.ws-date').value && b.querySelector('.ws-venue').value.trim());
+    if (!ok) {
+      toast('Schedule Now needs at least one shoot date and a location name — or choose Add Later');
+      return;
+    }
+  }
   if (dir === 1 && wizStep === 5) { createJob(); return; }
   wizStep = Math.min(5, Math.max(1, wizStep + dir));
   wizPaint();
