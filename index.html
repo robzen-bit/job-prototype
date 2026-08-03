@@ -2551,6 +2551,67 @@ html, body {
 
 .shoot-status { margin-left: auto; flex-shrink: 0; }
 
+/* Photographer multi-select chips */
+.pg-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+
+.pg-row-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-3);
+  margin-right: 2px;
+}
+
+.pg-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 24px;
+  padding: 0 9px 0 4px;
+  border-radius: 999px;
+  border: 1.5px solid var(--line);
+  background: var(--surface);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-2);
+  cursor: pointer;
+  user-select: none;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.pg-chip .dot {
+  width: 15px; height: 15px;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 8px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pg-chip:hover { border-color: var(--text-3); }
+
+.pg-chip.on {
+  border-color: var(--orange);
+  background: rgba(242,107,58,0.07);
+  color: var(--text);
+}
+
+.pg-chip.on::after {
+  content: '\f00c';
+  font-family: 'Font Awesome 6 Free';
+  font-weight: 900;
+  font-size: 9px;
+  color: var(--orange);
+  margin-left: 2px;
+}
+
 /* Org summary box */
 .org-summary {
   display: flex;
@@ -4193,6 +4254,24 @@ html, body {
 
         <div class="org-summary" id="wz-org-summary" style="display:none;"></div>
 
+        <div id="wz-job-contact" style="display:none;">
+          <div class="f-row">
+            <div class="f-field">
+              <label class="f-label">Primary Contact — this job</label>
+              <input class="f-input" id="wz-jc-name" placeholder="Name">
+            </div>
+            <div class="f-field">
+              <label class="f-label">Contact Email</label>
+              <input class="f-input" id="wz-jc-email" placeholder="email@example.com">
+            </div>
+            <div class="f-field">
+              <label class="f-label">Phone</label>
+              <input class="f-input" id="wz-jc-phone" placeholder="(717) 555-0100">
+            </div>
+          </div>
+          <div style="font-size:11.5px; color:var(--text-3); margin:-8px 0 14px;">Prefilled with the organization's default contact — edits apply to this job only.</div>
+        </div>
+
         <div class="org-new-box" id="wz-org-new" style="display:none;">
           <div class="f-field">
             <label class="f-label">Organization Name</label>
@@ -5331,26 +5410,40 @@ function buildShoots(j) {
 }
 
 /* ── Add Shoot modal ── */
-function photogOptions(selName) {
-  return ['', 'Robert Campbell', 'Sofia Khan', 'James Torres', 'Emma Liu'].map(n =>
-    '<option value="' + n + '"' + (n === (selName || '') ? ' selected' : '') + '>' + (n || 'Photographer — assign later') + '</option>').join('');
+const PHOTOG_NAMES = ['Robert Campbell', 'Sofia Khan', 'James Torres', 'Emma Liu'];
+
+function pgChipHTML(name, on) {
+  const m = PHOTOG_META[name];
+  return '<span class="pg-chip' + (on ? ' on' : '') + '" data-name="' + name + '" onclick="togglePgChip(this)">' +
+    '<span class="dot" style="background:' + m.bg + ';">' + m.ini + '</span>' + name.split(' ')[0] + '</span>';
 }
 
 function addLocCard(container, pre) {
   pre = pre || {};
+  const locs = activeOrgLocs(container);
+  let selVal = '';
+  if (pre.v) {
+    const idx = locs.findIndex(l => l.v === pre.v);
+    selVal = idx >= 0 ? String(idx) : '__newloc';
+  }
   const div = document.createElement('div');
   div.className = 'loc-card';
   div.innerHTML =
     '<div class="loc-card-row">' +
-      '<input class="f-input ws-venue grow" placeholder="Venue / label — e.g. Main Gym" value="' + (pre.v || '') + '">' +
-      '<input class="f-input ws-street grow" placeholder="Street address" value="' + (pre.street || '') + '">' +
+      '<select class="f-input ws-locsel grow" onchange="locSelChanged(this)">' + locOptionsHTML(locs, selVal) + '</select>' +
       '<button type="button" class="row-x" onclick="removeLocCard(this)" title="Remove location"><i class="fa-solid fa-xmark"></i></button>' +
+    '</div>' +
+    '<div class="loc-card-row">' +
+      '<input class="f-input ws-venue grow" placeholder="Location name / label — e.g. Main Gym" value="' + (pre.v || '') + '">' +
+      '<input class="f-input ws-street grow" placeholder="Street address" value="' + (pre.street || '') + '">' +
     '</div>' +
     '<div class="loc-card-row">' +
       '<input class="f-input ws-city w-city" placeholder="City" value="' + (pre.city || '') + '">' +
       '<input class="f-input ws-state w-state" placeholder="ST" value="' + (pre.state || '') + '">' +
       '<input class="f-input ws-zip w-zip" placeholder="ZIP" value="' + (pre.zip || '') + '">' +
-      '<select class="f-input ws-photog w-photog">' + photogOptions(pre.p) + '</select>' +
+    '</div>' +
+    '<div class="pg-row"><span class="pg-row-label">Photographers</span>' +
+      PHOTOG_NAMES.map(n => pgChipHTML(n, (pre.p || []).indexOf(n) >= 0)).join('') +
     '</div>';
   container.appendChild(div);
 }
@@ -5364,10 +5457,10 @@ function removeLocCard(btn) {
 function parseLocCard(lc) {
   const g = cls => lc.querySelector('.' + cls).value.trim();
   const v = g('ws-venue'), street = g('ws-street'), city = g('ws-city'), state = g('ws-state'), zip = g('ws-zip');
-  const pv = lc.querySelector('.ws-photog').value;
+  const p = Array.prototype.map.call(lc.querySelectorAll('.pg-chip.on'), c => c.dataset.name);
   const addr = [street, city, (state + ' ' + zip).trim()].filter(Boolean).join(', ');
   if (!v && !street && !city) return null;
-  return { v: v || 'Location', a: addr, p: pv ? [pv] : [] };
+  return { v: v || 'Location', a: addr, p: p };
 }
 
 function openAddShoot() {
@@ -5388,6 +5481,10 @@ function saveShoot() {
   });
   currentJob.shoots = currentJob.shoots || [];
   currentJob.shoots.push({ date: date, st: 'upcoming', locs: locs.length ? locs : [{ v: 'Location TBD', a: '', p: [] }] });
+  currentJob.shoots.sort((a, b) => {
+    const ta = Date.parse(a.date) || Infinity, tb = Date.parse(b.date) || Infinity;
+    return ta - tb;
+  });
   buildShoots(currentJob);
   closeModal('modal-shoot');
   toast('Shoot added — ' + date + (locs.length > 1 ? ' · ' + locs.length + ' locations' : ''));
@@ -5843,11 +5940,29 @@ function locConfirm() {
 
 /* ══════════ ORGANIZATIONS ══════════ */
 const ORGS = [
-  { name: 'Riverside Youth Sports Association', contact: 'Karen Mello', email: 'karen.mello@riversideysa.org', phone: '(717) 555-0134', addr: '420 Riverside Dr, York, PA 17401' },
-  { name: 'Lincoln Elementary PTA', contact: 'Alan Pierce', email: 'a.pierce@lincolnpta.org', phone: '(717) 555-0301', addr: '1200 Lincoln Ave, York, PA 17404' },
-  { name: 'Keystone Performing Arts Boosters', contact: 'Dana Whitfield', email: 'dana@keystonearts.org', phone: '(717) 555-0455', addr: '55 Arts Center Blvd, York, PA 17402' },
-  { name: 'York Central Little League', contact: 'Ray Delgado', email: 'ray@yorklittleleague.org', phone: '(717) 555-0512', addr: '300 Stadium Way, York, PA 17403' },
-  { name: 'Pillsburg Public Schools', contact: 'Mara Quinn', email: 'm.quinn@pillsburgk12.org', phone: '(717) 555-0611', addr: '88 School Rd, Pillsburg, PA 17322' }
+  { name: 'Riverside Youth Sports Association', contact: 'Karen Mello', email: 'karen.mello@riversideysa.org', phone: '(717) 555-0134', addr: '420 Riverside Dr, York, PA 17401', locs: [
+    { v: 'Riverside Park — Main Fields', street: '420 Riverside Dr', city: 'York', state: 'PA', zip: '17401' },
+    { v: 'Riverside Park — East Fields', street: '420 Riverside Dr', city: 'York', state: 'PA', zip: '17401' }
+  ] },
+  { name: 'Lincoln Elementary PTA', contact: 'Alan Pierce', email: 'a.pierce@lincolnpta.org', phone: '(717) 555-0301', addr: '1200 Lincoln Ave, York, PA 17404', locs: [
+    { v: 'Main Gymnasium', street: '1200 Lincoln Ave', city: 'York', state: 'PA', zip: '17404' },
+    { v: 'Cafeteria', street: '1200 Lincoln Ave', city: 'York', state: 'PA', zip: '17404' }
+  ] },
+  { name: 'Keystone Performing Arts Boosters', contact: 'Dana Whitfield', email: 'dana@keystonearts.org', phone: '(717) 555-0455', addr: '55 Arts Center Blvd, York, PA 17402', locs: [
+    { v: 'Main Stage — Keystone PAC', street: '55 Arts Center Blvd', city: 'York', state: 'PA', zip: '17402' },
+    { v: 'Studio B', street: '55 Arts Center Blvd', city: 'York', state: 'PA', zip: '17402' }
+  ] },
+  { name: 'York Central Little League', contact: 'Ray Delgado', email: 'ray@yorklittleleague.org', phone: '(717) 555-0512', addr: '300 Stadium Way, York, PA 17403', locs: [
+    { v: 'Memorial Stadium — Field A', street: '300 Stadium Way', city: 'York', state: 'PA', zip: '17403' },
+    { v: 'Memorial Stadium — Field B', street: '300 Stadium Way', city: 'York', state: 'PA', zip: '17403' },
+    { v: 'Main Diamond', street: '300 Stadium Way', city: 'York', state: 'PA', zip: '17403' }
+  ] },
+  { name: 'Pillsburg Public Schools', contact: 'Mara Quinn', email: 'm.quinn@pillsburgk12.org', phone: '(717) 555-0611', addr: '88 School Rd, Pillsburg, PA 17322', locs: [
+    { v: 'Main Gym', street: '88 School Rd', city: 'Pillsburg', state: 'PA', zip: '17322' },
+    { v: 'City Park', street: '12 Park Ave', city: 'Pillsburg', state: 'PA', zip: '17322' },
+    { v: 'Park A', street: '340 Meadow Ln', city: 'Pillsburg', state: 'PA', zip: '17322' },
+    { v: 'Park B', street: '9 Creek Rd', city: 'Pillsburg', state: 'PA', zip: '17322' }
+  ] }
 ];
 
 function populateOrgSelect() {
@@ -5866,16 +5981,68 @@ function orgChanged() {
   document.getElementById('wz-org-new').style.display = v === '__new' ? 'block' : 'none';
   document.getElementById('wz-org-manual').style.display = v === '__none' ? 'flex' : 'none';
   const sum = document.getElementById('wz-org-summary');
+  const jc = document.getElementById('wz-job-contact');
   if (v !== '' && v !== '__new' && v !== '__none') {
     const o = ORGS[parseInt(v, 10)];
     sum.style.display = 'flex';
-    sum.innerHTML = '<i class="fa-solid fa-building"></i><div><b>' + o.name + '</b><br>' +
-      o.contact + ' · <a class="gallery-name-link">' + o.email + '</a>' + (o.phone ? ' · ' + o.phone : '') +
-      '<br><span style="color:var(--text-3);">' + o.addr + '</span></div>';
+    sum.innerHTML = '<i class="fa-solid fa-building"></i><div><b>' + o.name + '</b>' +
+      '<br><span style="color:var(--text-3);">' + o.addr + '</span>' +
+      (o.locs && o.locs.length ? '<br><span style="color:var(--text-3);">' + o.locs.length + ' saved locations</span>' : '') + '</div>';
+    jc.style.display = 'block';
+    document.getElementById('wz-jc-name').value = o.contact;
+    document.getElementById('wz-jc-email').value = o.email;
+    document.getElementById('wz-jc-phone').value = o.phone;
   } else {
     sum.style.display = 'none';
+    jc.style.display = 'none';
   }
+  refreshLocSelects();
 }
+
+function activeOrgLocs(el) {
+  if (el && el.closest('#sh-locs')) {
+    const o = ORGS.find(x => currentJob && x.name === currentJob.org2);
+    return (o && o.locs) || [];
+  }
+  const v = fval('wz-org-sel');
+  if (v === '' || v === '__new' || v === '__none') return [];
+  return ORGS[parseInt(v, 10)].locs || [];
+}
+
+function locOptionsHTML(locs, selVal) {
+  return '<option value=""' + (selVal === '' ? ' selected' : '') + '>Choose a saved location…</option>' +
+    locs.map((l, i) => '<option value="' + i + '"' + (String(i) === selVal ? ' selected' : '') + '>' + l.v + '</option>').join('') +
+    '<option value="__newloc"' + (selVal === '__newloc' ? ' selected' : '') + '>＋ New location — enter address below</option>';
+}
+
+function refreshLocSelects() {
+  document.querySelectorAll('#wz-shoots .ws-locsel').forEach(sel => {
+    const lc = sel.closest('.loc-card');
+    const locs = activeOrgLocs(sel);
+    const venue = lc.querySelector('.ws-venue').value;
+    const idx = locs.findIndex(l => l.v === venue);
+    sel.innerHTML = locOptionsHTML(locs, idx >= 0 ? String(idx) : (venue ? '__newloc' : ''));
+  });
+}
+
+function locSelChanged(sel) {
+  const lc = sel.closest('.loc-card');
+  if (sel.value === '') return;
+  if (sel.value === '__newloc') {
+    ['ws-venue', 'ws-street', 'ws-city', 'ws-state', 'ws-zip'].forEach(c => { lc.querySelector('.' + c).value = ''; });
+    lc.querySelector('.ws-venue').focus();
+    return;
+  }
+  const L = activeOrgLocs(sel)[parseInt(sel.value, 10)];
+  if (!L) return;
+  lc.querySelector('.ws-venue').value = L.v;
+  lc.querySelector('.ws-street').value = L.street;
+  lc.querySelector('.ws-city').value = L.city;
+  lc.querySelector('.ws-state').value = L.state;
+  lc.querySelector('.ws-zip').value = L.zip;
+}
+
+function togglePgChip(el) { el.classList.toggle('on'); }
 
 function resolveOrg(save) {
   const v = fval('wz-org-sel');
@@ -5897,7 +6064,13 @@ function resolveOrg(save) {
   if (v === '' || v === '__none') {
     return { name: '—', contact: fval('wz-contact') || '—', email: fval('wz-contact-email') || '', phone: '', addr: '' };
   }
-  return ORGS[parseInt(v, 10)];
+  const base = ORGS[parseInt(v, 10)];
+  return {
+    name: base.name, addr: base.addr,
+    contact: fval('wz-jc-name').trim() || base.contact,
+    email: fval('wz-jc-email').trim() || base.email,
+    phone: fval('wz-jc-phone').trim() || base.phone
+  };
 }
 
 /* ══════════ SHOOT SCHEDULE BUILDER (wizard) ══════════ */
@@ -5919,14 +6092,15 @@ function wizAddShoot(copyPrev) {
     prev.querySelectorAll('.loc-card').forEach(lc => locVals.push({
       v: lc.querySelector('.ws-venue').value, street: lc.querySelector('.ws-street').value,
       city: lc.querySelector('.ws-city').value, state: lc.querySelector('.ws-state').value,
-      zip: lc.querySelector('.ws-zip').value, p: lc.querySelector('.ws-photog').value
+      zip: lc.querySelector('.ws-zip').value,
+      p: Array.prototype.map.call(lc.querySelectorAll('.pg-chip.on'), c => c.dataset.name)
     }));
   }
   const div = document.createElement('div');
   div.className = 'shoot-block';
   div.innerHTML =
     '<div class="shoot-block-head"><span class="shoot-block-num"></span>' +
-    '<input class="f-input ws-date" type="date">' +
+    '<input class="f-input ws-date" type="date" onchange="sortShoots()">' +
     '<button type="button" class="row-x" onclick="removeShootBlock(this)" title="Remove this date"><i class="fa-solid fa-xmark"></i></button></div>' +
     '<div class="ws-locs"></div>' +
     '<button type="button" class="add-inline-btn" onclick="addLocCard(this.previousElementSibling)"><i class="fa-solid fa-plus"></i> Add another location to this date</button>';
@@ -5934,7 +6108,7 @@ function wizAddShoot(copyPrev) {
   const locsEl = div.querySelector('.ws-locs');
   if (locVals.length) locVals.forEach(vv => addLocCard(locsEl, vv));
   else addLocCard(locsEl);
-  renumberShoots();
+  sortShoots();
 }
 
 function removeShootBlock(btn) {
@@ -5946,9 +6120,22 @@ function removeShootBlock(btn) {
 }
 
 function renumberShoots() {
-  document.querySelectorAll('#wz-shoots .shoot-block .shoot-block-num').forEach((n, i) => {
-    n.textContent = 'Shoot ' + (i + 1);
+  const nums = document.querySelectorAll('#wz-shoots .shoot-block .shoot-block-num');
+  nums.forEach((n, i) => {
+    n.textContent = nums.length > 1 ? 'Shoot ' + (i + 1) : '';
   });
+}
+
+function sortShoots() {
+  const cont = document.getElementById('wz-shoots');
+  const blocks = Array.prototype.slice.call(cont.querySelectorAll('.shoot-block'));
+  blocks.sort((a, b) => {
+    const da = a.querySelector('.ws-date').value || '9999-99-99';
+    const db = b.querySelector('.ws-date').value || '9999-99-99';
+    return da < db ? -1 : da > db ? 1 : 0;
+  });
+  blocks.forEach(b => cont.appendChild(b));
+  renumberShoots();
 }
 
 function parseShoots() {
@@ -5975,7 +6162,7 @@ function openWizard() {
   populateOrgSelect();
   document.getElementById('wz-org-sel').value = '';
   orgChanged();
-  ['wz-orgn-name','wz-orgn-contact','wz-orgn-email','wz-orgn-phone','wz-orgn-street','wz-orgn-city','wz-orgn-state','wz-orgn-zip'].forEach(id => { document.getElementById(id).value = ''; });
+  ['wz-orgn-name','wz-orgn-contact','wz-orgn-email','wz-orgn-phone','wz-orgn-street','wz-orgn-city','wz-orgn-state','wz-orgn-zip','wz-jc-name','wz-jc-email','wz-jc-phone'].forEach(id => { document.getElementById(id).value = ''; });
   schedMode = 'now';
   document.querySelectorAll('#wiz-1 .choice-card[data-sched]').forEach(c => c.classList.toggle('selected', c.dataset.sched === 'now'));
   document.getElementById('wz-schedule').style.display = 'block';
