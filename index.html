@@ -2411,6 +2411,171 @@ html, body {
 .loc-trigger:hover { border-color: var(--text-3); }
 
 /* ──────────────────────────────────────
+   SHOOT SCHEDULE BUILDER
+────────────────────────────────────── */
+.shoot-block {
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: 14px;
+  margin-bottom: 12px;
+  background: #FAFAFB;
+}
+
+.shoot-block-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.shoot-block-num {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-2);
+  white-space: nowrap;
+}
+
+.shoot-block-head input[type="date"] { max-width: 170px; background: var(--surface); }
+
+.row-x {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--text-3);
+  cursor: pointer;
+  font-size: 12px;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.row-x:hover { background: #ECECF0; color: #C43C3C; }
+
+.loc-card {
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  padding: 10px 12px;
+  margin-bottom: 8px;
+}
+
+.loc-card .f-input { height: 32px; font-size: 12.5px; }
+
+.loc-card-row { display: flex; gap: 8px; margin-bottom: 8px; }
+.loc-card-row:last-child { margin-bottom: 0; }
+
+.loc-card-row .grow { flex: 1; min-width: 0; }
+.loc-card-row .w-city { flex: 1.2; }
+.loc-card-row .w-state { width: 64px; flex-shrink: 0; }
+.loc-card-row .w-zip { width: 84px; flex-shrink: 0; }
+.loc-card-row .w-photog { flex: 1; }
+
+.add-inline-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  color: var(--teal);
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 0;
+}
+
+.add-inline-btn:hover { text-decoration: underline; }
+
+.add-inline-btn.orange { color: var(--orange); }
+
+/* Shoots list on Overview card */
+.shoot-item {
+  display: flex;
+  gap: 12px;
+  padding: 10px 0;
+  border-top: 1px solid var(--line);
+}
+
+.shoot-item:first-child { border-top: none; }
+
+.shoot-item-date {
+  width: 72px;
+  flex-shrink: 0;
+  text-align: center;
+  padding-top: 2px;
+}
+
+.shoot-item-date .sd-mon { font-size: 10px; font-weight: 700; letter-spacing: 0.5px; color: var(--orange); text-transform: uppercase; }
+.shoot-item-date .sd-day { font-size: 19px; font-weight: 700; color: var(--text); line-height: 1.1; }
+.shoot-item-date .sd-year { font-size: 10px; color: var(--text-3); }
+
+.shoot-item-body { flex: 1; min-width: 0; }
+
+.shoot-loc-line {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 2px 0;
+  flex-wrap: wrap;
+}
+
+.shoot-loc-venue { font-size: 12.5px; font-weight: 600; color: var(--text); }
+.shoot-loc-addr { font-size: 11.5px; color: var(--text-3); }
+
+.shoot-photog-chips { display: flex; gap: 4px; margin-top: 2px; flex-wrap: wrap; }
+
+.mini-photog-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 18px;
+  padding: 0 7px 0 3px;
+  border-radius: 999px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--text-2);
+}
+
+.mini-photog-chip .dot {
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 7px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.shoot-status { margin-left: auto; flex-shrink: 0; }
+
+/* Org summary box */
+.org-summary {
+  display: flex;
+  gap: 10px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  padding: 10px 12px;
+  font-size: 12px;
+  color: var(--text-2);
+  line-height: 1.6;
+  margin-bottom: 14px;
+}
+
+.org-summary i { color: var(--text-3); margin-top: 3px; }
+
+.org-new-box {
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: 14px;
+  background: #FAFAFB;
+  margin-bottom: 14px;
+}
+
+/* ──────────────────────────────────────
    TOAST
 ────────────────────────────────────── */
 .toast {
@@ -4022,27 +4187,90 @@ html, body {
           <input class="f-input" id="wz-name" placeholder="e.g. Lincoln Elementary Picture Day — Fall 2026">
         </div>
         <div class="f-field">
-          <label class="f-label">Organization <span class="opt">(optional)</span></label>
-          <input class="f-input" id="wz-org" placeholder="e.g. Lincoln Elementary PTA">
+          <label class="f-label">Organization</label>
+          <select class="f-input" id="wz-org-sel" onchange="orgChanged()"></select>
         </div>
-        <div class="f-row">
+
+        <div class="org-summary" id="wz-org-summary" style="display:none;"></div>
+
+        <div class="org-new-box" id="wz-org-new" style="display:none;">
           <div class="f-field">
-            <label class="f-label">Shoot Start Date</label>
-            <input class="f-input" id="wz-date" type="date" value="2026-09-15">
+            <label class="f-label">Organization Name</label>
+            <input class="f-input" id="wz-orgn-name" placeholder="e.g. Pillsburg Public Schools">
+          </div>
+          <div class="f-row">
+            <div class="f-field">
+              <label class="f-label">Primary Contact</label>
+              <input class="f-input" id="wz-orgn-contact" placeholder="Name">
+            </div>
+            <div class="f-field">
+              <label class="f-label">Contact Email</label>
+              <input class="f-input" id="wz-orgn-email" placeholder="email@example.com">
+            </div>
+            <div class="f-field">
+              <label class="f-label">Phone <span class="opt">(optional)</span></label>
+              <input class="f-input" id="wz-orgn-phone" placeholder="(717) 555-0100">
+            </div>
           </div>
           <div class="f-field">
-            <label class="f-label">Shoot End Date <span class="opt">(optional)</span></label>
-            <input class="f-input" type="date">
+            <label class="f-label">Street Address</label>
+            <input class="f-input" id="wz-orgn-street" placeholder="88 School Rd">
+          </div>
+          <div class="f-row">
+            <div class="f-field" style="flex:1.4;">
+              <label class="f-label">City</label>
+              <input class="f-input" id="wz-orgn-city" placeholder="Pillsburg">
+            </div>
+            <div class="f-field" style="flex:0.5;">
+              <label class="f-label">State</label>
+              <input class="f-input" id="wz-orgn-state" placeholder="PA">
+            </div>
+            <div class="f-field" style="flex:0.7;">
+              <label class="f-label">ZIP</label>
+              <input class="f-input" id="wz-orgn-zip" placeholder="17322">
+            </div>
+          </div>
+          <label class="perm-item" style="margin-top:2px;"><input type="checkbox" id="wz-orgn-save" checked> Save this organization for future jobs</label>
+        </div>
+
+        <div class="f-row" id="wz-org-manual" style="display:none;">
+          <div class="f-field">
+            <label class="f-label">Primary Contact</label>
+            <input class="f-input" id="wz-contact" placeholder="Name">
           </div>
           <div class="f-field">
-            <label class="f-label">Delivery Deadline</label>
-            <input class="f-input" type="date" value="2026-09-29">
+            <label class="f-label">Contact Email</label>
+            <input class="f-input" id="wz-contact-email" placeholder="email@example.com">
           </div>
         </div>
-        <div class="f-row">
+
+        <div style="display:flex; align-items:baseline; gap:8px; margin-bottom:8px;">
+          <span class="f-label">Shoot Schedule</span>
+          <span style="font-size:12px; color:var(--text-3);">Dates, locations, and who's shooting where.</span>
+        </div>
+        <div class="choice-cards two" style="margin-bottom:12px;">
+          <div class="choice-card selected" data-sched="now" onclick="schedModeChanged(this)">
+            <div class="choice-icon"><i class="fa-solid fa-calendar-check"></i></div>
+            <div class="choice-name">Schedule Now</div>
+            <div class="choice-desc">Add dates, locations and photographers.</div>
+          </div>
+          <div class="choice-card" data-sched="later" onclick="schedModeChanged(this)">
+            <div class="choice-icon"><i class="fa-regular fa-clock"></i></div>
+            <div class="choice-name">Add Later</div>
+            <div class="choice-desc">Create the job now — schedule shoots once details are confirmed.</div>
+          </div>
+        </div>
+
+        <div id="wz-schedule">
+          <div id="wz-shoots"></div>
+          <button type="button" class="add-inline-btn orange" onclick="wizAddShoot(true)"><i class="fa-solid fa-plus"></i> Add another shoot date</button>
+        </div>
+        <div class="wiz-info" id="wz-sched-later-note" style="display:none; margin-top:0;"><i class="fa-regular fa-clock"></i><div>No problem — the job is created without a schedule. Add dates, locations and photographers any time from the job's <b>Shoots</b> card.</div></div>
+
+        <div class="f-row" style="margin-top:14px;">
           <div class="f-field">
-            <label class="f-label">Location</label>
-            <input class="f-input" id="wz-loc" placeholder="e.g. Lincoln Elementary Gymnasium, York, PA">
+            <label class="f-label">Delivery Deadline <span class="opt">(optional)</span></label>
+            <input class="f-input" id="wz-deadline" type="date">
           </div>
           <div class="f-field">
             <label class="f-label">Price List</label>
@@ -4052,16 +4280,6 @@ html, body {
               <option>Dance &amp; Recital 2026</option>
               <option>Attach later</option>
             </select>
-          </div>
-        </div>
-        <div class="f-row">
-          <div class="f-field">
-            <label class="f-label">Primary Contact</label>
-            <input class="f-input" id="wz-contact" placeholder="Name">
-          </div>
-          <div class="f-field">
-            <label class="f-label">Contact Email</label>
-            <input class="f-input" placeholder="email@example.com">
           </div>
         </div>
         <div class="f-field">
@@ -4337,6 +4555,33 @@ html, body {
     <div class="modal-footer">
       <div class="spacer"></div>
       <button class="btn btn-brand" id="loc-confirm" disabled onclick="locConfirm()">Add</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ ADD SHOOT MODAL ══════════ -->
+<div class="modal-overlay" id="modal-shoot">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">Add Shoot</div>
+        <div class="modal-subtitle">Add a date and its locations to this job — assign photographers per location.</div>
+      </div>
+      <button class="modal-close" onclick="closeModal('modal-shoot')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="f-field" style="max-width:200px;">
+        <label class="f-label">Shoot Date</label>
+        <input class="f-input" id="sh-date" type="date">
+      </div>
+      <div class="f-label" style="margin-bottom:6px;">Locations</div>
+      <div id="sh-locs"></div>
+      <button type="button" class="add-inline-btn" onclick="addLocCard(document.getElementById('sh-locs'))"><i class="fa-solid fa-plus"></i> Add another location to this date</button>
+    </div>
+    <div class="modal-footer">
+      <div class="spacer"></div>
+      <button class="btn btn-ghost-sm" onclick="closeModal('modal-shoot')">Cancel</button>
+      <button class="btn btn-brand" onclick="saveShoot()">Add Shoot</button>
     </div>
   </div>
 </div>
@@ -4641,6 +4886,13 @@ const JOBS = {
     ],
     cta: ['Go to Upload Status', 'goToUploads()'],
     tiles: { gal: '42', galSub: '25 with photos · 17 empty', ph: '3,847', phSub: '412 in last 24h', ct: '128', ctSub: '96 registered · 32 imported' },
+    shoots: [
+      { date: 'May 14, 2026', st: 'done', locs: [
+        { v: 'Main Fields — Individuals', a: '420 Riverside Dr, York, PA 17401', p: ['Robert Campbell'] },
+        { v: 'East Fields — Raptors U12', a: '420 Riverside Dr, York, PA 17401', p: ['Sofia Khan'] },
+        { v: 'West Fields — Eagles U10', a: '420 Riverside Dr, York, PA 17401', p: ['James Torres'] }
+      ] }
+    ],
     shootday: { title: 'Shoot Day — May 14', big: '148', cap: 'subjects photographed', fill: 100,
       legend: '<span><b>142</b> roster matched</span><span><b>6</b> walk-ups added</span><span><b>0</b> missed</span>' },
     summary: { team: ['3 photographers', 'Robert (lead) · Sofia · James'], docs: ['3 files', '1 awaiting signature'], auto: ['5 active rules', '12 runs in last 7 days'] },
@@ -4721,6 +4973,11 @@ const JOBS = {
     ],
     cta: ['Download QR Cards', "toast('Generating printable QR card PDF for 142 subjects…')"],
     tiles: { gal: '142', galSub: '0 with photos · 142 awaiting', ph: '0', phSub: 'uploads begin after the shoot', ct: '90', ctSub: '89 registered · 1 primary' },
+    shoots: [
+      { date: 'Jun 2, 2026', st: 'today', locs: [
+        { v: 'Main Gymnasium', a: '1200 Lincoln Ave, York, PA 17404', p: ['Robert Campbell'] }
+      ] }
+    ],
     shootday: { title: 'Shoot Day — In Progress', big: '112', cap: 'of 142 subjects photographed', fill: 79,
       legend: '<span><b>112</b> photographed</span><span><b>30</b> remaining</span><span><b>3</b> stations</span>' },
     summary: { team: ['1 photographer', 'Robert (lead)'], docs: ['2 files', 'all signed'], auto: ['3 active rules', 'pre-shoot reminders running'] },
@@ -4790,6 +5047,11 @@ const JOBS = {
     ],
     cta: ['Import Roster', "openModal('modal-roster')"],
     tiles: { gal: '0', galSub: 'import a roster to generate', ph: '0', phSub: '—', ct: '1', ctSub: 'primary contact only' },
+    shoots: [
+      { date: 'Jun 18, 2026', st: 'upcoming', locs: [
+        { v: 'Main Stage — Keystone PAC', a: '55 Arts Center Blvd, York, PA 17402', p: ['Robert Campbell', 'Sofia Khan'] }
+      ] }
+    ],
     shootday: { title: 'Shoot Day — Jun 18', big: '0', cap: 'QR cards not generated yet — import the roster first', fill: 0,
       legend: '<span><b>~150</b> expected subjects</span><span><b>2</b> photographers</span><span><b>2</b> casts</span>' },
     summary: { team: ['2 photographers', 'Robert (lead) · Sofia'], docs: ['1 file', '1 awaiting signature'], auto: ['2 active rules', 'presets enabled'] },
@@ -4834,6 +5096,15 @@ const JOBS = {
     ],
     cta: ['View Sales Report', "switchJobTabById('tab-reports')"],
     tiles: { gal: '87', galSub: '87 with photos · 0 empty', ph: '6,912', phSub: 'upload complete Jul 14', ct: '214', ctSub: '198 registered · 16 imported' },
+    shoots: [
+      { date: 'Jul 10, 2026', st: 'done', locs: [
+        { v: 'Memorial Stadium — Field A', a: '300 Stadium Way, York, PA 17403', p: ['Robert Campbell'] },
+        { v: 'Memorial Stadium — Field B', a: '300 Stadium Way, York, PA 17403', p: ['Robert Campbell'] }
+      ] },
+      { date: 'Jul 11, 2026', st: 'done', locs: [
+        { v: 'Main Diamond — Team Photos', a: '300 Stadium Way, York, PA 17403', p: ['Robert Campbell'] }
+      ] }
+    ],
     shootday: { title: 'Shoot Day — Jul 10', big: '206', cap: 'subjects photographed', fill: 100,
       legend: '<span><b>198</b> roster matched</span><span><b>8</b> walk-ups added</span><span><b>0</b> missed</span>' },
     summary: { team: ['1 photographer', 'Robert (lead)'], docs: ['2 files', 'all signed'], auto: ['4 active rules', 'gallery expiry scheduled Aug 13'] },
@@ -4958,7 +5229,7 @@ function openJob(key) {
   setText('ov-contacts', j.tiles.ct);   setText('ov-contacts-sub', j.tiles.ctSub);
 
   buildStepper(j);
-  buildShootday(j);
+  buildShoots(j);
   setText('sc-team', j.summary.team[0]); setText('sc-team-sub', j.summary.team[1]);
   setText('sc-docs', j.summary.docs[0]); setText('sc-docs-sub', j.summary.docs[1]);
   setText('sc-auto', j.summary.auto[0]); setText('sc-auto-sub', j.summary.auto[1]);
@@ -5005,19 +5276,121 @@ function buildStepper(j) {
   cta.setAttribute('onclick', j.cta[1]);
 }
 
-function buildShootday(j) {
-  const s = j.shootday;
-  document.getElementById('jd-shootday').innerHTML =
-    '<div class="detail-card-header">' + s.title + '</div>' +
-    '<div class="meter-wrap">' +
-      '<div class="meter-head"><span class="meter-big">' + s.big + '</span><span class="meter-cap">' + s.cap + '</span></div>' +
-      '<div class="meter-track"><div class="meter-fill" style="width:' + s.fill + '%;"></div></div>' +
-      '<div class="meter-legend">' + s.legend + '</div>' +
+const PHOTOG_META = {
+  'Robert Campbell': { ini: 'RC', bg: '#F26B3A' },
+  'Sofia Khan':      { ini: 'SK', bg: '#2DB3A6' },
+  'James Torres':    { ini: 'JT', bg: '#8E8EA0' },
+  'Emma Liu':        { ini: 'EL', bg: '#B08FD8' }
+};
+
+function photogChip(name) {
+  const m = PHOTOG_META[name] || { ini: name.split(' ').map(w => w[0]).join('').toUpperCase(), bg: '#8E8EA0' };
+  return '<span class="mini-photog-chip"><span class="dot" style="background:' + m.bg + ';">' + m.ini + '</span>' + name.split(' ')[0] + '</span>';
+}
+
+function shootItemHTML(s) {
+  const parts = s.date.replace(',', '').split(' ');
+  const hasDate = parts.length >= 2 && parts[1];
+  const chip = s.st === 'done' ? '<span class="chip chip-teal">Completed</span>'
+    : s.st === 'today' ? '<span class="chip chip-orange">Today</span>'
+    : '<span class="chip chip-gray">Upcoming</span>';
+  return '<div class="shoot-item">' +
+    '<div class="shoot-item-date">' +
+      (hasDate
+        ? '<div class="sd-mon">' + parts[0] + '</div><div class="sd-day">' + parts[1] + '</div><div class="sd-year">' + (parts[2] || '') + '</div>'
+        : '<div class="sd-mon">Date</div><div class="sd-day">—</div><div class="sd-year">TBD</div>') +
     '</div>' +
-    '<div style="display:flex; gap:8px; margin-top:16px;">' +
-      '<button class="btn btn-ghost-sm" onclick="toast(\'Generating printable QR card PDF…\')"><i class="fa-solid fa-qrcode" style="font-size:11px;"></i> Download QR Cards</button>' +
-      '<button class="btn btn-ghost-sm" onclick="toast(\'Check-in sheet PDF exported\')"><i class="fa-solid fa-list-check" style="font-size:11px;"></i> Check-in Sheet</button>' +
+    '<div class="shoot-item-body">' + s.locs.map(L =>
+      '<div class="shoot-loc-line"><span class="shoot-loc-venue">' + L.v + '</span>' + (L.a ? '<span class="shoot-loc-addr">' + L.a + '</span>' : '') + '</div>' +
+      '<div class="shoot-photog-chips">' + ((L.p && L.p.length)
+        ? L.p.map(photogChip).join('')
+        : '<span class="chip chip-gray" style="height:18px; font-size:10px;">Photographer TBD</span>') + '</div>'
+    ).join('') + '</div>' +
+    '<div class="shoot-status">' + chip + '</div>' +
+  '</div>';
+}
+
+function buildShoots(j) {
+  const el = document.getElementById('jd-shootday');
+  let html = '<div class="detail-card-header" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">Shoots &amp; Locations ' +
+    '<button class="btn btn-ghost-sm" style="height:26px; padding:0 10px; font-size:11.5px;" onclick="openAddShoot()"><i class="fa-solid fa-plus" style="font-size:10px;"></i> Add Shoot</button></div>';
+  if (j.shootday && j.phase >= 1) {
+    html += '<div class="meter-wrap" style="margin-bottom:12px;">' +
+      '<div class="meter-head"><span class="meter-big">' + j.shootday.big + '</span><span class="meter-cap">' + j.shootday.cap + '</span></div>' +
+      '<div class="meter-track"><div class="meter-fill" style="width:' + j.shootday.fill + '%;"></div></div>' +
+      '<div class="meter-legend">' + j.shootday.legend + '</div>' +
     '</div>';
+  }
+  const shoots = j.shoots || [];
+  if (!shoots.length) {
+    html += '<div style="padding:10px 0 4px; color:var(--text-3); font-size:12.5px; line-height:1.55;">No shoots scheduled yet. Add dates, locations and photographer assignments once the details are confirmed.</div>';
+  } else {
+    html += '<div>' + shoots.map(shootItemHTML).join('') + '</div>';
+  }
+  el.innerHTML = html;
+}
+
+/* ── Add Shoot modal ── */
+function photogOptions(selName) {
+  return ['', 'Robert Campbell', 'Sofia Khan', 'James Torres', 'Emma Liu'].map(n =>
+    '<option value="' + n + '"' + (n === (selName || '') ? ' selected' : '') + '>' + (n || 'Photographer — assign later') + '</option>').join('');
+}
+
+function addLocCard(container, pre) {
+  pre = pre || {};
+  const div = document.createElement('div');
+  div.className = 'loc-card';
+  div.innerHTML =
+    '<div class="loc-card-row">' +
+      '<input class="f-input ws-venue grow" placeholder="Venue / label — e.g. Main Gym" value="' + (pre.v || '') + '">' +
+      '<input class="f-input ws-street grow" placeholder="Street address" value="' + (pre.street || '') + '">' +
+      '<button type="button" class="row-x" onclick="removeLocCard(this)" title="Remove location"><i class="fa-solid fa-xmark"></i></button>' +
+    '</div>' +
+    '<div class="loc-card-row">' +
+      '<input class="f-input ws-city w-city" placeholder="City" value="' + (pre.city || '') + '">' +
+      '<input class="f-input ws-state w-state" placeholder="ST" value="' + (pre.state || '') + '">' +
+      '<input class="f-input ws-zip w-zip" placeholder="ZIP" value="' + (pre.zip || '') + '">' +
+      '<select class="f-input ws-photog w-photog">' + photogOptions(pre.p) + '</select>' +
+    '</div>';
+  container.appendChild(div);
+}
+
+function removeLocCard(btn) {
+  const card = btn.closest('.loc-card');
+  const wrap = card.parentElement;
+  if (wrap.querySelectorAll('.loc-card').length > 1) card.remove();
+}
+
+function parseLocCard(lc) {
+  const g = cls => lc.querySelector('.' + cls).value.trim();
+  const v = g('ws-venue'), street = g('ws-street'), city = g('ws-city'), state = g('ws-state'), zip = g('ws-zip');
+  const pv = lc.querySelector('.ws-photog').value;
+  const addr = [street, city, (state + ' ' + zip).trim()].filter(Boolean).join(', ');
+  if (!v && !street && !city) return null;
+  return { v: v || 'Location', a: addr, p: pv ? [pv] : [] };
+}
+
+function openAddShoot() {
+  document.getElementById('sh-date').value = '';
+  const c = document.getElementById('sh-locs');
+  c.innerHTML = '';
+  addLocCard(c);
+  openModal('modal-shoot');
+}
+
+function saveShoot() {
+  if (!currentJob) { closeModal('modal-shoot'); return; }
+  const date = fmtInputDate(fval('sh-date')) || 'Date TBD';
+  const locs = [];
+  document.querySelectorAll('#sh-locs .loc-card').forEach(lc => {
+    const L = parseLocCard(lc);
+    if (L) locs.push(L);
+  });
+  currentJob.shoots = currentJob.shoots || [];
+  currentJob.shoots.push({ date: date, st: 'upcoming', locs: locs.length ? locs : [{ v: 'Location TBD', a: '', p: [] }] });
+  buildShoots(currentJob);
+  closeModal('modal-shoot');
+  toast('Shoot added — ' + date + (locs.length > 1 ? ' · ' + locs.length + ' locations' : ''));
 }
 
 function buildOrganize(j) {
@@ -5468,12 +5841,148 @@ function locConfirm() {
   toast('Folder “' + nm + '” created in ' + locSel);
 }
 
+/* ══════════ ORGANIZATIONS ══════════ */
+const ORGS = [
+  { name: 'Riverside Youth Sports Association', contact: 'Karen Mello', email: 'karen.mello@riversideysa.org', phone: '(717) 555-0134', addr: '420 Riverside Dr, York, PA 17401' },
+  { name: 'Lincoln Elementary PTA', contact: 'Alan Pierce', email: 'a.pierce@lincolnpta.org', phone: '(717) 555-0301', addr: '1200 Lincoln Ave, York, PA 17404' },
+  { name: 'Keystone Performing Arts Boosters', contact: 'Dana Whitfield', email: 'dana@keystonearts.org', phone: '(717) 555-0455', addr: '55 Arts Center Blvd, York, PA 17402' },
+  { name: 'York Central Little League', contact: 'Ray Delgado', email: 'ray@yorklittleleague.org', phone: '(717) 555-0512', addr: '300 Stadium Way, York, PA 17403' },
+  { name: 'Pillsburg Public Schools', contact: 'Mara Quinn', email: 'm.quinn@pillsburgk12.org', phone: '(717) 555-0611', addr: '88 School Rd, Pillsburg, PA 17322' }
+];
+
+function populateOrgSelect() {
+  const sel = document.getElementById('wz-org-sel');
+  if (!sel) return;
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">Select an organization…</option>' +
+    ORGS.map((o, i) => '<option value="' + i + '">' + o.name + '</option>').join('') +
+    '<option value="__new">＋ Create new organization…</option>' +
+    '<option value="__none">No organization — personal / other</option>';
+  sel.value = cur || '';
+}
+
+function orgChanged() {
+  const v = fval('wz-org-sel');
+  document.getElementById('wz-org-new').style.display = v === '__new' ? 'block' : 'none';
+  document.getElementById('wz-org-manual').style.display = v === '__none' ? 'flex' : 'none';
+  const sum = document.getElementById('wz-org-summary');
+  if (v !== '' && v !== '__new' && v !== '__none') {
+    const o = ORGS[parseInt(v, 10)];
+    sum.style.display = 'flex';
+    sum.innerHTML = '<i class="fa-solid fa-building"></i><div><b>' + o.name + '</b><br>' +
+      o.contact + ' · <a class="gallery-name-link">' + o.email + '</a>' + (o.phone ? ' · ' + o.phone : '') +
+      '<br><span style="color:var(--text-3);">' + o.addr + '</span></div>';
+  } else {
+    sum.style.display = 'none';
+  }
+}
+
+function resolveOrg(save) {
+  const v = fval('wz-org-sel');
+  if (v === '__new') {
+    const o = {
+      name: fval('wz-orgn-name').trim() || 'Untitled Organization',
+      contact: fval('wz-orgn-contact').trim() || '—',
+      email: fval('wz-orgn-email').trim(),
+      phone: fval('wz-orgn-phone').trim(),
+      addr: [fval('wz-orgn-street').trim(), fval('wz-orgn-city').trim(), (fval('wz-orgn-state').trim() + ' ' + fval('wz-orgn-zip').trim()).trim()].filter(Boolean).join(', ')
+    };
+    if (save && document.getElementById('wz-orgn-save').checked) {
+      ORGS.push(o);
+      populateOrgSelect();
+      toast('Organization “' + o.name + '” saved — it will appear in the dropdown next time');
+    }
+    return o;
+  }
+  if (v === '' || v === '__none') {
+    return { name: '—', contact: fval('wz-contact') || '—', email: fval('wz-contact-email') || '', phone: '', addr: '' };
+  }
+  return ORGS[parseInt(v, 10)];
+}
+
+/* ══════════ SHOOT SCHEDULE BUILDER (wizard) ══════════ */
+let schedMode = 'now';
+
+function schedModeChanged(el) {
+  selectChoice(el);
+  schedMode = el.dataset.sched;
+  document.getElementById('wz-schedule').style.display = schedMode === 'now' ? 'block' : 'none';
+  document.getElementById('wz-sched-later-note').style.display = schedMode === 'later' ? 'flex' : 'none';
+}
+
+function wizAddShoot(copyPrev) {
+  const cont = document.getElementById('wz-shoots');
+  const blocks = cont.querySelectorAll('.shoot-block');
+  const prev = copyPrev && blocks.length ? blocks[blocks.length - 1] : null;
+  const locVals = [];
+  if (prev) {
+    prev.querySelectorAll('.loc-card').forEach(lc => locVals.push({
+      v: lc.querySelector('.ws-venue').value, street: lc.querySelector('.ws-street').value,
+      city: lc.querySelector('.ws-city').value, state: lc.querySelector('.ws-state').value,
+      zip: lc.querySelector('.ws-zip').value, p: lc.querySelector('.ws-photog').value
+    }));
+  }
+  const div = document.createElement('div');
+  div.className = 'shoot-block';
+  div.innerHTML =
+    '<div class="shoot-block-head"><span class="shoot-block-num"></span>' +
+    '<input class="f-input ws-date" type="date">' +
+    '<button type="button" class="row-x" onclick="removeShootBlock(this)" title="Remove this date"><i class="fa-solid fa-xmark"></i></button></div>' +
+    '<div class="ws-locs"></div>' +
+    '<button type="button" class="add-inline-btn" onclick="addLocCard(this.previousElementSibling)"><i class="fa-solid fa-plus"></i> Add another location to this date</button>';
+  cont.appendChild(div);
+  const locsEl = div.querySelector('.ws-locs');
+  if (locVals.length) locVals.forEach(vv => addLocCard(locsEl, vv));
+  else addLocCard(locsEl);
+  renumberShoots();
+}
+
+function removeShootBlock(btn) {
+  const cont = document.getElementById('wz-shoots');
+  if (cont.querySelectorAll('.shoot-block').length > 1) {
+    btn.closest('.shoot-block').remove();
+    renumberShoots();
+  }
+}
+
+function renumberShoots() {
+  document.querySelectorAll('#wz-shoots .shoot-block .shoot-block-num').forEach((n, i) => {
+    n.textContent = 'Shoot ' + (i + 1);
+  });
+}
+
+function parseShoots() {
+  const out = [];
+  document.querySelectorAll('#wz-shoots .shoot-block').forEach(b => {
+    const raw = b.querySelector('.ws-date').value;
+    const date = fmtInputDate(raw) || 'Date TBD';
+    const locs = [];
+    b.querySelectorAll('.loc-card').forEach(lc => {
+      const L = parseLocCard(lc);
+      if (L) locs.push(L);
+    });
+    if (raw || locs.length) out.push({ date: date, st: 'upcoming', locs: locs.length ? locs : [{ v: 'Location TBD', a: '', p: [] }] });
+  });
+  return out;
+}
+
 function openWizard() {
   wizStep = 1;
   wlocLevel = null;
   wizNameSynced = '';
   const fn = document.getElementById('wz-foldername');
   if (fn) fn.value = '';
+  populateOrgSelect();
+  document.getElementById('wz-org-sel').value = '';
+  orgChanged();
+  ['wz-orgn-name','wz-orgn-contact','wz-orgn-email','wz-orgn-phone','wz-orgn-street','wz-orgn-city','wz-orgn-state','wz-orgn-zip'].forEach(id => { document.getElementById(id).value = ''; });
+  schedMode = 'now';
+  document.querySelectorAll('#wiz-1 .choice-card[data-sched]').forEach(c => c.classList.toggle('selected', c.dataset.sched === 'now'));
+  document.getElementById('wz-schedule').style.display = 'block';
+  document.getElementById('wz-sched-later-note').style.display = 'none';
+  document.getElementById('wz-shoots').innerHTML = '';
+  wizAddShoot(false);
+  document.getElementById('wz-deadline').value = '';
   wizPaint();
   openModal('modal-wizard');
 }
@@ -5526,13 +6035,20 @@ function fmtInputDate(raw) {
 
 function buildReview() {
   const name = fval('wz-foldername') || fval('wz-name') || 'Untitled Job';
-  const org = fval('wz-org') || '—';
-  const date = fmtInputDate(fval('wz-date')) || '—';
-  const loc = fval('wz-loc') || '—';
-  const contact = fval('wz-contact') || '—';
+  const o = resolveOrg(false);
   const teamN = document.querySelectorAll('#wiz-4 .check-item.checked').length;
   const priceList = fval('wz-pricelist');
+  const deadline = fmtInputDate(fval('wz-deadline')) || '—';
   const parent = wzParent;
+  let schedHTML;
+  if (schedMode === 'later') {
+    schedHTML = '<span style="color:var(--text-3);">To be scheduled — add shoots from the job later</span>';
+  } else {
+    const shoots = parseShoots();
+    schedHTML = shoots.length ? shoots.map(s =>
+      s.date + ' — ' + s.locs.map(L => L.v + (L.p.length ? ' (' + L.p.map(n => n.split(' ')[0]).join(', ') + ')' : '')).join(' · ')
+    ).join('<br>') : '<span style="color:var(--text-3);">To be scheduled</span>';
+  }
   const modeTxt = {
     csv: 'Roster CSV — 142 galleries + QR codes will be generated',
     prereg: 'Pre-registration link with pre-orders enabled',
@@ -5540,11 +6056,10 @@ function buildReview() {
   }[wizMode];
   document.getElementById('wz-review').innerHTML =
     '<div class="review-row"><span class="review-key">Job Name</span><span class="review-val">' + name + '</span></div>' +
-    '<div class="review-row"><span class="review-key">Organization</span><span class="review-val">' + org + '</span></div>' +
+    '<div class="review-row"><span class="review-key">Organization</span><span class="review-val">' + o.name + (o.contact && o.contact !== '—' ? ' <span style="color:var(--text-3); font-weight:400;">· ' + o.contact + '</span>' : '') + '</span></div>' +
     '<div class="review-row"><span class="review-key">Create In</span><span class="review-val"><i class="fa-solid fa-folder" style="font-size:11px; margin-right:5px; color:var(--text-3);"></i>' + parent + ' / ' + name + '</span></div>' +
-    '<div class="review-row"><span class="review-key">Shoot Date</span><span class="review-val">' + date + '</span></div>' +
-    '<div class="review-row"><span class="review-key">Location</span><span class="review-val">' + loc + '</span></div>' +
-    '<div class="review-row"><span class="review-key">Primary Contact</span><span class="review-val">' + contact + '</span></div>' +
+    '<div class="review-row"><span class="review-key">Schedule</span><span class="review-val">' + schedHTML + '</span></div>' +
+    '<div class="review-row"><span class="review-key">Delivery Deadline</span><span class="review-val">' + deadline + '</span></div>' +
     '<div class="review-row"><span class="review-key">Price List</span><span class="review-val">' + priceList + '</span></div>' +
     '<div class="review-row"><span class="review-key">Subject Data</span><span class="review-val">' + modeTxt + '</span></div>' +
     '<div class="review-row"><span class="review-key">Team</span><span class="review-val">' + teamN + ' photographer' + (teamN === 1 ? '' : 's') + ' assigned</span></div>';
@@ -5552,10 +6067,16 @@ function buildReview() {
 
 function createJob() {
   const name = fval('wz-foldername') || fval('wz-name') || 'Untitled Job';
-  const org = fval('wz-org') || '—';
-  const loc = fval('wz-loc') || 'Location TBD';
-  const contact = fval('wz-contact') || '—';
-  const dateTxt = fmtInputDate(fval('wz-date')) || 'Date TBD';
+  const o = resolveOrg(true);
+  const shoots = schedMode === 'later' ? [] : parseShoots();
+  const nLocs = shoots.reduce((s, x) => s + x.locs.length, 0);
+  const dateTxt = shoots.length
+    ? shoots[0].date + (shoots.length > 1 ? ' +' + (shoots.length - 1) + ' more' : '')
+    : 'Dates TBD';
+  const locTxt = shoots.length && shoots[0].locs.length
+    ? shoots[0].locs[0].v + (nLocs > 1 ? ' +' + (nLocs - 1) + ' more' : '')
+    : 'Locations TBD';
+  const deadline = fmtInputDate(fval('wz-deadline')) || '—';
   const isCsv = wizMode === 'csv', isPrereg = wizMode === 'prereg';
   const key = 'newjob' + (++newJobSeq);
   const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 30) || 'new-job';
@@ -5563,14 +6084,15 @@ function createJob() {
 
   JOBS[key] = {
     key: key, seed: 5 + newJobSeq, icon: 'fa-briefcase',
-    name: name, org2: org, shoot: dateTxt, deadline: '—', loc: loc,
+    name: name, org2: o.name, shoot: dateTxt, deadline: deadline, loc: locTxt,
     path: wzParent,
-    contact: [contact, ''], notes: '',
+    contact: [o.contact, o.email || ''], notes: '',
     created: 'Jun 3, 2026', modified: 'Jun 3, 2026',
     phase: 0,
+    shoots: shoots,
     steps: [
       { icon: 'fa-gear', t: 'Setup', d: isCsv ? 'Roster imported — 142 galleries + QR codes generated' : (isPrereg ? 'Registration link live — galleries created as families register' : 'Add folders and galleries to get started'), badge: 'In Progress' },
-      { icon: 'fa-camera', t: 'Shoot Day', d: 'Scheduled ' + dateTxt },
+      { icon: 'fa-camera', t: 'Shoot Day', d: shoots.length ? 'Scheduled ' + shoots[0].date + (shoots.length > 1 ? ' + ' + (shoots.length - 1) + ' more date' + (shoots.length > 2 ? 's' : '') : '') : 'Dates & locations to be added later' },
       { icon: 'fa-arrow-up', t: 'Upload', d: 'Photographers upload after the shoot' },
       { icon: 'fa-tag', t: 'Sales', d: 'Share galleries, run campaigns, track orders' }
     ],
@@ -5580,8 +6102,6 @@ function createJob() {
       ph: '0', phSub: 'uploads begin after the shoot',
       ct: isCsv ? '142' : (isPrereg ? '0' : '1'), ctSub: isCsv ? 'imported from roster' : (isPrereg ? 'grows as families register' : 'primary contact only')
     },
-    shootday: { title: 'Shoot Day — ' + dateTxt, big: '0', cap: isCsv ? 'QR cards ready to print' : 'QR cards generate once subjects exist', fill: 0,
-      legend: '<span><b>' + (isCsv ? '142' : '0') + '</b> expected subjects</span><span><b>' + teamChecked + '</b> photographer' + (teamChecked === 1 ? '' : 's') + '</span>' },
     summary: {
       team: [teamChecked + ' photographer' + (teamChecked === 1 ? '' : 's'), 'Robert (lead)'],
       docs: ['0 files', 'upload contracts to keep them here'],
@@ -5595,8 +6115,8 @@ function createJob() {
     folders: isCsv ? [['Roster Groups (6)', '142 galleries', '0', '—', '142', 0]] : [],
     gals: [],
     org: { all: isCsv ? 143 : 0, has: 0, missing: isCsv ? 142 : 0, foot2: isCsv ? '6 folders · 142 galleries' : 'No items yet' },
-    contacts: contact !== '—' ? [[contact.split(' ')[0] || contact, contact.split(' ').slice(1).join(' ') || '—', fval('wz-name') ? '—' : '—', '—', '—', chipDark('Primary Contact')]] : [],
-    contactsFoot: isCsv ? '142 contacts imported' : (contact !== '—' ? '1 contact' : '0 contacts'),
+    contacts: o.contact && o.contact !== '—' ? [[o.contact.split(' ')[0], o.contact.split(' ').slice(1).join(' ') || '—', o.email || '—', o.phone || '—', '—', chipDark('Primary Contact')]] : [],
+    contactsFoot: isCsv ? '142 contacts imported' : (o.contact !== '—' ? '1 contact' : '0 contacts'),
     po: isPrereg
       ? { setup: true, reg: '0', regTotal: '—', regSub: 'link just created', ordersSub: 'share the link to start', pricelist: fval('wz-pricelist'), link: 'zenfol.io/r/' + slug, open: true, allow: true, pkgs: [['Digital Package', 25, 0, 1], ['Print Bundle — 8×10 + wallets', 35, 0, 0], ['Deluxe — digital + prints + magnet', 55, 0, 0]], regs: [] }
       : { setup: false, pricelist: fval('wz-pricelist'), link: 'zenfol.io/r/' + slug },
@@ -5610,7 +6130,7 @@ function createJob() {
         '<div class="job-name">' + name + '</div>' +
         '<div class="job-meta">' +
           '<div class="job-meta-row shoot-date"><i class="fa-solid fa-camera"></i> Shoot: ' + dateTxt + '</div>' +
-          '<div class="job-meta-row"><i class="fa-solid fa-location-dot"></i> ' + loc + '</div>' +
+          '<div class="job-meta-row"><i class="fa-solid fa-location-dot"></i> ' + locTxt + '</div>' +
         '</div>' +
       '</div>' +
       '<div class="phase-tracker">' +
@@ -5770,6 +6290,7 @@ function renderQR() {
 
 /* ══════════ INIT ══════════ */
 renderQR();
+populateOrgSelect();
 updateRuleSentence();
 refreshJobCounts();
 </script>
