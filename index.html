@@ -7271,6 +7271,10 @@ function resolveOrg() {
 }
 
 /* ══════════ DESTINATION FOLDER (Step 1 inline) ══════════ */
+function shortFolderPath(path) {
+  return path.split(' / ').slice(-2).join(' / ');
+}
+
 function renderCrumb() {
   const el = document.getElementById('wz-dest-crumb');
   if (!el) return;
@@ -8224,7 +8228,7 @@ function renderOrgInfo(o) {
   presetSel.value = o.preset || '';
   if (presetSel.value !== (o.preset || '')) presetSel.value = '';
   document.getElementById('od-folder-crumb').innerHTML = o.folder
-    ? '<i class="fa-solid fa-folder"></i><span class="crumb-path">' + o.folder + '</span>'
+    ? '<i class="fa-solid fa-folder"></i><span class="crumb-path" title="' + o.folder + '">' + shortFolderPath(o.folder) + '</span>'
     : '<span style="color:var(--text-3);">No default folder</span>';
   setText('od-defaults-empty', (!o.preset && !o.folder) ? 'Set defaults to speed up job creation for this organization.' : '');
 
