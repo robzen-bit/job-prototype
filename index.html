@@ -5113,14 +5113,22 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
           <label class="perm-item" id="wz-dest-savedef" style="display:none; margin-top:8px;"><input type="checkbox" id="wz-dest-savedef-cb"> Set as default folder for this organization</label>
         </div>
 
-        <!-- Shoot schedule choice -->
+        <!-- Job Notes: last option on this step -->
+        <div class="f-field" id="wz-notes-wrap">
+          <label class="f-label">Job Notes <span class="opt">(optional)</span></label>
+          <textarea class="f-textarea" id="wz-notes" placeholder="Internal notes about this job…"></textarea>
+        </div>
+      </div>
+
+      <!-- STEP : SCHEDULE -->
+      <div class="wiz-pane" id="wiz-sched">
         <div class="f-field">
           <label class="f-label">Shoot Schedule</label>
           <div class="choice-cards two" style="margin-bottom:4px;">
             <div class="choice-card selected" data-sched="now" onclick="schedModeChanged(this)">
               <div class="choice-icon"><i class="fa-solid fa-calendar-check"></i></div>
               <div class="choice-name">Schedule Now</div>
-              <div class="choice-desc">Add dates, locations and photographers in the next step.</div>
+              <div class="choice-desc">Add dates, locations and photographers below.</div>
             </div>
             <div class="choice-card" data-sched="later" onclick="schedModeChanged(this)">
               <div class="choice-icon"><i class="fa-regular fa-clock"></i></div>
@@ -5131,26 +5139,20 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
           <div style="font-size:11.5px; color:var(--text-3);">You can add or change dates from the job at any time.</div>
         </div>
 
-        <!-- Job Notes: last option on this step -->
-        <div class="f-field" id="wz-notes-wrap">
-          <label class="f-label">Job Notes <span class="opt">(optional)</span></label>
-          <textarea class="f-textarea" id="wz-notes" placeholder="Internal notes about this job…"></textarea>
-        </div>
-      </div>
-
-      <!-- STEP : SCHEDULE (conditional) -->
-      <div class="wiz-pane" id="wiz-sched">
-        <div style="display:flex; align-items:baseline; gap:8px; margin-bottom:8px;">
-          <span class="f-label">Shoot Schedule</span>
-          <span style="font-size:12px; color:var(--text-3);">Dates, locations, and who's shooting where.</span>
-        </div>
-        <div id="wz-schedule">
+        <div id="wz-schedule" style="margin-top:18px;">
+          <div style="display:flex; align-items:baseline; gap:8px; margin-bottom:8px;">
+            <span class="f-label">Dates &amp; Locations</span>
+            <span style="font-size:12px; color:var(--text-3);">Who's shooting where.</span>
+          </div>
           <div id="wz-shoots"></div>
           <button type="button" class="add-inline-btn orange" onclick="wizAddShoot()"><i class="fa-solid fa-plus"></i> Add another shoot date</button>
         </div>
+        <div id="wz-schedule-later-note" style="display:none; font-size:12.5px; color:var(--text-3); margin-top:18px; padding:14px; background:var(--bg); border-radius:var(--r-sm);">
+          <i class="fa-regular fa-clock" style="margin-right:6px;"></i>No shoot dates yet — you can add them from the job any time.
+        </div>
 
         <!-- Delivery date -->
-        <div class="f-row wz-2col" style="margin-top:16px;">
+        <div class="f-row wz-2col" style="margin-top:20px;">
           <div class="f-field">
             <label class="f-label">Delivery Date <span class="opt">(optional)</span></label>
             <input class="f-input" id="wz-deadline" type="date">
@@ -7333,8 +7335,11 @@ let schedMode = 'now';
 function schedModeChanged(el) {
   selectChoice(el);
   schedMode = el.dataset.sched;
+  document.getElementById('wz-schedule').style.display = schedMode === 'now' ? 'block' : 'none';
+  document.getElementById('wz-schedule-later-note').style.display = schedMode === 'later' ? 'block' : 'none';
   renderWizSteps();
   setText('wiz-count', 'Step ' + wizStep + ' of ' + wizFlow().length);
+  updateWizNextState();
 }
 
 function collectLocVals(block) {
@@ -7459,7 +7464,9 @@ function openWizard() {
   document.getElementById('wz-dest-savedef-cb').checked = false;
   /* schedule choice */
   schedMode = 'now';
-  document.querySelectorAll('#wiz-1 .choice-card[data-sched]').forEach(c => c.classList.toggle('selected', c.dataset.sched === 'now'));
+  document.querySelectorAll('#wiz-sched .choice-card[data-sched]').forEach(c => c.classList.toggle('selected', c.dataset.sched === 'now'));
+  document.getElementById('wz-schedule').style.display = 'block';
+  document.getElementById('wz-schedule-later-note').style.display = 'none';
   document.getElementById('wz-shoots').innerHTML = '';
   wizAddShoot();
   document.getElementById('wz-deadline').value = '';
@@ -7471,7 +7478,7 @@ function openWizard() {
 const WIZ_LABELS = { 'wiz-1': 'Details', 'wiz-sched': 'Schedule', 'wiz-4': 'Review' };
 
 function wizFlow() {
-  return schedMode === 'now' ? ['wiz-1', 'wiz-sched', 'wiz-4'] : ['wiz-1', 'wiz-4'];
+  return ['wiz-1', 'wiz-sched', 'wiz-4'];
 }
 
 function renderWizSteps() {
@@ -7487,6 +7494,7 @@ function stepValid(paneId) {
     return fval('wz-name').trim().length > 0;
   }
   if (paneId === 'wiz-sched') {
+    if (schedMode === 'later') return true;
     return Array.prototype.some.call(document.querySelectorAll('#wz-shoots .shoot-block'), b =>
       b.querySelector('.ws-date').value && b.querySelector('.ws-venue').value.trim());
   }
