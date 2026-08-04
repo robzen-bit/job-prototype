@@ -4897,8 +4897,16 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
                     <button class="btn btn-ghost-sm" onclick="openAddAssocModal()"><i class="fa-solid fa-user-plus" style="font-size:11px;"></i> Add from Contacts</button>
                     <button class="btn btn-ghost-sm" onclick="openTagMgmtModal()"><i class="fa-solid fa-tags" style="font-size:11px;"></i> Tag Management</button>
                   </div>
-                  <div style="font-size:11px; font-weight:700; letter-spacing:0.4px; text-transform:uppercase; color:var(--text-3); margin-top:10px;">Filter by tags</div>
-                  <div class="tagf-row" id="od-tagf"></div>
+                  <div style="margin-top:10px; max-width:280px;">
+                    <div class="orgdd" id="od-tagf-dd">
+                      <div class="orgdd-trigger f-input" onclick="tagfToggle(event)">
+                        <span id="od-tagf-label" class="orgdd-placeholder">Filter by tags</span>
+                        <i class="fa-solid fa-chevron-down"></i>
+                      </div>
+                      <div class="orgdd-panel" id="od-tagf-panel" onclick="event.stopPropagation()"></div>
+                    </div>
+                  </div>
+                  <div class="tagf-row" id="od-tagf-chips"></div>
                   <div class="bulk-bar" id="od-bulkbar">
                     <span id="od-bulk-count"></span>
                     <button class="btn btn-ghost-sm" onclick="openBulkTagModal('add')">Add tags</button>
@@ -8500,9 +8508,7 @@ function renderAssoc() {
   const o = ORGS[currentOrgIdx];
   const q = fval('od-assoc-search').trim().toLowerCase();
 
-  document.getElementById('od-tagf').innerHTML = orgTagsInUse(o).map(t =>
-    '<span class="tagf-chip' + (assocTagF.indexOf(t) >= 0 ? ' on' : '') + '" onclick="toggleAssocTagF(\'' + t.replace(/'/g, "\\'") + '\')">' + t + '</span>'
-  ).join('') || '<span style="font-size:12px; color:var(--text-3);">No tags in use yet.</span>';
+  renderTagfDropdown(o);
 
   const list = o.assoc.map((a, i) => ({ a, i }))
     .filter(x => !q || x.a.name.toLowerCase().indexOf(q) >= 0 || x.a.email.toLowerCase().indexOf(q) >= 0)
@@ -8523,6 +8529,35 @@ function renderAssoc() {
   tbody.parentElement.style.display = any ? '' : 'none';
   document.getElementById('od-assoc-empty').style.display = any ? 'none' : 'block';
   updateBulkBar();
+}
+
+function tagfToggle(e) {
+  e.stopPropagation();
+  const panel = document.getElementById('od-tagf-panel');
+  const wasOpen = panel.classList.contains('open');
+  document.querySelectorAll('.orgdd-panel.open, .pgdd-panel.open').forEach(pp => pp.classList.remove('open'));
+  if (!wasOpen) panel.classList.add('open');
+}
+
+function renderTagfDropdown(o) {
+  const tags = orgTagsInUse(o);
+  document.getElementById('od-tagf-panel').innerHTML = tags.map(t =>
+    '<div class="orgdd-item' + (assocTagF.indexOf(t) >= 0 ? ' on' : '') + '" onclick="toggleAssocTagF(\'' + t.replace(/'/g, "\\'") + '\')">' +
+    '<span class="pgdd-check" style="margin-right:9px;"><i class="fa-solid fa-check"></i></span>' + t + '</div>'
+  ).join('') || '<div class="orgdd-item muted">No tags in use yet.</div>';
+
+  const label = document.getElementById('od-tagf-label');
+  if (assocTagF.length) {
+    label.textContent = assocTagF.length + ' tag' + (assocTagF.length === 1 ? '' : 's') + ' selected';
+    label.className = 'orgdd-selected';
+  } else {
+    label.textContent = 'Filter by tags';
+    label.className = 'orgdd-placeholder';
+  }
+
+  document.getElementById('od-tagf-chips').innerHTML = assocTagF.map(t =>
+    '<span class="tagf-chip on">' + t + ' <i class="fa-solid fa-xmark" style="margin-left:4px; cursor:pointer;" onclick="toggleAssocTagF(\'' + t.replace(/'/g, "\\'") + '\')"></i></span>'
+  ).join('');
 }
 
 function toggleAssocTagF(t) {
