@@ -3272,7 +3272,7 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
         <div class="jobs-filterbar">
           <div class="subtabs">
             <div class="subtab active" data-f="all" onclick="filterJobs(this,'all')">All <span class="cnt"></span></div>
-            <div class="subtab" data-f="planning" onclick="filterJobs(this,'planning')">Planning <span class="cnt"></span></div>
+            <div class="subtab" data-f="planning" onclick="filterJobs(this,'planning')">Setup <span class="cnt"></span></div>
             <div class="subtab" data-f="shootday" onclick="filterJobs(this,'shootday')">Shoot Day <span class="cnt"></span></div>
             <div class="subtab" data-f="uploading" onclick="filterJobs(this,'uploading')">Uploading <span class="cnt"></span></div>
             <div class="subtab" data-f="selling" onclick="filterJobs(this,'selling')">Selling <span class="cnt"></span></div>
@@ -3382,7 +3382,7 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
           <!-- Job 3: Keystone Dance — Setup phase -->
           <div class="job-card" data-status="planning" data-tags="active upcoming" style="cursor:pointer;" onclick="openJob('keystone')">
             <div class="job-info">
-              <span class="job-status-pill pill-planning">Planning</span>
+              <span class="job-status-pill pill-planning">Setup</span>
               <div class="job-name">Keystone Dance Academy — Recital 2026</div>
               <div class="job-meta">
                 <div class="job-meta-row shoot-date">
@@ -4799,6 +4799,7 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
             </div>
             <div class="job-tabs">
               <div class="job-tab active" data-otab="otab-info" onclick="orgTab(this,'otab-info')">Info</div>
+              <div class="job-tab" data-otab="otab-jobs" onclick="orgTab(this,'otab-jobs')">Jobs</div>
               <div class="job-tab" data-otab="otab-locations" onclick="orgTab(this,'otab-locations')">Locations</div>
               <div class="job-tab" data-otab="otab-assoc" onclick="orgTab(this,'otab-assoc')">Associated Contacts</div>
               <div class="job-tab" data-otab="otab-reporting" onclick="orgTab(this,'otab-reporting')">Reporting</div>
@@ -4841,6 +4842,19 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
                   <div style="text-align:right;">
                     <button class="btn btn-ghost-sm" style="color:#C43C3C; border-color:rgba(217,64,64,0.35);" onclick="openDeleteOrgModal(currentOrgIdx)"><i class="fa-solid fa-trash-can" style="font-size:11px;"></i> Delete Organization</button>
                   </div>
+                </div>
+              </div>
+
+              <!-- JOBS TAB -->
+              <div id="otab-jobs" class="tab-panel" style="padding:0;">
+                <div class="jobs-filterbar" style="padding:0 0 14px;">
+                  <div class="subtabs" id="od-jobs-filter"></div>
+                </div>
+                <div class="jobs-list" id="od-jobs-list" style="padding:0;"></div>
+                <div id="od-jobs-empty" style="display:none; text-align:center; padding:50px 20px; color:var(--text-3);">
+                  <i class="fa-solid fa-briefcase" style="font-size:26px; opacity:0.3; display:block; margin-bottom:12px;"></i>
+                  <div style="font-size:13.5px; margin-bottom:16px;">No jobs yet for this organization.</div>
+                  <button class="btn btn-brand" onclick="crmCreateJob()"><i class="fa-solid fa-plus"></i> Create Job</button>
                 </div>
               </div>
 
@@ -7610,7 +7624,7 @@ function createJob() {
   const card =
     '<div class="job-card" data-status="planning" data-tags="active upcoming" style="cursor:pointer;" onclick="openJob(\'' + key + '\')">' +
       '<div class="job-info">' +
-        '<span class="job-status-pill pill-planning">Planning</span>' +
+        '<span class="job-status-pill pill-planning">Setup</span>' +
         '<div class="job-name">' + name + '</div>' +
         '<div class="job-meta">' +
           '<div class="job-meta-row shoot-date"><i class="fa-solid fa-camera"></i> Shoot: ' + dateTxt + '</div>' +
@@ -8171,6 +8185,8 @@ function openOrg(i) {
   navSetActive('CRM');
   renderOrgHeader(o);
   renderOrgInfo(o);
+  orgJobsF = 'all';
+  renderOrgJobs();
   renderOrgLocations();
   document.getElementById('od-assoc-search').value = '';
   assocTagF = [];
@@ -8185,7 +8201,7 @@ function openOrg(i) {
 function orgTab(el, paneId) {
   document.querySelectorAll('#view-org-detail .job-tab').forEach(t => t.classList.remove('active'));
   el.classList.add('active');
-  ['otab-info', 'otab-locations', 'otab-assoc', 'otab-reporting', 'otab-assets'].forEach(id => {
+  ['otab-info', 'otab-jobs', 'otab-locations', 'otab-assoc', 'otab-reporting', 'otab-assets'].forEach(id => {
     const p = document.getElementById(id);
     p.classList.toggle('active', id === paneId);
     p.style.display = id === paneId ? 'block' : 'none';
@@ -8268,6 +8284,77 @@ function renderOrgRail(o) {
   document.getElementById('od-rail-previous').innerHTML = (previous.map(k => jobRow(k, true)).join('') +
     (previous.length ? '<div style="padding-top:10px;"><a class="gallery-name-link" style="font-size:12px;" onclick="navJobs(); toast(\'Jobs list filtered to ' + o.name.replace(/'/g, '') + ' — prototype shows all jobs\')">View all</a></div>' : '')) ||
     '<div class="rail-empty">No previous jobs.</div>';
+}
+
+/* ── Jobs tab (org-filtered jobs list) ── */
+const ORG_JOB_STATUS = [
+  { key: 'planning', label: 'Setup', pill: 'pill-planning' },
+  { key: 'shootday', label: 'Shoot Day', pill: 'pill-shootday' },
+  { key: 'uploading', label: 'Uploading', pill: 'pill-uploading' },
+  { key: 'selling', label: 'Selling', pill: 'pill-delivered' }
+];
+const ORG_PHASE_STEPS = [
+  { t: 'Setup', icon: 'fa-gear' },
+  { t: 'Shoot Day', icon: 'fa-camera' },
+  { t: 'Upload', icon: 'fa-arrow-up' },
+  { t: 'Sales', icon: 'fa-tag' }
+];
+let orgJobsF = 'all';
+
+function orgJobCardHTML(k) {
+  const j = JOBS[k];
+  const st = ORG_JOB_STATUS[j.phase] || ORG_JOB_STATUS[0];
+  const tracker = ORG_PHASE_STEPS.map((s, i) => {
+    const state = i < j.phase ? 'done' : (i === j.phase ? 'active' : 'upcoming');
+    const icon = state === 'done' ? 'fa-check' : s.icon;
+    return '<div class="phase-step ' + state + '"><div class="phase-dot"><i class="fa-solid ' + icon + '"></i></div><div class="phase-label">' + s.t + '</div></div>';
+  }).join('');
+  const avatars = (j.photogs || []).slice(0, 3).map(p =>
+    '<div class="avatar-chip ' + (p.cls || 'avatar-c') + '">' + p.ini + '</div>').join('');
+  return '<div class="job-card" style="cursor:pointer;" onclick="openJob(\'' + k + '\')">' +
+    '<div class="job-info">' +
+      '<span class="job-status-pill ' + st.pill + '">' + st.label + '</span>' +
+      '<div class="job-name">' + j.name + '</div>' +
+      '<div class="job-meta">' +
+        '<div class="job-meta-row shoot-date"><i class="fa-solid fa-camera"></i> Shoot: ' + j.shoot + '</div>' +
+        '<div class="job-meta-row"><i class="fa-solid fa-location-dot"></i> ' + j.loc + '</div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="phase-tracker">' + tracker + '</div>' +
+    '<div class="job-right">' +
+      '<div class="avatar-stack">' + avatars + '</div>' +
+      '<div class="job-right-bottom">' +
+        '<div class="gallery-count"><i class="fa-regular fa-images" style="margin-right:4px;"></i>' + j.tiles.gal + ' galleries</div>' +
+        '<button class="chevron-btn" onclick="event.stopPropagation(); openJob(\'' + k + '\')"><i class="fa-solid fa-chevron-right"></i></button>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+
+function orgJobsFilter(f) {
+  orgJobsF = f;
+  renderOrgJobs();
+}
+
+function renderOrgJobs() {
+  if (currentOrgIdx === null) return;
+  const o = ORGS[currentOrgIdx];
+  const jobs = o.jobs.filter(k => JOBS[k]);
+  const counts = { all: jobs.length };
+  jobs.forEach(k => {
+    const key = (ORG_JOB_STATUS[JOBS[k].phase] || ORG_JOB_STATUS[0]).key;
+    counts[key] = (counts[key] || 0) + 1;
+  });
+  document.getElementById('od-jobs-filter').innerHTML =
+    '<div class="subtab' + (orgJobsF === 'all' ? ' active' : '') + '" onclick="orgJobsFilter(\'all\')">All <span class="cnt">' + jobs.length + '</span></div>' +
+    ORG_JOB_STATUS.map(s =>
+      '<div class="subtab' + (orgJobsF === s.key ? ' active' : '') + '" onclick="orgJobsFilter(\'' + s.key + '\')">' + s.label + ' <span class="cnt">' + (counts[s.key] || 0) + '</span></div>'
+    ).join('');
+  const shown = jobs.filter(k => orgJobsF === 'all' || (ORG_JOB_STATUS[JOBS[k].phase] || ORG_JOB_STATUS[0]).key === orgJobsF);
+  document.getElementById('od-jobs-list').innerHTML = shown.map(orgJobCardHTML).join('') ||
+    (jobs.length ? '<div style="text-align:center; padding:30px; color:var(--text-3); font-size:13px;">No jobs in this status.</div>' : '');
+  document.getElementById('od-jobs-empty').style.display = jobs.length ? 'none' : 'block';
+  document.getElementById('od-jobs-filter').parentElement.style.display = jobs.length ? 'flex' : 'none';
 }
 
 function crmCreateJob() {
