@@ -1879,6 +1879,94 @@ html, body {
 
 .choice-card.compact.selected::after { top: 8px; right: 8px; width: 16px; height: 16px; font-size: 8px; }
 
+/* Job type radio-list (Volume Wizard component) */
+.jobtype-list { display: flex; flex-direction: column; gap: 10px; }
+
+.jobtype-item {
+  border: 1.5px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+  overflow: hidden;
+}
+
+.jobtype-item:hover { border-color: var(--text-3); }
+
+.jobtype-item.selected {
+  border-color: var(--orange);
+  border-width: 2px;
+}
+
+.jobtype-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 18px;
+}
+
+.jobtype-radio {
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  border: 1.5px solid #C9C9CF;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.jobtype-item.selected .jobtype-radio { border-color: var(--orange); }
+
+.jobtype-item.selected .jobtype-radio::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: var(--orange);
+}
+
+.jobtype-title { font-size: 14px; font-weight: 700; color: var(--text); flex: 1; }
+
+.jobtype-see {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--orange);
+  cursor: pointer;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.jobtype-see:hover { text-decoration: underline; }
+
+.jobtype-body { padding: 0 18px 18px 48px; }
+
+.jobtype-desc { font-size: 12.5px; color: var(--text-2); line-height: 1.5; margin-bottom: 14px; }
+
+.jobtype-divider { border-top: 1px solid var(--line); margin: 0 0 14px; }
+
+.jobtype-steps { display: flex; align-items: center; gap: 10px; }
+
+.jobtype-step {
+  flex: 1;
+  min-width: 0;
+  background: var(--bg);
+  border-radius: var(--r-sm);
+  padding: 10px 12px;
+}
+
+.jobtype-step-badge {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  color: var(--text-2);
+  margin-bottom: 6px;
+}
+
+.jobtype-step-icon { font-size: 14px; color: var(--text-2); margin-bottom: 6px; display: block; }
+
+.jobtype-step-cap { font-size: 11.5px; color: var(--text-2); line-height: 1.4; }
+.jobtype-step-cap b { color: var(--text); font-weight: 700; }
+
+.jobtype-arrow { color: var(--text-3); font-size: 13px; flex-shrink: 0; }
+
 /* Toggle switch */
 .toggle {
   position: relative;
@@ -5155,7 +5243,7 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
               <div class="choice-name">Add Dates Later</div>
             </div>
           </div>
-          <div style="font-size:11.5px; color:var(--text-3);">You can add or change dates from the job at any time.</div>
+          <div style="font-size:11.5px; color:var(--text-3);" id="wz-sched-helper">You can always change these settings later in the job.</div>
         </div>
 
         <div id="wz-schedule" style="margin-top:18px;">
@@ -5177,6 +5265,44 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
             <input class="f-input" id="wz-deadline" type="date">
           </div>
           <div class="f-field"></div>
+        </div>
+      </div>
+
+      <!-- STEP : SETUP -->
+      <div class="wiz-pane" id="wiz-setup">
+        <div class="f-field">
+          <label class="f-label">Setup</label>
+          <div class="choice-cards two compact" style="margin-bottom:4px;">
+            <div class="choice-card compact selected" data-setup="now" onclick="setupModeChanged(this)">
+              <div class="choice-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+              <div class="choice-name">Set Up Now</div>
+            </div>
+            <div class="choice-card compact" data-setup="later" onclick="setupModeChanged(this)">
+              <div class="choice-icon"><i class="fa-regular fa-clock"></i></div>
+              <div class="choice-name">Set Up Later</div>
+            </div>
+          </div>
+          <div style="font-size:11.5px; color:var(--text-3);" id="wz-setup-helper">You can always change these settings later in the job.</div>
+        </div>
+
+        <div id="wz-jobtype-wrap" style="margin-top:18px;">
+          <div style="display:flex; align-items:baseline; gap:8px; margin-bottom:8px;">
+            <span class="f-label">Job Type</span>
+            <span style="font-size:12px; color:var(--text-3);">How subjects get into this job.</span>
+          </div>
+          <div class="jobtype-list" id="jobtype-list"></div>
+        </div>
+        <div id="wz-setup-later-note" style="display:none; font-size:12.5px; color:var(--text-3); margin-top:18px; padding:14px; background:var(--bg); border-radius:var(--r-sm);">
+          <i class="fa-regular fa-clock" style="margin-right:6px;"></i>No job type set — you can configure this from the job any time.
+        </div>
+      </div>
+
+      <!-- STEP : PLACEHOLDER (conditional — appended once a job type is chosen) -->
+      <div class="wiz-pane" id="wiz-placeholder">
+        <div class="coming-soon" style="min-height:220px;">
+          <i class="fa-solid fa-hammer"></i>
+          <p>Selected setup: <b id="wz-ph-type" style="color:var(--text);"></b></p>
+          <p style="font-size:12px;">This branch isn't built yet — the steps for this job type will be added separately.</p>
         </div>
       </div>
 
@@ -7356,6 +7482,7 @@ function schedModeChanged(el) {
   schedMode = el.dataset.sched;
   document.getElementById('wz-schedule').style.display = schedMode === 'now' ? 'block' : 'none';
   document.getElementById('wz-schedule-later-note').style.display = schedMode === 'later' ? 'block' : 'none';
+  document.getElementById('wz-sched-helper').style.display = schedMode === 'now' ? 'block' : 'none';
   renderWizSteps();
   setText('wiz-count', 'Step ' + wizStep + ' of ' + wizFlow().length);
   updateWizNextState();
@@ -7486,25 +7613,120 @@ function openWizard() {
   document.querySelectorAll('#wiz-sched .choice-card[data-sched]').forEach(c => c.classList.toggle('selected', c.dataset.sched === 'now'));
   document.getElementById('wz-schedule').style.display = 'block';
   document.getElementById('wz-schedule-later-note').style.display = 'none';
+  document.getElementById('wz-sched-helper').style.display = 'block';
   document.getElementById('wz-shoots').innerHTML = '';
   wizAddShoot();
   document.getElementById('wz-deadline').value = '';
   document.getElementById('wz-notes').value = '';
+  /* setup choice */
+  setupMode = 'now';
+  selectedJobType = null;
+  document.querySelectorAll('#wiz-setup .choice-card[data-setup]').forEach(c => c.classList.toggle('selected', c.dataset.setup === 'now'));
+  document.getElementById('wz-jobtype-wrap').style.display = 'block';
+  document.getElementById('wz-setup-later-note').style.display = 'none';
+  document.getElementById('wz-setup-helper').style.display = 'block';
+  renderJobTypes();
   wizPaint();
   openModal('modal-wizard');
 }
 
-const WIZ_LABELS = { 'wiz-1': 'Details', 'wiz-sched': 'Schedule', 'wiz-4': 'Review' };
+/* ══════════ SETUP STEP — job type selection (Volume Wizard component) ══════════ */
+let setupMode = 'now', selectedJobType = null;
+
+const JOB_TYPES = [
+  { id: 'import', title: 'Import Subject List',
+    desc: 'Upload a CSV to create galleries with unique QR codes automatically assigned and contact details set for each subject.',
+    steps: [
+      { badge: '.CSV FILE', cap: 'Import a <b>CSV file</b> with subject data.' },
+      { icon: 'fa-qrcode', cap: 'Download created <b>QR codes</b>.' },
+      { icon: 'fa-camera', cap: 'Photograph <b>QR &amp; subject</b>, upload.' }
+    ] },
+  { id: 'prereg', title: 'Collect Registration Before the Shoot',
+    desc: 'Set up a registration page to collect participant information and automatically create a gallery with a unique QR code for each registrant.',
+    steps: [
+      { icon: 'fa-pencil', cap: 'Create a <b>registration</b> signup form.' },
+      { icon: 'fa-qrcode', cap: 'Download created <b>QR codes</b>.' },
+      { icon: 'fa-camera', cap: 'Photograph <b>QR &amp; subject</b>, upload.' }
+    ] },
+  { id: 'duringreg', title: 'Collect Registration During the Shoot',
+    desc: 'Create generic galleries with QR codes, collect subject info during the shoot, and automatically assign contacts to each gallery.',
+    steps: [
+      { icon: 'fa-folder-tree', cap: 'Bulk generate <b>Galleries</b>.' },
+      { icon: 'fa-qrcode', cap: 'Download created <b>QR codes</b>.' },
+      { icon: 'fa-camera', cap: 'Photograph <b>QR &amp; subject</b>, upload.' }
+    ] },
+  { id: 'blank', title: 'Blank Job',
+    desc: 'Create the job without any subject setup. Add galleries, photos, and contacts manually whenever you’re ready.',
+    steps: [
+      { icon: 'fa-folder-plus', cap: '<b>Create</b> the job folder.' },
+      { icon: 'fa-images', cap: '<b>Add galleries</b> and photos manually.' },
+      { icon: 'fa-user-plus', cap: '<b>Assign contacts</b> whenever ready.' }
+    ] }
+];
+
+function jobTypeStepHTML(s) {
+  return '<div class="jobtype-step">' +
+    (s.badge ? '<div class="jobtype-step-badge">' + s.badge + '</div>' : '<i class="fa-solid ' + s.icon + ' jobtype-step-icon"></i>') +
+    '<div class="jobtype-step-cap">' + s.cap + '</div>' +
+  '</div>';
+}
+
+function renderJobTypes() {
+  document.getElementById('jobtype-list').innerHTML = JOB_TYPES.map(jt => {
+    const on = selectedJobType === jt.id;
+    return '<div class="jobtype-item' + (on ? ' selected' : '') + '" onclick="selectJobType(\'' + jt.id + '\')">' +
+      '<div class="jobtype-head">' +
+        '<span class="jobtype-radio"></span>' +
+        '<span class="jobtype-title">' + jt.title + '</span>' +
+        (on ? '<span class="jobtype-see" onclick="event.stopPropagation(); toast(\'See how it works — opens a walkthrough in the product\')">See how it works</span>' : '') +
+      '</div>' +
+      (on ? '<div class="jobtype-body">' +
+        '<div class="jobtype-desc">' + jt.desc + '</div>' +
+        '<div class="jobtype-divider"></div>' +
+        '<div class="jobtype-steps">' +
+          jt.steps.map((s, i) => jobTypeStepHTML(s) + (i < jt.steps.length - 1 ? '<i class="fa-solid fa-arrow-right jobtype-arrow"></i>' : '')).join('') +
+        '</div>' +
+      '</div>' : '') +
+    '</div>';
+  }).join('');
+}
+
+function selectJobType(id) {
+  selectedJobType = id;
+  renderJobTypes();
+  renderWizSteps();
+  setText('wiz-count', 'Step ' + wizStep + ' of ' + wizFlow().length);
+  updateWizNextState();
+}
+
+function setupModeChanged(el) {
+  selectChoice(el);
+  setupMode = el.dataset.setup;
+  document.getElementById('wz-jobtype-wrap').style.display = setupMode === 'now' ? 'block' : 'none';
+  document.getElementById('wz-setup-later-note').style.display = setupMode === 'later' ? 'block' : 'none';
+  document.getElementById('wz-setup-helper').style.display = setupMode === 'now' ? 'block' : 'none';
+  renderWizSteps();
+  setText('wiz-count', 'Step ' + wizStep + ' of ' + wizFlow().length);
+  updateWizNextState();
+}
+
+const JOB_TYPE_LOOKUP = {};
+JOB_TYPES.forEach(jt => { JOB_TYPE_LOOKUP[jt.id] = jt; });
+
+const WIZ_LABELS = { 'wiz-1': 'Details', 'wiz-sched': 'Schedule', 'wiz-setup': 'Setup', 'wiz-placeholder': 'Setup Details', 'wiz-4': 'Review' };
 
 function wizFlow() {
-  return ['wiz-1', 'wiz-sched', 'wiz-4'];
+  const flow = ['wiz-1', 'wiz-sched', 'wiz-setup'];
+  if (setupMode === 'now' && selectedJobType) flow.push('wiz-placeholder');
+  flow.push('wiz-4');
+  return flow;
 }
 
 function renderWizSteps() {
   const flow = wizFlow();
   document.getElementById('wiz-steps').innerHTML = flow.map((id, i) =>
     '<div class="wiz-step' + (i + 1 === wizStep ? ' active' : (i + 1 < wizStep ? ' done' : '')) + '">' +
-    '<span class="wiz-step-num">' + (i + 1) + '</span> ' + WIZ_LABELS[id] + '</div>'
+    '<span class="wiz-step-num">' + (i + 1) + '</span> ' + (id === 'wiz-placeholder' && selectedJobType ? JOB_TYPE_LOOKUP[selectedJobType].title : WIZ_LABELS[id]) + '</div>'
   ).join('<div class="wiz-connector"></div>');
 }
 
@@ -7516,6 +7738,10 @@ function stepValid(paneId) {
     if (schedMode === 'later') return true;
     return Array.prototype.some.call(document.querySelectorAll('#wz-shoots .shoot-block'), b =>
       b.querySelector('.ws-date').value && b.querySelector('.ws-venue').value.trim());
+  }
+  if (paneId === 'wiz-setup') {
+    if (setupMode === 'later') return true;
+    return !!selectedJobType;
   }
   return true;
 }
@@ -7542,7 +7768,7 @@ function wizPaint() {
   const flow = wizFlow();
   if (wizStep > flow.length) wizStep = flow.length;
   const curPane = flow[wizStep - 1];
-  ['wiz-1', 'wiz-sched', 'wiz-4'].forEach(id => {
+  ['wiz-1', 'wiz-sched', 'wiz-setup', 'wiz-placeholder', 'wiz-4'].forEach(id => {
     document.getElementById(id).classList.toggle('active', id === curPane);
   });
   renderWizSteps();
@@ -7551,6 +7777,7 @@ function wizPaint() {
   document.getElementById('wiz-next').innerHTML = wizStep === flow.length
     ? 'Create Job <i class="fa-solid fa-check" style="font-size:11px;"></i>'
     : 'Next <i class="fa-solid fa-arrow-right" style="font-size:11px;"></i>';
+  if (curPane === 'wiz-placeholder' && selectedJobType) setText('wz-ph-type', JOB_TYPE_LOOKUP[selectedJobType].title);
   if (curPane === 'wiz-4') buildReview();
   updateWizNextState();
 }
@@ -7585,7 +7812,8 @@ function buildReview() {
     (selectedOrgIdx !== null && ORGS[selectedOrgIdx].preset ? '<div class="review-row"><span class="review-key">Gallery Preset</span><span class="review-val">' + ORGS[selectedOrgIdx].preset + ' <span style="color:var(--text-3);">(organization default)</span></span></div>' : '') +
     '<div class="review-row"><span class="review-key">Schedule</span><span class="review-val">' + schedHTML + '</span></div>' +
     '<div class="review-row"><span class="review-key">Delivery Deadline</span><span class="review-val">' + deadline + '</span></div>' +
-    '<div class="review-row"><span class="review-key">Photographers</span><span class="review-val">' + (uniqP.length ? uniqP.map(n => n.split(' ')[0]).join(', ') : '<span style="color:var(--text-3);">Assign later</span>') + '</span></div>';
+    '<div class="review-row"><span class="review-key">Photographers</span><span class="review-val">' + (uniqP.length ? uniqP.map(n => n.split(' ')[0]).join(', ') : '<span style="color:var(--text-3);">Assign later</span>') + '</span></div>' +
+    '<div class="review-row"><span class="review-key">Setup</span><span class="review-val">' + (setupMode === 'later' || !selectedJobType ? '<span style="color:var(--text-3);">Not set up yet — configure from the job</span>' : JOB_TYPE_LOOKUP[selectedJobType].title) + '</span></div>';
 }
 
 function createJob() {
