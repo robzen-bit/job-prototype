@@ -1967,6 +1967,36 @@ html, body {
 
 .jobtype-arrow { color: var(--text-3); font-size: 13px; flex-shrink: 0; }
 
+/* Plain radio-dot row (Volume Wizard CSV step) */
+.rdot-list { display: flex; flex-direction: column; gap: 10px; }
+
+.rdot-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.rdot {
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  border: 1.5px solid #C9C9CF;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.rdot.on { border-color: var(--orange); }
+
+.rdot.on::after {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  background: var(--orange);
+}
+
 /* Toggle switch */
 .toggle {
   position: relative;
@@ -5290,10 +5320,55 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
 
       <!-- STEP : PLACEHOLDER (conditional — appended once a job type is chosen) -->
       <div class="wiz-pane" id="wiz-placeholder">
-        <div class="coming-soon" style="min-height:220px;">
+
+        <!-- Generic stub — used for the branches not yet built -->
+        <div id="wz-ph-generic" class="coming-soon" style="min-height:220px;">
           <i class="fa-solid fa-hammer"></i>
           <p>Selected setup: <b id="wz-ph-type" style="color:var(--text);"></b></p>
           <p style="font-size:12px;">This branch isn't built yet — the steps for this job type will be added separately.</p>
+        </div>
+
+        <!-- Import Subject List → Create via CSV (matches the Volume Wizard flow, folder-setup step skipped since the job already has a destination) -->
+        <div id="wz-ph-import" style="display:none;">
+          <div class="wiz-info" style="margin-top:0;">
+            <i class="fa-solid fa-circle-info"></i>
+            <div>Upload subject data to generate galleries in bulk and apply a preset. <a class="gallery-name-link" onclick="toast('Opens the Volume Wizard help article')">Click here</a> for more info.</div>
+          </div>
+
+          <div class="detail-card" style="margin-top:16px;">
+            <div class="detail-card-header" style="margin-bottom:4px;">Create via CSV</div>
+            <div style="font-size:12.5px; color:var(--text-3); margin-bottom:18px;">Create galleries in bulk by importing a CSV file. <a class="gallery-name-link" onclick="toast('Opens the CSV import guide')">Click here</a> to learn more.</div>
+
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+              <span style="font-size:14px; font-weight:700; color:var(--text);">Import CSV File</span>
+              <a class="gallery-name-link" style="font-size:12.5px; font-weight:600;" onclick="toast('Downloading CSV template…')"><i class="fa-solid fa-arrow-down" style="font-size:10px; margin-right:4px;"></i>Download CSV template</a>
+            </div>
+            <div class="dropzone" style="margin-bottom:18px;" onclick="toast('File picker would open here')">
+              <i class="fa-solid fa-cloud-arrow-up"></i>
+              <b>Browse Files</b> or drag and drop to upload
+            </div>
+
+            <div class="rdot-list" style="margin-bottom:22px;">
+              <label class="rdot-row" onclick="setCsvHeaders(true)"><span class="rdot" id="csv-hdr-yes"></span>My CSV file includes headers</label>
+              <label class="rdot-row" onclick="setCsvHeaders(false)"><span class="rdot" id="csv-hdr-no"></span>My CSV file does not include headers</label>
+            </div>
+
+            <div class="f-label" style="margin-bottom:5px;">Gallery Preset &amp; Role Configuration</div>
+            <div style="font-size:12.5px; color:var(--text-3); margin-bottom:12px;">Select a preset to apply to all galleries, then choose how to assign roles to imported contacts.</div>
+            <select class="f-input" id="csv-preset" style="margin-bottom:16px;" onchange="onCsvPresetChange()"></select>
+
+            <div class="rdot-list">
+              <label class="rdot-row" onclick="setCsvRoleConfig('same')" style="flex-wrap:wrap;">
+                <span class="rdot" id="csv-role-same"></span>
+                <span>All contacts should be assigned to the same role.</span>
+                <select class="f-input" id="csv-bulk-role" style="width:auto; height:30px; font-size:12.5px; margin-left:6px;" onclick="event.stopPropagation()" onchange="setCsvRoleConfig('same')"></select>
+              </label>
+              <label class="rdot-row" onclick="setCsvRoleConfig('perColumn')" style="align-items:flex-start;">
+                <span class="rdot" id="csv-role-percol" style="margin-top:1px;"></span>
+                <span>I would like to assign contacts to roles during the matching phase.</span>
+              </label>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -7616,6 +7691,7 @@ function openWizard() {
   document.getElementById('wz-setup-later-note').style.display = 'none';
   document.getElementById('wz-setup-helper').style.display = 'block';
   renderJobTypes();
+  csvHasHeaders = true; csvPreset = 'Matthews'; csvRoleConfig = 'same'; csvBulkRole = 'Client';
   wizPaint();
   openModal('modal-wizard');
 }
@@ -7703,6 +7779,48 @@ function setupModeChanged(el) {
 const JOB_TYPE_LOOKUP = {};
 JOB_TYPES.forEach(jt => { JOB_TYPE_LOOKUP[jt.id] = jt; });
 
+/* ══════════ IMPORT SUBJECT LIST → CREATE VIA CSV (Volume Wizard, folder-setup step skipped) ══════════ */
+const VOLUME_PRESET_ROLES = {
+  'Matthews': ['Default', 'Guest', 'Client', 'Student', 'Parent'],
+  'Smith Family': ['Default', 'Guest', 'Client', 'Immediate Family', 'Extended Family'],
+  'Corporate': ['Default', 'Guest', 'Client', 'Employee', 'Manager'],
+  'Sports Season': ['Default', 'Guest', 'Client', 'Athlete', 'Coach'],
+  'School Portrait': ['Default', 'Guest', 'Client', 'Student', 'Staff'],
+  'Mystic Falls School Portraits': ['Default', 'Client', 'Student', 'Parent / Guardian']
+};
+const SYSTEM_ROLE_NAMES = ['Default', 'Guest', 'Client'];
+
+let csvHasHeaders = true, csvPreset = 'Matthews', csvRoleConfig = 'same', csvBulkRole = 'Client';
+
+function renderCsvSetup() {
+  document.getElementById('csv-hdr-yes').classList.toggle('on', csvHasHeaders === true);
+  document.getElementById('csv-hdr-no').classList.toggle('on', csvHasHeaders === false);
+  document.getElementById('csv-role-same').classList.toggle('on', csvRoleConfig === 'same');
+  document.getElementById('csv-role-percol').classList.toggle('on', csvRoleConfig === 'perColumn');
+
+  const presetSel = document.getElementById('csv-preset');
+  presetSel.innerHTML = Object.keys(VOLUME_PRESET_ROLES).map(p => '<option' + (p === csvPreset ? ' selected' : '') + '>' + p + '</option>').join('');
+
+  const presetRoles = (VOLUME_PRESET_ROLES[csvPreset] || []).filter(r => SYSTEM_ROLE_NAMES.indexOf(r) < 0);
+  const roleSel = document.getElementById('csv-bulk-role');
+  roleSel.innerHTML =
+    '<optgroup label="System Roles">' + SYSTEM_ROLE_NAMES.map(r => '<option' + (r === csvBulkRole ? ' selected' : '') + '>' + r + '</option>').join('') + '</optgroup>' +
+    (presetRoles.length ? '<optgroup label="Gallery Preset Roles">' + presetRoles.map(r => '<option' + (r === csvBulkRole ? ' selected' : '') + '>' + r + '</option>').join('') + '</optgroup>' : '');
+}
+
+function setCsvHeaders(v) { csvHasHeaders = v; renderCsvSetup(); }
+function setCsvRoleConfig(v) { csvRoleConfig = v; renderCsvSetup(); }
+
+function onCsvPresetChange() {
+  csvPreset = fval('csv-preset');
+  csvBulkRole = 'Client';
+  renderCsvSetup();
+}
+
+document.addEventListener('change', e => {
+  if (e.target && e.target.id === 'csv-bulk-role') { csvBulkRole = e.target.value; csvRoleConfig = 'same'; renderCsvSetup(); }
+});
+
 const WIZ_LABELS = { 'wiz-1': 'Details', 'wiz-sched': 'Schedule', 'wiz-setup': 'Setup', 'wiz-placeholder': 'Setup Details', 'wiz-4': 'Review' };
 
 function wizFlow() {
@@ -7767,7 +7885,13 @@ function wizPaint() {
   document.getElementById('wiz-next').innerHTML = wizStep === flow.length
     ? 'Create Job <i class="fa-solid fa-check" style="font-size:11px;"></i>'
     : 'Next <i class="fa-solid fa-arrow-right" style="font-size:11px;"></i>';
-  if (curPane === 'wiz-placeholder' && selectedJobType) setText('wz-ph-type', JOB_TYPE_LOOKUP[selectedJobType].title);
+  if (curPane === 'wiz-placeholder') {
+    const isImport = selectedJobType === 'import';
+    document.getElementById('wz-ph-generic').style.display = isImport ? 'none' : 'flex';
+    document.getElementById('wz-ph-import').style.display = isImport ? 'block' : 'none';
+    if (isImport) renderCsvSetup();
+    else if (selectedJobType) setText('wz-ph-type', JOB_TYPE_LOOKUP[selectedJobType].title);
+  }
   if (curPane === 'wiz-4') buildReview();
   updateWizNextState();
 }
