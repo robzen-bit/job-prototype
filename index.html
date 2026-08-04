@@ -5025,6 +5025,7 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
           <div class="f-field">
             <label class="f-label">Key Contact</label>
             <select class="f-input" id="wz-kc-select" onchange="kcSelectChanged()"></select>
+            <div style="font-size:11.5px; color:var(--text-3); display:none;" id="wz-kc-info"></div>
           </div>
           <div id="wz-kc-new" style="display:none;">
             <div class="f-row">
@@ -7177,7 +7178,7 @@ function populateKcSelect(o) {
   const sel = document.getElementById('wz-kc-select');
   const primaryIdx = o.keyContacts.findIndex(k => k.primary);
   sel.innerHTML = o.keyContacts.map((k, i) =>
-    '<option value="' + i + '"' + (i === (primaryIdx >= 0 ? primaryIdx : 0) ? ' selected' : '') + '>' + k.name + (k.primary ? ' (Primary)' : '') + (k.email ? ' — ' + k.email : '') + '</option>'
+    '<option value="' + i + '"' + (i === (primaryIdx >= 0 ? primaryIdx : 0) ? ' selected' : '') + '>' + k.name + (k.primary ? ' (Primary)' : '') + (k.labels && k.labels.length ? ' — ' + k.labels.join(', ') : '') + '</option>'
   ).join('') + '<option value="__new">＋ Create new key contact…</option>';
   kcSelectChanged();
 }
@@ -7186,11 +7187,21 @@ function kcSelectChanged() {
   const sel = document.getElementById('wz-kc-select');
   const isNew = sel.value === '__new';
   document.getElementById('wz-kc-new').style.display = isNew ? 'block' : 'none';
+  const info = document.getElementById('wz-kc-info');
   if (isNew) {
     document.getElementById('wz-kc-new-name').value = '';
     document.getElementById('wz-kc-new-email').value = '';
     document.getElementById('wz-kc-new-phone').value = '';
     document.getElementById('wz-kc-savetoorg').checked = false;
+    info.style.display = 'none';
+  } else if (selectedOrgIdx !== null) {
+    const k = ensureOrgShape(ORGS[selectedOrgIdx]).keyContacts[parseInt(sel.value, 10)];
+    if (k) {
+      info.textContent = [k.name, k.email, k.phone].filter(Boolean).join(' · ');
+      info.style.display = 'block';
+    } else {
+      info.style.display = 'none';
+    }
   }
 }
 
