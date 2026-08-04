@@ -5370,6 +5370,54 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
             </div>
           </div>
         </div>
+
+        <!-- Collect Registration Before the Shoot → straight to the registration form builder -->
+        <div id="wz-ph-before" style="display:none;">
+          <div id="wz-ph-before-mount"></div>
+        </div>
+
+        <!-- Collect Registration During the Shoot → Gallery Bulk Setup, then the same form builder -->
+        <div id="wz-ph-during" style="display:none;">
+
+          <div id="wz-during-bulk">
+            <div class="wiz-info" style="margin-top:0;">
+              <i class="fa-solid fa-circle-info"></i>
+              <div>Configure bulk gallery creation settings and preview the result. <a class="gallery-name-link" onclick="toast('Opens the Volume Wizard help article')">Click here</a> for more info.</div>
+            </div>
+            <div style="display:flex; gap:16px; margin-top:16px; align-items:flex-start;">
+              <div class="detail-card" style="flex:1; min-width:0;">
+                <div class="detail-card-header">Gallery Bulk Setup</div>
+                <div class="f-field">
+                  <label class="f-label">How many Galleries?</label>
+                  <input class="f-input" type="number" min="1" max="5000" id="bulk-count" value="100" oninput="onBulkFieldChange()">
+                  <div style="font-size:11px; color:var(--text-3);">Maximum 5,000</div>
+                </div>
+                <div class="f-field">
+                  <label class="f-label">Gallery Naming Convention</label>
+                  <input class="f-input" id="bulk-naming" placeholder="e.g. ATC" value="ATC" oninput="onBulkFieldChange()">
+                </div>
+                <div class="f-field">
+                  <label class="f-label">Select a Gallery Preset</label>
+                  <select class="f-input" id="bulk-preset" onchange="onBulkFieldChange()"></select>
+                </div>
+                <button type="button" class="btn btn-ghost-sm" onclick="toast('Preview updated')">Preview</button>
+              </div>
+              <div class="detail-card" style="flex:1; min-width:0;">
+                <div class="detail-card-header" id="bulk-preview-title" style="margin-bottom:2px;"></div>
+                <div style="font-size:11.5px; color:var(--text-3); margin-bottom:10px;" id="bulk-preview-sub"></div>
+                <table class="gallery-table">
+                  <thead><tr><th style="width:44px;">No.</th><th>Gallery Name</th><th>Access</th></tr></thead>
+                  <tbody id="bulk-preview-tbody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div id="wz-during-form-wrap" style="display:none;">
+            <div id="wz-ph-during-form-mount"></div>
+          </div>
+
+        </div>
       </div>
 
       <!-- STEP 4 : REVIEW -->
@@ -7692,6 +7740,8 @@ function openWizard() {
   document.getElementById('wz-setup-helper').style.display = 'block';
   renderJobTypes();
   csvHasHeaders = true; csvPreset = 'Matthews'; csvRoleConfig = 'same'; csvBulkRole = 'Client';
+  resetRegFormState();
+  resetDuringState();
   wizPaint();
   openModal('modal-wizard');
 }
@@ -7759,6 +7809,8 @@ function renderJobTypes() {
 
 function selectJobType(id) {
   selectedJobType = id;
+  resetRegFormState();
+  resetDuringState();
   renderJobTypes();
   renderWizSteps();
   setText('wiz-count', 'Step ' + wizStep + ' of ' + wizFlow().length);
@@ -7821,6 +7873,221 @@ document.addEventListener('change', e => {
   if (e.target && e.target.id === 'csv-bulk-role') { csvBulkRole = e.target.value; csvRoleConfig = 'same'; renderCsvSetup(); }
 });
 
+/* ══════════ COLLECT REGISTRATION — Before / During the Shoot (Volume Wizard, folder-setup step skipped) ══════════ */
+const CORE_FIELDS_REG = [
+  { id: 'first_name', label: 'First Name', canDisable: true },
+  { id: 'last_name', label: 'Last Name', canDisable: true },
+  { id: 'email', label: 'Email', canDisable: false },
+  { id: 'phone_number', label: 'Phone Number', canDisable: true }
+];
+const MOCK_FOLDERS_REG = ['Registration Test', 'Deep Dive Demo', 'All Hands'];
+const MOCK_GALLERIES_REG = ['Spring Portraits', 'Summer Weddings', 'Family Sessions'];
+
+let regFormTitle = '', useCustomFormTitle = false, regFormDesc = 'Please fill out the form below to complete registration.';
+let regFieldEnabled = { first_name: true, last_name: true, email: true, phone_number: false };
+let regFieldRequired = { first_name: true, last_name: true, email: true, phone_number: false };
+let regSubmitLabel = 'Submit', regSubmitBehavior = 'message', regRedirectUrl = '', regSubmitMessage = 'Thank you for registering.';
+let regAssignmentOption = 'new_gallery', regGalleryTitleOption = 'name';
+let existingGalleryRole = 'Default', newGalleryRole = 'Default';
+let existingSelectionType = 'folder', existingSelectedName = 'test', existingPickerOpen = false;
+let REGFORM_MOUNT = null;
+
+function resetRegFormState() {
+  regFormTitle = ''; useCustomFormTitle = false; regFormDesc = 'Please fill out the form below to complete registration.';
+  regFieldEnabled = { first_name: true, last_name: true, email: true, phone_number: false };
+  regFieldRequired = { first_name: true, last_name: true, email: true, phone_number: false };
+  regSubmitLabel = 'Submit'; regSubmitBehavior = 'message'; regRedirectUrl = ''; regSubmitMessage = 'Thank you for registering.';
+  regAssignmentOption = 'new_gallery'; regGalleryTitleOption = 'name';
+  existingGalleryRole = 'Default'; newGalleryRole = 'Default';
+  existingSelectionType = 'folder'; existingSelectedName = 'test'; existingPickerOpen = false;
+}
+
+function roleSelectHTML(id, value) {
+  return '<select class="f-input" style="width:auto; height:30px; font-size:12.5px;" id="' + id + '" onchange="onRoleSelectChange(\'' + id + '\', this.value)">' +
+    '<option value="__visitor__"' + (value === '__visitor__' ? ' selected' : '') + '>Visitor / Guest</option>' +
+    SYSTEM_ROLE_NAMES.map(r => '<option' + (r === value ? ' selected' : '') + '>' + r + '</option>').join('') +
+  '</select>';
+}
+
+function onRoleSelectChange(id, val) {
+  if (id === 'existingGalleryRole') existingGalleryRole = val;
+  if (id === 'newGalleryRole') newGalleryRole = val;
+  renderRegFormBuilder(REGFORM_MOUNT);
+}
+
+function regFormBuilderHTML() {
+  const jobName = fval('wz-name').trim();
+  const displayTitle = (useCustomFormTitle && regFormTitle.trim()) ? regFormTitle.trim() : (jobName || 'Gallery Name');
+
+  const fieldsRows = CORE_FIELDS_REG.map((f, i) => {
+    const enabled = regFieldEnabled[f.id], required = regFieldRequired[f.id], locked = !f.canDisable;
+    return '<div class="toggle-row" style="padding:11px 14px; border-top:' + (i > 0 ? '1px solid var(--line)' : 'none') + '; background:' + (enabled ? 'var(--surface)' : 'var(--bg)') + ';">' +
+      '<div style="display:flex; align-items:center; gap:12px; flex:1;">' +
+        '<button type="button" class="toggle' + (enabled ? ' on' : '') + '" style="' + (locked ? 'opacity:0.5; pointer-events:none;' : '') + '" onclick="toggleRegField(\'' + f.id + '\')"></button>' +
+        '<span style="font-size:13px; color:' + (enabled ? 'var(--text)' : 'var(--text-3)') + '; opacity:' + (locked ? 0.5 : 1) + ';">' + f.label + '</span>' +
+      '</div>' +
+      '<label style="display:flex; align-items:center; gap:6px; opacity:' + (locked ? 0.5 : 1) + '; cursor:' + (locked ? 'default' : 'pointer') + ';">' +
+        '<input type="checkbox" ' + (required ? 'checked' : '') + (locked ? ' disabled' : '') + ' onchange="toggleRegRequired(\'' + f.id + '\')" style="accent-color:var(--teal);">' +
+        '<span style="font-size:11.5px; color:var(--text-3);">Required</span>' +
+      '</label>' +
+    '</div>';
+  }).join('');
+
+  const submitBehaviorExtra = regSubmitBehavior === 'redirect'
+    ? '<div style="margin-left:26px; margin-top:6px;"><input class="f-input" placeholder="https://" value="' + regRedirectUrl + '" oninput="regRedirectUrl=this.value"></div>'
+    : regSubmitBehavior === 'message'
+    ? '<div style="margin-left:26px; margin-top:6px;"><label class="f-label" style="display:block; margin-bottom:4px;">Message</label>' +
+      '<textarea class="f-textarea" style="min-height:56px;" oninput="regSubmitMessage=this.value.slice(0,250); renderRegFormBuilder(REGFORM_MOUNT)">' + regSubmitMessage + '</textarea>' +
+      '<div style="font-size:11px; color:var(--text-3);">' + regSubmitMessage.length + '/250</div></div>'
+    : '';
+
+  const existingBody = regAssignmentOption !== 'existing' ? '' :
+    '<div style="margin-left:26px; margin-top:8px;">' +
+      '<div style="display:flex; align-items:center; gap:8px; position:relative; margin-bottom:8px;">' +
+        '<span style="font-size:13px; color:var(--text-2);">Selected ' + existingSelectionType + ': <b style="color:var(--text);">' + existingSelectedName + '</b></span>' +
+        '<a class="gallery-name-link" onclick="existingPickerOpen=!existingPickerOpen; renderRegFormBuilder(REGFORM_MOUNT)">(Edit)</a>' +
+        (existingPickerOpen ?
+          '<div style="position:absolute; top:26px; left:0; z-index:50; min-width:240px; background:var(--surface); border:1px solid var(--line); border-radius:var(--r-sm); box-shadow:var(--shadow-lg); padding:10px 0;">' +
+            '<div style="font-size:10.5px; font-weight:700; letter-spacing:0.4px; color:var(--text-3); padding:0 14px 6px; text-transform:uppercase;">Folders</div>' +
+            MOCK_FOLDERS_REG.map(f => '<div class="menu-pop-item" style="border-radius:0;" onclick="pickExisting(\'folder\',\'' + f + '\')">' + f + '</div>').join('') +
+            '<div style="border-top:1px solid var(--line); margin:8px 0;"></div>' +
+            '<div style="font-size:10.5px; font-weight:700; letter-spacing:0.4px; color:var(--text-3); padding:0 14px 6px; text-transform:uppercase;">Galleries</div>' +
+            MOCK_GALLERIES_REG.map(g => '<div class="menu-pop-item" style="border-radius:0;" onclick="pickExisting(\'gallery\',\'' + g + '\')">' + g + '</div>').join('') +
+          '</div>' : '') +
+      '</div>' +
+      (existingSelectionType === 'gallery'
+        ? '<div style="display:flex; align-items:center; gap:8px;"><span style="font-size:13px; font-weight:600; color:var(--text);">Role</span>' + roleSelectHTML('existingGalleryRole', existingGalleryRole) + '</div>'
+        : '<div style="font-size:12px; color:var(--text-3);">Note: Registrants will be added to the folder as a General Contact.</div>') +
+    '</div>';
+
+  const newGalleryBody = regAssignmentOption !== 'new_gallery' ? '' :
+    '<div style="margin-left:26px; margin-top:8px;">' +
+      '<div style="font-size:13px; color:var(--text-2); margin-bottom:10px;">Apply Preset: <b style="color:var(--text);">Matthews</b> <a class="gallery-name-link" onclick="toast(\'Preset picker opens in the product\')">(Change Preset)</a></div>' +
+      '<label style="display:flex; align-items:center; gap:10px; cursor:pointer; margin-bottom:2px;" onclick="setGalleryTitleOption(\'email\')"><span class="rdot' + (regGalleryTitleOption === 'email' ? ' on' : '') + '"></span><span style="font-size:13px; color:var(--text);">Use <b>Registrant Email Address</b> for Gallery Title</span></label>' +
+      (regGalleryTitleOption === 'email' ? '<div style="margin-left:28px; margin-bottom:10px; display:flex; align-items:center; gap:8px;"><span style="font-size:13px; font-weight:600; color:var(--text);">Role</span>' + roleSelectHTML('newGalleryRole', newGalleryRole) + '</div>' : '') +
+      '<label style="display:flex; align-items:center; gap:10px; cursor:pointer;" onclick="setGalleryTitleOption(\'name\')"><span class="rdot' + (regGalleryTitleOption === 'name' ? ' on' : '') + '"></span><span style="font-size:13px; color:var(--text);">Use <b>Registrant First and Last Name</b> for Gallery Title</span></label>' +
+      (regGalleryTitleOption === 'name' ? '<div style="margin-left:28px; margin-top:8px; display:flex; align-items:center; gap:8px;"><span style="font-size:13px; font-weight:600; color:var(--text);">Role</span>' + roleSelectHTML('newGalleryRole', newGalleryRole) + '</div>' : '') +
+    '</div>';
+
+  const previewFieldHTML = (id, label) => enabled_field(id) ? '<input readonly placeholder="' + label + (regFieldRequired[id] ? '*' : '') + '" class="f-input" style="background:var(--bg); color:var(--text-3); margin-bottom:10px;">' : '';
+  function enabled_field(id) { return regFieldEnabled[id]; }
+
+  return '<div style="display:flex; gap:0; min-height:520px;">' +
+    '<div style="flex:0 0 400px; padding:0 20px 20px 0; border-right:1px solid var(--line); overflow-y:auto; max-height:640px;">' +
+
+      '<div class="f-field">' +
+        '<label class="f-label">Title</label>' +
+        '<input class="f-input" placeholder="' + (jobName || 'Gallery Name') + '" value="' + regFormTitle.replace(/"/g, '&quot;') + '" oninput="regFormTitle=this.value; renderRegFormBuilder(REGFORM_MOUNT)" style="margin-bottom:8px;">' +
+        '<label class="perm-item" style="margin:0;"><input type="checkbox" ' + (useCustomFormTitle ? 'checked' : '') + ' onchange="useCustomFormTitle=this.checked; renderRegFormBuilder(REGFORM_MOUNT)"> Use a Custom Form Title</label>' +
+      '</div>' +
+
+      '<div class="f-field">' +
+        '<label class="f-label">Description / Instructions</label>' +
+        '<textarea class="f-textarea" style="min-height:64px;" oninput="regFormDesc=this.value; renderRegFormBuilder(REGFORM_MOUNT)">' + regFormDesc + '</textarea>' +
+      '</div>' +
+
+      '<div class="f-field">' +
+        '<label class="f-label">Form Fields</label>' +
+        '<div style="border:1px solid var(--line); border-radius:var(--r-sm); overflow:hidden;">' + fieldsRows +
+          '<div style="padding:14px; text-align:center; background:var(--bg); border-top:1px solid var(--line);">' +
+            '<div style="font-size:11px; color:var(--text-3); margin-bottom:8px;">Custom Fields (15 max)</div>' +
+            '<button type="button" class="btn btn-ghost-sm" onclick="toast(\'Custom field builder opens in the product\')">+ Add Custom Field</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="f-field">' +
+        '<label class="f-label">Submit Button Label</label>' +
+        '<input class="f-input" value="' + regSubmitLabel.replace(/"/g, '&quot;') + '" oninput="regSubmitLabel=this.value.slice(0,50); renderRegFormBuilder(REGFORM_MOUNT)">' +
+        '<div style="font-size:11px; color:var(--text-3);">' + regSubmitLabel.length + '/50</div>' +
+      '</div>' +
+
+      '<div class="f-field">' +
+        '<label class="f-label">Submit Behavior</label>' +
+        ['folder|Access the Folder', 'redirect|Redirect to a Custom URL', 'message|Show Message'].map(opt => {
+          const p = opt.split('|');
+          return '<label style="display:flex; align-items:center; gap:10px; cursor:pointer; margin-bottom:6px;" onclick="setSubmitBehavior(\'' + p[0] + '\')"><span class="rdot' + (regSubmitBehavior === p[0] ? ' on' : '') + '"></span><span style="font-size:13px; color:var(--text);">' + p[1] + '</span></label>';
+        }).join('') + submitBehaviorExtra +
+      '</div>' +
+
+      '<div class="f-field">' +
+        '<label class="f-label">Registrants Assignment Options</label>' +
+        '<label style="display:flex; align-items:flex-start; gap:10px; cursor:pointer; margin-bottom:8px;" onclick="setAssignmentOption(\'this_folder\')"><span class="rdot' + (regAssignmentOption === 'this_folder' ? ' on' : '') + '" style="margin-top:1px;"></span><span style="font-size:13px; color:var(--text);">Add registrants to <b>this folder</b>.</span></label>' +
+        (regAssignmentOption === 'this_folder' ? '<div style="margin-left:28px; margin-bottom:8px; font-size:12px; color:var(--text-3);">Note: Registrants will be added to the folder as a General Contact.</div>' : '') +
+        '<label style="display:flex; align-items:flex-start; gap:10px; cursor:pointer; margin-bottom:8px;" onclick="setAssignmentOption(\'existing\')"><span class="rdot' + (regAssignmentOption === 'existing' ? ' on' : '') + '" style="margin-top:1px;"></span><span style="font-size:13px; color:var(--text);">Add registrants to an <b>existing gallery or folder</b>.</span></label>' +
+        existingBody +
+        '<label style="display:flex; align-items:flex-start; gap:10px; cursor:pointer; margin-bottom:8px;" onclick="setAssignmentOption(\'new_gallery\')"><span class="rdot' + (regAssignmentOption === 'new_gallery' ? ' on' : '') + '" style="margin-top:1px;"></span><span style="font-size:13px; color:var(--text);">Automatically <b>create a new gallery</b> for each registrant.</span></label>' +
+        newGalleryBody +
+      '</div>' +
+
+    '</div>' +
+    '<div style="flex:1; padding:20px; background:var(--bg); display:flex; justify-content:center;">' +
+      '<div style="background:var(--surface); border:1px solid var(--line); border-radius:var(--r-lg); padding:28px; max-width:380px; width:100%; align-self:flex-start;">' +
+        '<div style="height:90px; border-radius:var(--r-md); margin-bottom:16px; background:repeating-conic-gradient(#ccc 0% 25%, #e8e8e8 0% 50%) 0 0 / 20px 20px;"></div>' +
+        '<div style="font-size:18px; font-weight:700; color:var(--text); text-align:center; margin-bottom:8px;">' + displayTitle + '</div>' +
+        '<div style="font-size:12.5px; color:var(--text-3); text-align:center; margin-bottom:16px; line-height:1.5;">' + regFormDesc + '</div>' +
+        previewFieldHTML('first_name', 'First Name') + previewFieldHTML('last_name', 'Last Name') +
+        previewFieldHTML('email', 'Email') + previewFieldHTML('phone_number', 'Phone Number') +
+        '<button style="width:100%; height:40px; border-radius:var(--r-sm); background:var(--text); color:#fff; font-weight:700; font-size:13px; border:none; margin-top:4px;">' + (regSubmitLabel || 'Submit') + '</button>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+
+function renderRegFormBuilder(mountId) {
+  REGFORM_MOUNT = mountId;
+  ['wz-ph-before-mount', 'wz-ph-during-form-mount'].forEach(id => { if (id !== mountId) document.getElementById(id).innerHTML = ''; });
+  document.getElementById(mountId).innerHTML = regFormBuilderHTML();
+}
+
+function toggleRegField(id) { if (!CORE_FIELDS_REG.find(f => f.id === id).canDisable) return; regFieldEnabled[id] = !regFieldEnabled[id]; renderRegFormBuilder(REGFORM_MOUNT); }
+function toggleRegRequired(id) { regFieldRequired[id] = !regFieldRequired[id]; renderRegFormBuilder(REGFORM_MOUNT); }
+function setSubmitBehavior(v) { regSubmitBehavior = v; renderRegFormBuilder(REGFORM_MOUNT); }
+function setAssignmentOption(v) { regAssignmentOption = v; renderRegFormBuilder(REGFORM_MOUNT); }
+function setGalleryTitleOption(v) { regGalleryTitleOption = v; renderRegFormBuilder(REGFORM_MOUNT); }
+function pickExisting(type, name) { existingSelectionType = type; existingSelectedName = name; existingPickerOpen = false; renderRegFormBuilder(REGFORM_MOUNT); }
+
+/* ── During the Shoot: Gallery Bulk Setup (step before the form builder) ── */
+let duringPhase = 'bulk';
+let bulkCount = 100, bulkNamingConvention = 'ATC', bulkPreset = 'Mystic Falls School Portraits';
+
+function resetDuringState() { duringPhase = 'bulk'; bulkCount = 100; bulkNamingConvention = 'ATC'; bulkPreset = 'Mystic Falls School Portraits'; }
+
+function onBulkFieldChange() {
+  bulkCount = Math.min(5000, Math.max(1, parseInt(fval('bulk-count'), 10) || 1));
+  bulkNamingConvention = fval('bulk-naming');
+  bulkPreset = fval('bulk-preset');
+  renderBulkSetup();
+}
+
+function renderBulkSetup() {
+  const presetSel = document.getElementById('bulk-preset');
+  presetSel.innerHTML = Object.keys(VOLUME_PRESET_ROLES).map(p => '<option' + (p === bulkPreset ? ' selected' : '') + '>' + p + '</option>').join('');
+  document.getElementById('bulk-count').value = bulkCount;
+  document.getElementById('bulk-naming').value = bulkNamingConvention;
+  setText('bulk-preview-title', 'Creating ' + bulkCount + ' ' + (bulkCount === 1 ? 'Gallery' : 'Galleries'));
+  const previewCount = Math.min(bulkCount || 0, 10);
+  setText('bulk-preview-sub', 'Showing first ' + previewCount + ' of ' + bulkCount);
+  let rows = '';
+  for (let i = 0; i < previewCount; i++) {
+    const num = String(i + 1).padStart(3, '0');
+    rows += '<tr><td class="count-cell">' + (i + 1) + '</td><td style="font-weight:600; color:var(--text);">' + (bulkNamingConvention || 'Gallery') + ' ' + num + '</td><td class="type-cell">Password Protected</td></tr>';
+  }
+  document.getElementById('bulk-preview-tbody').innerHTML = rows;
+}
+
+function duringAdvancePhase(dir) {
+  if (dir === 1 && duringPhase === 'bulk') { duringPhase = 'form'; paintDuringPhase(); return true; }
+  if (dir === -1 && duringPhase === 'form') { duringPhase = 'bulk'; paintDuringPhase(); return true; }
+  return false;
+}
+
+function paintDuringPhase() {
+  document.getElementById('wz-during-bulk').style.display = duringPhase === 'bulk' ? 'block' : 'none';
+  document.getElementById('wz-during-form-wrap').style.display = duringPhase === 'form' ? 'block' : 'none';
+  if (duringPhase === 'form') renderRegFormBuilder('wz-ph-during-form-mount');
+}
+
 const WIZ_LABELS = { 'wiz-1': 'Details', 'wiz-sched': 'Schedule', 'wiz-setup': 'Setup', 'wiz-placeholder': 'Setup Details', 'wiz-4': 'Review' };
 
 function wizFlow() {
@@ -7867,6 +8134,10 @@ function wizNav(dir) {
   const flow = wizFlow();
   const cur = flow[wizStep - 1];
   if (dir === 1 && !stepValid(cur)) return;
+  if (cur === 'wiz-placeholder' && selectedJobType === 'during' && duringAdvancePhase(dir)) {
+    updateWizNextState();
+    return;
+  }
   if (dir === 1 && wizStep === flow.length) { createJob(); return; }
   wizStep = Math.min(flow.length, Math.max(1, wizStep + dir));
   wizPaint();
@@ -7886,11 +8157,15 @@ function wizPaint() {
     ? 'Create Job <i class="fa-solid fa-check" style="font-size:11px;"></i>'
     : 'Next <i class="fa-solid fa-arrow-right" style="font-size:11px;"></i>';
   if (curPane === 'wiz-placeholder') {
-    const isImport = selectedJobType === 'import';
-    document.getElementById('wz-ph-generic').style.display = isImport ? 'none' : 'flex';
-    document.getElementById('wz-ph-import').style.display = isImport ? 'block' : 'none';
-    if (isImport) renderCsvSetup();
-    else if (selectedJobType) setText('wz-ph-type', JOB_TYPE_LOOKUP[selectedJobType].title);
+    const t = selectedJobType;
+    document.getElementById('wz-ph-generic').style.display = (t === 'import' || t === 'before' || t === 'during') ? 'none' : 'flex';
+    document.getElementById('wz-ph-import').style.display = t === 'import' ? 'block' : 'none';
+    document.getElementById('wz-ph-before').style.display = t === 'before' ? 'block' : 'none';
+    document.getElementById('wz-ph-during').style.display = t === 'during' ? 'block' : 'none';
+    if (t === 'import') renderCsvSetup();
+    else if (t === 'before') renderRegFormBuilder('wz-ph-before-mount');
+    else if (t === 'during') { renderBulkSetup(); paintDuringPhase(); }
+    else if (t) setText('wz-ph-type', JOB_TYPE_LOOKUP[t].title);
   }
   if (curPane === 'wiz-4') buildReview();
   updateWizNextState();
