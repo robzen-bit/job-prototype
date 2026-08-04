@@ -1654,6 +1654,39 @@ html, body {
 
 .modal-sm { width: 520px; }
 
+/* Full-screen modal variant — used for the job creation flow */
+.modal-overlay.fullscreen { padding: 0; }
+
+.modal-overlay.fullscreen .modal {
+  width: 100%; height: 100%;
+  max-width: 100%; max-height: 100%;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.modal-overlay.fullscreen .modal-header,
+.modal-overlay.fullscreen .wiz-steps,
+.modal-overlay.fullscreen .modal-body,
+.modal-overlay.fullscreen .modal-footer {
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.modal-overlay.fullscreen .modal-header { padding-top: 36px; }
+
+.modal-overlay.fullscreen .modal-close {
+  position: fixed;
+  top: 22px; right: 26px;
+  z-index: 310;
+}
+
+.modal-overlay.fullscreen .modal-footer {
+  border-top: 1px solid var(--line);
+  padding-top: 16px;
+  padding-bottom: 20px;
+}
+
 .modal-header {
   padding: 20px 24px 0;
   display: flex;
@@ -5783,6 +5816,7 @@ function flipCheck(el) {
 
 /* Modals */
 function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function setFullscreen(id, on) { document.getElementById(id).classList.toggle('fullscreen', !!on); }
 function closeModal(id) {
   document.getElementById(id).classList.remove('open');
   if (id === 'modal-folder' && locMode === 'dest') {
@@ -6909,6 +6943,7 @@ let wzParent = 'All Photographs / Client Work / Sports Leagues';
 let locMode = 'pick', locSel = null, locLevel = null;
 
 function openLocPicker(mode) {
+  setFullscreen('modal-folder', mode === 'dest');
   locMode = mode; locLevel = null;
   locSel = mode === 'dest' ? wzParent : (mode === 'orgdef' && currentOrgIdx !== null ? (ORGS[currentOrgIdx].folder || null) : null);
   document.getElementById('loc-query').value = '';
@@ -7405,6 +7440,7 @@ function parseShoots() {
 }
 
 function openWizard() {
+  setFullscreen('modal-wizard', true);
   wizStep = 1;
   selectedOrgIdx = null;
   destTouched = false;
@@ -8072,6 +8108,7 @@ function smartReset(id) {
 let coSource = 'crm', coEditIdx = null;
 
 function openCreateOrgModal(source, idx) {
+  setFullscreen('modal-createorg', source === 'wizard');
   coSource = source; coEditIdx = (source === 'edit') ? idx : null;
   if (source === 'wizard') {
     document.querySelectorAll('.orgdd-panel.open').forEach(pp => pp.classList.remove('open'));
