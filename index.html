@@ -2808,16 +2808,24 @@ html, body {
 .dest-row { display: flex; align-items: center; gap: 12px; min-height: 24px; }
 
 .crumb {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: 6px;
   font-size: 13px;
   color: var(--text);
-  flex-wrap: wrap;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
 }
 
-.crumb i { color: var(--orange); font-size: 12px; }
-.crumb-sep { color: var(--text-3); }
+.crumb i { color: var(--orange); font-size: 12px; flex-shrink: 0; }
+
+.crumb-path {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
 
 .dest-picker {
   border: 1px solid var(--line);
@@ -7266,8 +7274,7 @@ function resolveOrg() {
 function renderCrumb() {
   const el = document.getElementById('wz-dest-crumb');
   if (!el) return;
-  el.innerHTML = '<i class="fa-solid fa-folder"></i>' +
-    wzParent.split(' / ').map(s => '<span>' + s + '</span>').join('<span class="crumb-sep">/</span>');
+  el.innerHTML = '<i class="fa-solid fa-folder"></i><span class="crumb-path">' + wzParent + '</span>';
 }
 
 function openDestPicker() {
@@ -8217,7 +8224,7 @@ function renderOrgInfo(o) {
   presetSel.value = o.preset || '';
   if (presetSel.value !== (o.preset || '')) presetSel.value = '';
   document.getElementById('od-folder-crumb').innerHTML = o.folder
-    ? '<i class="fa-solid fa-folder"></i>' + o.folder.split(' / ').map(s => '<span>' + s + '</span>').join('<span class="crumb-sep">/</span>')
+    ? '<i class="fa-solid fa-folder"></i><span class="crumb-path">' + o.folder + '</span>'
     : '<span style="color:var(--text-3);">No default folder</span>';
   setText('od-defaults-empty', (!o.preset && !o.folder) ? 'Set defaults to speed up job creation for this organization.' : '');
 
