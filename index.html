@@ -5022,27 +5022,33 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
         <div class="org-summary" id="wz-org-summary" style="display:none;"></div>
 
         <div id="wz-job-contact" style="display:none;">
-          <div class="f-row">
-            <div class="f-field">
-              <label class="f-label">Primary Contact — this job</label>
-              <input class="f-input" id="wz-jc-name" placeholder="Name">
-            </div>
-            <div class="f-field">
-              <label class="f-label">Contact Email</label>
-              <input class="f-input" id="wz-jc-email" placeholder="email@example.com">
-            </div>
-            <div class="f-field">
-              <label class="f-label">Phone</label>
-              <input class="f-input" id="wz-jc-phone" placeholder="(717) 555-0100">
-            </div>
+          <div class="f-field">
+            <label class="f-label">Key Contact</label>
+            <select class="f-input" id="wz-kc-select" onchange="kcSelectChanged()"></select>
           </div>
-          <div style="font-size:11.5px; color:var(--text-3); margin:-8px 0 14px;">Prefilled with the organization's default contact — edits apply to this job only.</div>
+          <div id="wz-kc-new" style="display:none;">
+            <div class="f-row">
+              <div class="f-field">
+                <label class="f-label">Name</label>
+                <input class="f-input" id="wz-kc-new-name" placeholder="Name">
+              </div>
+              <div class="f-field">
+                <label class="f-label">Email</label>
+                <input class="f-input" id="wz-kc-new-email" placeholder="email@example.com">
+              </div>
+              <div class="f-field">
+                <label class="f-label">Phone <span class="opt">(optional)</span></label>
+                <input class="f-input" id="wz-kc-new-phone" placeholder="(717) 555-0100">
+              </div>
+            </div>
+            <label class="perm-item" style="margin:-6px 0 14px;"><input type="checkbox" id="wz-kc-savetoorg"> Save this key contact to the organization</label>
+          </div>
         </div>
 
         <div id="wz-org-manual" style="display:none;">
           <div class="f-row">
             <div class="f-field">
-              <label class="f-label">Primary Contact</label>
+              <label class="f-label">Key Contact</label>
               <input class="f-input" id="wz-contact" placeholder="Name">
             </div>
             <div class="f-field">
@@ -5054,7 +5060,7 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
               <input class="f-input" id="wz-contact-phone" placeholder="(717) 555-0100">
             </div>
           </div>
-          <div style="font-size:11.5px; color:var(--text-3); margin:-8px 0 14px;">No organization selected — please enter a primary contact for this job.</div>
+          <div style="font-size:11.5px; color:var(--text-3); margin:-8px 0 14px;">No organization selected — please enter a key contact for this job.</div>
         </div>
 
         <!-- Destination folder -->
@@ -7147,7 +7153,7 @@ function selectOrg(i) {
 }
 
 function orgChanged() {
-  const o = selectedOrgIdx !== null ? ORGS[selectedOrgIdx] : null;
+  const o = selectedOrgIdx !== null ? ensureOrgShape(ORGS[selectedOrgIdx]) : null;
   document.getElementById('wz-org-manual').style.display = o ? 'none' : 'block';
   const sum = document.getElementById('wz-org-summary');
   const jc = document.getElementById('wz-job-contact');
@@ -7157,9 +7163,7 @@ function orgChanged() {
       (o.addr ? '<br><span style="color:var(--text-3);">' + o.addr + '</span>' : '') +
       (o.locs && o.locs.length ? '<br><span style="color:var(--text-3);">' + o.locs.length + ' saved locations</span>' : '') + '</div>';
     jc.style.display = 'block';
-    document.getElementById('wz-jc-name').value = o.contact === '—' ? '' : o.contact;
-    document.getElementById('wz-jc-email').value = o.email;
-    document.getElementById('wz-jc-phone').value = o.phone;
+    populateKcSelect(o);
   } else {
     sum.style.display = 'none';
     jc.style.display = 'none';
@@ -7167,6 +7171,27 @@ function orgChanged() {
   applyOrgFolderDefault(o);
   refreshLocSelects();
   updateSaveOrgRows();
+}
+
+function populateKcSelect(o) {
+  const sel = document.getElementById('wz-kc-select');
+  const primaryIdx = o.keyContacts.findIndex(k => k.primary);
+  sel.innerHTML = o.keyContacts.map((k, i) =>
+    '<option value="' + i + '"' + (i === (primaryIdx >= 0 ? primaryIdx : 0) ? ' selected' : '') + '>' + k.name + (k.primary ? ' (Primary)' : '') + (k.email ? ' — ' + k.email : '') + '</option>'
+  ).join('') + '<option value="__new">＋ Create new key contact…</option>';
+  kcSelectChanged();
+}
+
+function kcSelectChanged() {
+  const sel = document.getElementById('wz-kc-select');
+  const isNew = sel.value === '__new';
+  document.getElementById('wz-kc-new').style.display = isNew ? 'block' : 'none';
+  if (isNew) {
+    document.getElementById('wz-kc-new-name').value = '';
+    document.getElementById('wz-kc-new-email').value = '';
+    document.getElementById('wz-kc-new-phone').value = '';
+    document.getElementById('wz-kc-savetoorg').checked = false;
+  }
 }
 
 function applyOrgFolderDefault(o) {
@@ -7271,12 +7296,22 @@ function resolveOrg() {
   if (selectedOrgIdx === null) {
     return { name: '—', contact: fval('wz-contact') || '—', email: fval('wz-contact-email') || '', phone: fval('wz-contact-phone') || '', addr: '' };
   }
-  const base = ORGS[selectedOrgIdx];
+  const base = ensureOrgShape(ORGS[selectedOrgIdx]);
+  const sel = document.getElementById('wz-kc-select');
+  if (sel && sel.value === '__new') {
+    return {
+      name: base.name, addr: base.addr,
+      contact: fval('wz-kc-new-name').trim() || '—',
+      email: fval('wz-kc-new-email').trim(),
+      phone: fval('wz-kc-new-phone').trim()
+    };
+  }
+  const kc = sel && base.keyContacts[parseInt(sel.value, 10)];
   return {
     name: base.name, addr: base.addr,
-    contact: fval('wz-jc-name').trim() || base.contact,
-    email: fval('wz-jc-email').trim() || base.email,
-    phone: fval('wz-jc-phone').trim() || base.phone
+    contact: kc ? kc.name : base.contact,
+    email: kc ? kc.email : base.email,
+    phone: kc ? kc.phone : base.phone
   };
 }
 
@@ -7421,7 +7456,8 @@ function openWizard() {
   const label = document.getElementById('wz-orgdd-label');
   label.textContent = 'Select an organization (optional)';
   label.className = 'orgdd-placeholder';
-  ['wz-org-query', 'wz-jc-name', 'wz-jc-email', 'wz-jc-phone', 'wz-contact', 'wz-contact-email', 'wz-contact-phone', 'wz-name'].forEach(id => { document.getElementById(id).value = ''; });
+  ['wz-org-query', 'wz-kc-new-name', 'wz-kc-new-email', 'wz-kc-new-phone', 'wz-contact', 'wz-contact-email', 'wz-contact-phone', 'wz-name'].forEach(id => { document.getElementById(id).value = ''; });
+  document.getElementById('wz-kc-savetoorg').checked = false;
   orgChanged();
   /* destination: account default (org default arrives in Phase 2) */
   wzParent = ACCOUNT_DEFAULT_FOLDER;
@@ -7557,6 +7593,13 @@ function createJob() {
   if (selectedOrgIdx !== null && document.getElementById('wz-dest-savedef-cb').checked) {
     ORGS[selectedOrgIdx].folder = wzParent;
     toast('Default folder updated for ' + ORGS[selectedOrgIdx].name);
+  }
+  const kcSel = document.getElementById('wz-kc-select');
+  if (selectedOrgIdx !== null && kcSel && kcSel.value === '__new' && document.getElementById('wz-kc-savetoorg').checked && o.contact !== '—') {
+    const org = ensureOrgShape(ORGS[selectedOrgIdx]);
+    org.keyContacts.push({ name: o.contact, email: o.email, phone: o.phone, labels: [], primary: !org.keyContacts.length });
+    syncOrgPrimary(org);
+    toast('Key contact “' + o.contact + '” saved to ' + org.name);
   }
   const shoots = schedMode === 'later' ? [] : parseShoots();
   const nLocs = shoots.reduce((s, x) => s + x.locs.length, 0);
