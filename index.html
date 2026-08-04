@@ -5126,55 +5126,6 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
         </div>
       </div>
 
-      <!-- STEP 3 : SUBJECT DATA -->
-      <div class="wiz-pane" id="wiz-3">
-        <div class="f-label" style="margin-bottom:8px;">How do you want to set up subjects and galleries?</div>
-        <div class="choice-cards">
-          <div class="choice-card selected" data-mode="csv" onclick="selectDataMode(this)">
-            <div class="choice-icon"><i class="fa-solid fa-file-csv"></i></div>
-            <div class="choice-name">Import Roster CSV</div>
-            <div class="choice-desc">Auto-generate a gallery + QR code per subject from a roster file.</div>
-          </div>
-          <div class="choice-card" data-mode="prereg" onclick="selectDataMode(this)">
-            <div class="choice-icon"><i class="fa-solid fa-qrcode"></i></div>
-            <div class="choice-name">Pre-Registration</div>
-            <div class="choice-desc">Share a link — families register themselves and can pre-order packages.</div>
-          </div>
-          <div class="choice-card" data-mode="manual" onclick="selectDataMode(this)">
-            <div class="choice-icon"><i class="fa-solid fa-folder-plus"></i></div>
-            <div class="choice-name">Start Empty</div>
-            <div class="choice-desc">Add folders and galleries manually later.</div>
-          </div>
-        </div>
-
-        <div id="wz-csv-block">
-          <div class="csv-preview">
-            <div class="csv-preview-head"><i class="fa-solid fa-circle-check"></i> fall_roster_2026.csv — 142 subjects detected <a class="gallery-name-link" style="margin-left:auto; font-weight:500;" onclick="toast('File picker would open here')">Replace file</a></div>
-            <table>
-              <thead><tr><th>Last</th><th>First</th><th>Group</th><th>Parent Email</th></tr></thead>
-              <tbody>
-                <tr><td>Abbott</td><td>Chloe</td><td>Grade 3 — Rm 112</td><td>j.abbott@yopmail.com</td></tr>
-                <tr><td>Alvarez</td><td>Mateo</td><td>Grade 1 — Rm 104</td><td>alvarez.fam@yopmail.com</td></tr>
-                <tr><td>Bennett</td><td>Ruby</td><td>Grade 5 — Rm 121</td><td>rbennett@yopmail.com</td></tr>
-                <tr><td colspan="4" style="color:var(--text-3);">+ 139 more rows…</td></tr>
-              </tbody>
-            </table>
-          </div>
-          <div class="wiz-info"><i class="fa-solid fa-wand-magic-sparkles"></i><div>Zenfolio will create <b>142 galleries</b> named “Last, First”, grouped into <b>6 folders</b> by Group, each with a unique <b>QR code</b> for shoot-day matching.</div></div>
-        </div>
-
-        <div id="wz-prereg-block" style="display:none;">
-          <div class="wiz-info" style="margin-top:0;"><i class="fa-solid fa-qrcode"></i><div>A registration link and QR code will be generated when the job is created. Families who register get a gallery automatically — and can <b>pre-order packages</b> if a price list is attached.</div></div>
-          <div class="f-field" style="margin-top:14px;">
-            <label class="f-label">Pre-orders</label>
-            <select class="f-input">
-              <option>Enabled — families buy from the job price list</option>
-              <option>Disabled — registration only</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
       <!-- STEP 4 : REVIEW -->
       <div class="wiz-pane" id="wiz-4">
         <div class="f-label" style="margin-bottom:8px;">Automation presets</div>
@@ -6933,7 +6884,7 @@ function clearFilters() {
 }
 
 /* ══════════ NEW JOB WIZARD ══════════ */
-let wizStep = 1, wizMode = 'csv', newJobSeq = 0;
+let wizStep = 1, newJobSeq = 0;
 
 /* ══════════ FOLDER LOCATION PICKER ══════════ */
 const FOLDER_TREE = [
@@ -7481,17 +7432,10 @@ function openWizard() {
   openModal('modal-wizard');
 }
 
-function selectDataMode(el) {
-  selectChoice(el);
-  wizMode = el.dataset.mode;
-  document.getElementById('wz-csv-block').style.display = wizMode === 'csv' ? 'block' : 'none';
-  document.getElementById('wz-prereg-block').style.display = wizMode === 'prereg' ? 'block' : 'none';
-}
-
-const WIZ_LABELS = { 'wiz-1': 'Details', 'wiz-sched': 'Schedule', 'wiz-3': 'Subjects', 'wiz-4': 'Review' };
+const WIZ_LABELS = { 'wiz-1': 'Details', 'wiz-sched': 'Schedule', 'wiz-4': 'Review' };
 
 function wizFlow() {
-  return schedMode === 'now' ? ['wiz-1', 'wiz-sched', 'wiz-3', 'wiz-4'] : ['wiz-1', 'wiz-3', 'wiz-4'];
+  return schedMode === 'now' ? ['wiz-1', 'wiz-sched', 'wiz-4'] : ['wiz-1', 'wiz-4'];
 }
 
 function renderWizSteps() {
@@ -7535,7 +7479,7 @@ function wizPaint() {
   const flow = wizFlow();
   if (wizStep > flow.length) wizStep = flow.length;
   const curPane = flow[wizStep - 1];
-  ['wiz-1', 'wiz-sched', 'wiz-3', 'wiz-4'].forEach(id => {
+  ['wiz-1', 'wiz-sched', 'wiz-4'].forEach(id => {
     document.getElementById(id).classList.toggle('active', id === curPane);
   });
   renderWizSteps();
@@ -7571,11 +7515,6 @@ function buildReview() {
   }
   const uniqP = [];
   shoots.forEach(s => s.locs.forEach(L => (L.p || []).forEach(n => { if (uniqP.indexOf(n) < 0) uniqP.push(n); })));
-  const modeTxt = {
-    csv: 'Roster CSV — 142 galleries + QR codes will be generated',
-    prereg: 'Pre-registration link with pre-orders enabled',
-    manual: 'Start empty — add galleries manually'
-  }[wizMode];
   document.getElementById('wz-review').innerHTML =
     '<div class="review-row"><span class="review-key">Job Name</span><span class="review-val">' + name + '</span></div>' +
     '<div class="review-row"><span class="review-key">Organization</span><span class="review-val">' + o.name + (o.contact && o.contact !== '—' ? ' <span style="color:var(--text-3); font-weight:400;">· ' + o.contact + '</span>' : '') + '</span></div>' +
@@ -7583,7 +7522,6 @@ function buildReview() {
     (selectedOrgIdx !== null && ORGS[selectedOrgIdx].preset ? '<div class="review-row"><span class="review-key">Gallery Preset</span><span class="review-val">' + ORGS[selectedOrgIdx].preset + ' <span style="color:var(--text-3);">(organization default)</span></span></div>' : '') +
     '<div class="review-row"><span class="review-key">Schedule</span><span class="review-val">' + schedHTML + '</span></div>' +
     '<div class="review-row"><span class="review-key">Delivery Deadline</span><span class="review-val">' + deadline + '</span></div>' +
-    '<div class="review-row"><span class="review-key">Subject Data</span><span class="review-val">' + modeTxt + '</span></div>' +
     '<div class="review-row"><span class="review-key">Photographers</span><span class="review-val">' + (uniqP.length ? uniqP.map(n => n.split(' ')[0]).join(', ') : '<span style="color:var(--text-3);">Assign later</span>') + '</span></div>';
 }
 
@@ -7610,7 +7548,6 @@ function createJob() {
     ? shoots[0].locs[0].v + (nLocs > 1 ? ' +' + (nLocs - 1) + ' more' : '')
     : 'Locations TBD';
   const deadline = fmtInputDate(fval('wz-deadline')) || '—';
-  const isCsv = wizMode === 'csv', isPrereg = wizMode === 'prereg';
   const key = 'newjob' + (++newJobSeq);
   const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 30) || 'new-job';
   const uniqP = [];
@@ -7628,35 +7565,33 @@ function createJob() {
     phase: 0,
     shoots: shoots,
     steps: [
-      { icon: 'fa-gear', t: 'Setup', d: isCsv ? 'Roster imported — 142 galleries + QR codes generated' : (isPrereg ? 'Registration link live — galleries created as families register' : 'Add folders and galleries to get started'), badge: 'In Progress' },
+      { icon: 'fa-gear', t: 'Setup', d: 'Add folders and galleries to get started', badge: 'In Progress' },
       { icon: 'fa-camera', t: 'Shoot Day', d: shoots.length ? 'Scheduled ' + shoots[0].date + (shoots.length > 1 ? ' + ' + (shoots.length - 1) + ' more date' + (shoots.length > 2 ? 's' : '') : '') : 'Dates & locations to be added later' },
       { icon: 'fa-arrow-up', t: 'Upload', d: 'Photographers upload after the shoot' },
       { icon: 'fa-tag', t: 'Sales', d: 'Share galleries, run campaigns, track orders' }
     ],
-    cta: isCsv ? ['Download QR Cards', "toast('Generating printable QR card PDF for 142 subjects…')"] : ['Import Roster', "openModal('modal-roster')"],
+    cta: ['Import Roster', "openModal('modal-roster')"],
     tiles: {
-      gal: isCsv ? '142' : '0', galSub: isCsv ? '0 with photos · 142 awaiting' : 'import a roster to generate',
+      gal: '0', galSub: 'import a roster to generate',
       ph: '0', phSub: 'uploads begin after the shoot',
-      ct: isCsv ? '142' : (isPrereg ? '0' : '1'), ctSub: isCsv ? 'imported from roster' : (isPrereg ? 'grows as families register' : 'primary contact only')
+      ct: o.contact !== '—' ? '1' : '0', ctSub: 'primary contact only'
     },
     summary: {
       team: [teamN + ' photographer' + (teamN === 1 ? '' : 's'), 'Robert (lead)' + (teamN > 1 ? ' · ' + uniqP.slice(1).map(n => n.split(' ')[0]).join(' · ') : '')],
       docs: ['0 files', 'upload contracts to keep them here'],
       auto: ['2 active rules', 'presets enabled']
     },
-    photogs: uniqP.map(n => ({ name: n, ini: PHOTOG_META[n].ini, cls: PHOTOG_META[n].cls, email: PHOTOG_META[n].email, folder: n === 'Robert Campbell' ? (isCsv ? 'All folders' : '—') : 'Assigned locations', uploads: '0', lead: n === 'Robert Campbell', status: 'Invited' })),
+    photogs: uniqP.map(n => ({ name: n, ini: PHOTOG_META[n].ini, cls: PHOTOG_META[n].cls, email: PHOTOG_META[n].email, folder: n === 'Robert Campbell' ? '—' : 'Assigned locations', uploads: '0', lead: n === 'Robert Campbell', status: 'Invited' })),
     teamFoot: teamN > 1 ? (teamN - 1) + ' sub-photographer' + (teamN === 2 ? '' : 's') + ' assigned from the shoot schedule' : 'Robert shoots this job solo',
     buckets: [], preMix: [0, 0, 0], preWin: [], saleWin: [], weeks: [],
     views: ['0', '—'], conv: ['—', '—'], revSub7: '—',
-    eng: { pct: 0, cap: 'No galleries shared yet', legend: '<span><b>0</b> viewed</span><span><b>0</b> not yet viewed</span><span><b>' + (isCsv ? '142' : '0') + '</b> not yet shared</span>', link: ['Reports light up once galleries are shared', ''] },
-    folders: isCsv ? [['Roster Groups (6)', '142 galleries', '0', '—', '142', 0]] : [],
+    eng: { pct: 0, cap: 'No galleries shared yet', legend: '<span><b>0</b> viewed</span><span><b>0</b> not yet viewed</span><span><b>0</b> not yet shared</span>', link: ['Reports light up once galleries are shared', ''] },
+    folders: [],
     gals: [],
-    org: { all: isCsv ? 143 : 0, has: 0, missing: isCsv ? 142 : 0, foot2: isCsv ? '6 folders · 142 galleries' : 'No items yet' },
+    org: { all: 0, has: 0, missing: 0, foot2: 'No items yet' },
     contacts: o.contact && o.contact !== '—' ? [[o.contact.split(' ')[0], o.contact.split(' ').slice(1).join(' ') || '—', o.email || '—', o.phone || '—', '—', chipDark('Primary Contact')]] : [],
-    contactsFoot: isCsv ? '142 contacts imported' : (o.contact !== '—' ? '1 contact' : '0 contacts'),
-    po: isPrereg
-      ? { setup: true, reg: '0', regTotal: '—', regSub: 'link just created', ordersSub: 'share the link to start', pricelist: 'Attach later', link: 'zenfol.io/r/' + slug, open: true, allow: true, pkgs: [['Digital Package', 25, 0, 1], ['Print Bundle — 8×10 + wallets', 35, 0, 0], ['Deluxe — digital + prints + magnet', 55, 0, 0]], regs: [] }
-      : { setup: false, pricelist: 'Attach later', link: 'zenfol.io/r/' + slug },
+    contactsFoot: o.contact !== '—' ? '1 contact' : '0 contacts',
+    po: { setup: false, pricelist: 'Attach later', link: 'zenfol.io/r/' + slug },
     docs: []
   };
 
@@ -7679,7 +7614,7 @@ function createJob() {
       '<div class="job-right">' +
         '<div class="avatar-stack"><div class="avatar-chip avatar-a">RC</div></div>' +
         '<div class="job-right-bottom">' +
-          '<div class="gallery-count"><i class="fa-regular fa-images" style="margin-right:4px;"></i>' + (isCsv ? '142 galleries' : '0 galleries') + '</div>' +
+          '<div class="gallery-count"><i class="fa-regular fa-images" style="margin-right:4px;"></i>0 galleries</div>' +
           '<button class="chevron-btn" onclick="event.stopPropagation(); openJob(\'' + key + '\')"><i class="fa-solid fa-chevron-right"></i></button>' +
         '</div>' +
       '</div>' +
@@ -7699,13 +7634,6 @@ function createJob() {
         });
       }
     });
-    /* subjects imported for this org become associated contacts */
-    if (isCsv) {
-      if (TAG_VOCAB.indexOf('Fall 2026 Roster') < 0) TAG_VOCAB.push('Fall 2026 Roster');
-      [{ name: 'Chloe Abbott', email: 'j.abbott@yopmail.com' }, { name: 'Mateo Alvarez', email: 'alvarez.fam@yopmail.com' }].forEach(c => {
-        if (!org.assoc.some(a => a.name === c.name)) org.assoc.push({ name: c.name, email: c.email, phone: '', tags: ['Fall 2026 Roster'] });
-      });
-    }
   }
   document.querySelector('.jobs-list').insertAdjacentHTML('afterbegin', card);
   const allChip = document.querySelector('#view-jobs-list .jobs-filterbar .subtab[data-f="all"]');
@@ -7713,8 +7641,7 @@ function createJob() {
   refreshJobCounts();
   closeModal('modal-wizard');
   showView('view-jobs-list');
-  toast(isCsv ? 'Job created — 142 galleries and QR codes generated'
-    : (isPrereg ? 'Job created — registration link is live' : 'Job created'));
+  toast('Job created');
 }
 
 /* ══════════ TEAM ══════════ */
