@@ -2724,9 +2724,6 @@ html, body {
 .shoot-block.collapsed .ws-locsel-head { display: none; }
 #wz-shoots .ws-locs .loc-card:first-child .locsel-row { display: none; }
 
-/* new-org modal: first contact row required, no remove */
-#no-contacts .loc-card:first-child .row-x { display: none; }
-
 /* required minimums: first shoot date + first location have no remove control */
 #wz-shoots .shoot-block:first-child > .shoot-block-head .row-x { display: none; }
 .ws-locs .loc-card:first-child .row-x { display: none; }
@@ -2863,6 +2860,203 @@ html, body {
 }
 
 /* ──────────────────────────────────────
+   CRM — ORGANIZATIONS
+────────────────────────────────────── */
+.crm-pane { display: none; }
+.crm-pane.active { display: block; }
+
+.crm-section { padding: 0 32px 32px; }
+
+.org-avatar-sm {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: rgba(242,107,58,0.12);
+  color: var(--orange);
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.org-avatar-lg {
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  background: rgba(242,107,58,0.12);
+  color: var(--orange);
+  font-size: 20px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  cursor: pointer;
+  position: relative;
+}
+
+.org-avatar-lg:hover::after {
+  content: '\f030';
+  font-family: 'Font Awesome 6 Free';
+  font-weight: 900;
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: rgba(29,29,31,0.55);
+  color: #fff;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.org-avatar-lg.has-logo, .org-avatar-sm.has-logo { background: var(--text); color: #fff; }
+
+th.sortable { cursor: pointer; user-select: none; }
+th.sortable:hover { color: var(--text); }
+th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
+
+/* Detail layout */
+.org-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 20px;
+  padding: 24px;
+  align-items: start;
+}
+
+.org-cards { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+
+.org-rail { display: flex; flex-direction: column; gap: 16px; }
+
+.rail-job-row {
+  padding: 10px 0;
+  border-top: 1px solid var(--line);
+  font-size: 12.5px;
+  cursor: pointer;
+}
+
+.rail-job-row:hover .rail-job-name { text-decoration: underline; }
+
+.rail-job-name { font-weight: 600; color: var(--teal); }
+.rail-job-meta { color: var(--text-3); font-size: 11.5px; margin-top: 2px; }
+.rail-empty { padding: 14px 0 6px; color: var(--text-3); font-size: 12.5px; }
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--teal);
+  cursor: pointer;
+  padding: 16px 24px 0;
+}
+
+.back-link:hover { text-decoration: underline; }
+
+.org-head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 24px 0;
+}
+
+.org-head-name { font-size: 20px; font-weight: 700; color: var(--text); letter-spacing: -0.3px; }
+
+/* Key contact rows */
+.kc-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-top: 1px solid var(--line);
+}
+
+.kc-main { min-width: 0; flex: 1; }
+.kc-name { font-size: 13px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.kc-sub { font-size: 12px; color: var(--text-3); margin-top: 2px; }
+.kc-labels { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 5px; }
+
+/* Notes */
+.note-entry { padding: 12px 0; border-top: 1px solid var(--line); }
+.note-meta { font-size: 11px; color: var(--text-3); display: flex; gap: 8px; align-items: center; }
+.note-text { font-size: 13px; color: var(--text-2); margin-top: 4px; line-height: 1.5; }
+.note-actions { margin-left: auto; display: flex; gap: 2px; }
+.note-actions .kebab-btn { width: 24px; height: 24px; font-size: 11px; }
+
+/* Assets */
+.asset-icon {
+  width: 34px; height: 34px;
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+/* Tag filter chips */
+.tagf-row { display: flex; gap: 6px; flex-wrap: wrap; margin: 10px 0 14px; }
+
+.tagf-chip {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 11px;
+  border-radius: 999px;
+  border: 1.5px solid var(--line);
+  background: var(--surface);
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-2);
+  cursor: pointer;
+  user-select: none;
+}
+
+.tagf-chip:hover { border-color: var(--text-3); }
+.tagf-chip.on { border-color: var(--orange); background: rgba(242,107,58,0.08); color: var(--text); }
+
+/* Bulk bar */
+.bulk-bar {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  padding: 8px 12px;
+  margin-bottom: 12px;
+  font-size: 12.5px;
+  color: var(--text-2);
+}
+
+.bulk-bar.show { display: flex; }
+
+/* Smart list dropdown (shared pattern, separate vocabularies) */
+.smart { position: relative; }
+.smart .orgdd-panel { max-height: 220px; overflow-y: auto; }
+
+/* Reporting */
+.rep-range-row { display: flex; align-items: flex-end; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+
+.crm-cols { height: 130px; }
+
+.mono-num { font-variant-numeric: tabular-nums; }
+
+.del-warn {
+  background: rgba(217,64,64,0.06);
+  border: 1px solid rgba(217,64,64,0.25);
+  border-radius: var(--r-sm);
+  padding: 12px 14px;
+  font-size: 12.5px;
+  color: var(--text-2);
+  line-height: 1.55;
+}
+
+/* ──────────────────────────────────────
    TOAST
 ────────────────────────────────────── */
 .toast {
@@ -2962,10 +3156,10 @@ html, body {
     <div class="nav-items">
       <div class="nav-item" data-label="Dashboard"><i class="fa-solid fa-house"></i></div>
       <div class="nav-item" data-label="Galleries"><i class="fa-solid fa-images"></i></div>
-      <div class="nav-item active" data-label="Jobs"><i class="fa-solid fa-briefcase"></i></div>
+      <div class="nav-item active" data-label="Jobs" onclick="navJobs()" style="cursor:pointer;"><i class="fa-solid fa-briefcase"></i></div>
       <div class="nav-item" data-label="Selling"><i class="fa-solid fa-tag"></i></div>
       <div class="nav-item" data-label="Reports"><i class="fa-solid fa-chart-bar"></i></div>
-      <div class="nav-item" data-label="CRM"><i class="fa-solid fa-paper-plane"></i></div>
+      <div class="nav-item" data-label="CRM" onclick="showCRM()" style="cursor:pointer;"><i class="fa-solid fa-paper-plane"></i></div>
       <div class="nav-item" data-label="Booking"><i class="fa-solid fa-calendar-check"></i></div>
       <div class="nav-spacer"></div>
       <div class="nav-item" data-label="Website"><i class="fa-solid fa-globe"></i></div>
@@ -4438,6 +4632,314 @@ html, body {
         </div><!-- /job-detail-inner -->
       </div><!-- /view-job-detail -->
 
+      <!-- ── VIEW: CRM — CLIENTS & COMMUNICATION ── -->
+      <div id="view-crm" class="view">
+      <div class="page-inner">
+
+        <div class="page-header">
+          <div class="page-header-text">
+            <h1>Clients &amp; Communication</h1>
+            <p>Manage organizations, contacts, templates and outreach</p>
+          </div>
+        </div>
+
+        <div class="jobs-filterbar">
+          <div class="subtabs">
+            <div class="subtab active" data-crm="orgs" onclick="crmTab(this,'crm-pane-orgs')">Organizations</div>
+            <div class="subtab" data-crm="contacts" onclick="crmTab(this,'crm-pane-contacts')">Contacts</div>
+            <div class="subtab" data-crm="templates" onclick="crmTab(this,'crm-pane-templates')">Templates</div>
+            <div class="subtab" data-crm="scheduled" onclick="crmTab(this,'crm-pane-scheduled')">Scheduled Emails</div>
+            <div class="subtab" data-crm="history" onclick="crmTab(this,'crm-pane-history')">History</div>
+          </div>
+        </div>
+
+        <!-- ORGANIZATIONS TAB -->
+        <div id="crm-pane-orgs" class="crm-pane active">
+          <div class="crm-section">
+            <div class="tab-section-head">
+              <div>
+                <div class="tab-section-title">Organizations</div>
+                <div class="tab-section-sub">Add and manage your organizations.</div>
+              </div>
+              <button class="btn btn-brand" onclick="openCreateOrgModal('crm')"><i class="fa-solid fa-plus"></i> Create Organization</button>
+            </div>
+
+            <div class="gallery-toolbar">
+              <div class="gallery-search">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="crm-org-search" placeholder="Search organizations…" oninput="renderOrgList2()">
+              </div>
+              <div class="gallery-toolbar-actions">
+                <select class="filter-select" id="crm-type-filter" onchange="renderOrgList2()">
+                  <option value="all">All types</option>
+                </select>
+                <button class="btn btn-ghost-sm" onclick="toast('Exporting organizations to CSV…')"><i class="fa-solid fa-arrow-up-from-bracket" style="font-size:11px;"></i> Export</button>
+              </div>
+            </div>
+
+            <div class="gallery-table-wrap" id="crm-org-tablewrap">
+              <table class="gallery-table">
+                <thead>
+                  <tr>
+                    <th class="col-check"><input type="checkbox"></th>
+                    <th class="sortable" onclick="crmSortBy('name')">Name <span class="sort-arrow" id="sa-name"></span></th>
+                    <th class="sortable" style="width:130px;" onclick="crmSortBy('type')">Type <span class="sort-arrow" id="sa-type"></span></th>
+                    <th class="sortable" onclick="crmSortBy('email')">Main contact email <span class="sort-arrow" id="sa-email"></span></th>
+                    <th class="sortable" style="width:140px;" onclick="crmSortBy('phone')">Phone <span class="sort-arrow" id="sa-phone"></span></th>
+                    <th class="sortable" style="width:90px; text-align:right;" onclick="crmSortBy('jobs')">Total jobs <span class="sort-arrow" id="sa-jobs"></span></th>
+                    <th class="sortable" style="width:120px; text-align:right;" onclick="crmSortBy('revenue')">Total revenue <span class="sort-arrow" id="sa-revenue"></span></th>
+                    <th class="col-actions"></th>
+                  </tr>
+                </thead>
+                <tbody id="crm-org-tbody"></tbody>
+              </table>
+              <div class="table-foot"><span id="crm-org-count"></span><span></span></div>
+            </div>
+
+            <div id="crm-org-empty" style="display:none; text-align:center; padding:60px 20px; color:var(--text-3);">
+              <i class="fa-solid fa-building" style="font-size:26px; opacity:0.3; display:block; margin-bottom:12px;"></i>
+              <div style="font-size:13.5px; margin-bottom:16px;">No organizations yet. Create an organization to group your jobs, locations, and contacts in one place.</div>
+              <button class="btn btn-brand" onclick="openCreateOrgModal('crm')"><i class="fa-solid fa-plus"></i> Create Organization</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- CONTACTS TAB -->
+        <div id="crm-pane-contacts" class="crm-pane">
+          <div class="crm-section">
+            <div class="tab-section-head">
+              <div>
+                <div class="tab-section-title">Contacts</div>
+                <div class="tab-section-sub">Everyone in your account — from gallery adds, visitor sign-ins, and imports.</div>
+              </div>
+              <button class="btn btn-ghost-sm" onclick="toast('Exporting contacts to CSV…')"><i class="fa-solid fa-arrow-up-from-bracket" style="font-size:11px;"></i> Export</button>
+            </div>
+            <div class="gallery-table-wrap">
+              <table class="gallery-table">
+                <thead><tr><th>Name</th><th>Email</th><th style="width:140px;">Phone</th><th style="width:110px;">Organizations</th></tr></thead>
+                <tbody id="crm-contacts-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- TEMPLATES TAB -->
+        <div id="crm-pane-templates" class="crm-pane">
+          <div class="crm-section">
+            <div class="tab-section-head"><div><div class="tab-section-title">Templates</div><div class="tab-section-sub">Reusable email templates.</div></div></div>
+            <div class="gallery-table-wrap">
+              <table class="gallery-table">
+                <thead><tr><th>Template</th><th style="width:160px;">Last edited</th></tr></thead>
+                <tbody>
+                  <tr><td style="font-weight:600; color:var(--text);">Your photos are ready</td><td class="modified-cell">Jun 2, 2026</td></tr>
+                  <tr><td style="font-weight:600; color:var(--text);">Pre-registration reminder</td><td class="modified-cell">May 20, 2026</td></tr>
+                  <tr><td style="font-weight:600; color:var(--text);">10% off promo</td><td class="modified-cell">May 12, 2026</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- SCHEDULED TAB -->
+        <div id="crm-pane-scheduled" class="crm-pane">
+          <div class="crm-section">
+            <div class="tab-section-head"><div><div class="tab-section-title">Scheduled Emails</div><div class="tab-section-sub">Queued sends from jobs and automations.</div></div></div>
+            <div class="gallery-table-wrap">
+              <table class="gallery-table">
+                <thead><tr><th>Email</th><th>Recipients</th><th style="width:160px;">Sends</th></tr></thead>
+                <tbody>
+                  <tr><td style="font-weight:600; color:var(--text);">Gallery expiration reminder</td><td class="type-cell">York Central Little League · 214 contacts</td><td class="modified-cell">Aug 6, 2026</td></tr>
+                  <tr><td style="font-weight:600; color:var(--text);">Unviewed gallery nudge</td><td class="type-cell">Riverside YSA · 8 contacts</td><td class="modified-cell">Jul 24, 2026</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- HISTORY TAB -->
+        <div id="crm-pane-history" class="crm-pane">
+          <div class="crm-section">
+            <div class="tab-section-head"><div><div class="tab-section-title">History</div><div class="tab-section-sub">Recently sent email.</div></div></div>
+            <div class="gallery-table-wrap">
+              <table class="gallery-table">
+                <thead><tr><th>Email</th><th>Recipients</th><th style="width:160px;">Sent</th><th style="width:100px; text-align:right;">Open rate</th></tr></thead>
+                <tbody>
+                  <tr><td style="font-weight:600; color:var(--text);">Your photos are ready</td><td class="type-cell">York Central Little League · 198 contacts</td><td class="modified-cell">Jul 14, 2026</td><td class="count-cell" style="text-align:right;">72%</td></tr>
+                  <tr><td style="font-weight:600; color:var(--text);">10% off promo</td><td class="type-cell">Riverside YSA · 41 contacts</td><td class="modified-cell">Jun 9, 2026</td><td class="count-cell" style="text-align:right;">58%</td></tr>
+                  <tr><td style="font-weight:600; color:var(--text);">Pre-registration reminder</td><td class="type-cell">Lincoln Elementary · 53 contacts</td><td class="modified-cell">May 30, 2026</td><td class="count-cell" style="text-align:right;">64%</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /page-inner -->
+      </div><!-- /view-crm -->
+
+      <!-- ── VIEW: ORGANIZATION DETAIL ── -->
+      <div id="view-org-detail" class="view">
+        <div class="job-detail-inner">
+          <div class="job-header">
+            <span class="back-link" onclick="showCRM()"><i class="fa-solid fa-arrow-left"></i> Back to Organizations</span>
+            <div class="org-head">
+              <div class="org-avatar-lg" id="od-avatar" onclick="uploadOrgLogo()" title="Upload logo"></div>
+              <div style="flex:1; min-width:0;">
+                <div class="org-head-name" id="od-name"></div>
+                <div style="margin-top:5px;" id="od-typechip"></div>
+              </div>
+              <button class="btn btn-brand" onclick="openCreateOrgModal('edit', currentOrgIdx)"><i class="fa-solid fa-pencil" style="font-size:11px;"></i> Edit</button>
+            </div>
+            <div class="job-tabs">
+              <div class="job-tab active" data-otab="otab-info" onclick="orgTab(this,'otab-info')">Info</div>
+              <div class="job-tab" data-otab="otab-locations" onclick="orgTab(this,'otab-locations')">Locations</div>
+              <div class="job-tab" data-otab="otab-assoc" onclick="orgTab(this,'otab-assoc')">Associated Contacts</div>
+              <div class="job-tab" data-otab="otab-reporting" onclick="orgTab(this,'otab-reporting')">Reporting</div>
+            </div>
+          </div>
+
+          <div class="org-detail-grid">
+            <div class="org-cards">
+
+              <!-- INFO TAB -->
+              <div id="otab-info" class="tab-panel active" style="padding:0; display:block;">
+                <div class="org-cards">
+
+                  <div class="detail-card">
+                    <div class="detail-card-header">Organization Details</div>
+                    <div class="detail-fields" id="od-details"></div>
+                  </div>
+
+                  <div class="detail-card">
+                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+                      <div class="detail-card-header" style="margin-bottom:0;">Key Contacts</div>
+                      <button class="btn btn-ghost-sm" onclick="openKeyContactModal()"><i class="fa-solid fa-plus" style="font-size:10px;"></i> Add Contact</button>
+                    </div>
+                    <div style="font-size:12px; color:var(--text-3); margin-bottom:6px;">The people to call about this organization.</div>
+                    <div id="od-keycontacts"></div>
+                  </div>
+
+                  <div class="detail-card">
+                    <div class="detail-card-header">Job Defaults</div>
+                    <div style="font-size:12px; color:var(--text-3); margin:-12px 0 14px;">Applied automatically when this organization is selected during job creation. Overridable at job time.</div>
+                    <div class="f-field">
+                      <label class="f-label">Default gallery preset</label>
+                      <select class="f-input" id="od-preset" onchange="saveOrgDefaults()">
+                        <option value="">No default preset</option>
+                        <option>Youth Sports — Standard</option>
+                        <option>School Portraits — Standard</option>
+                        <option>Dance &amp; Recital</option>
+                        <option>Corporate Headshots</option>
+                      </select>
+                    </div>
+                    <div class="f-field" style="margin-bottom:4px;">
+                      <label class="f-label">Default folder location</label>
+                      <div class="dest-row">
+                        <span class="crumb" id="od-folder-crumb"></span>
+                        <button type="button" class="add-inline-btn" onclick="openOrgFolderPicker()">Change</button>
+                      </div>
+                    </div>
+                    <div style="font-size:11.5px; color:var(--text-3);" id="od-defaults-empty"></div>
+                  </div>
+
+                  <div class="detail-card">
+                    <div class="detail-card-header">Notes</div>
+                    <div style="display:flex; gap:8px;">
+                      <input class="f-input" id="od-note-input" placeholder="Write a note here" oninput="document.getElementById('od-note-save').toggleAttribute('disabled', !this.value.trim())">
+                      <button class="btn btn-brand" id="od-note-save" disabled onclick="saveOrgNote()">Save</button>
+                    </div>
+                    <div id="od-notes"></div>
+                  </div>
+
+                  <div class="detail-card">
+                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+                      <div class="detail-card-header" style="margin-bottom:0;">Org Assets</div>
+                      <button class="btn btn-ghost-sm" onclick="uploadOrgAsset()"><i class="fa-solid fa-arrow-up-from-bracket" style="font-size:10px;"></i> Upload</button>
+                    </div>
+                    <div style="font-size:12px; color:var(--text-3); margin-bottom:6px;">Logos, forms, flyers, agreements, campus maps — anything for this organization.</div>
+                    <div id="od-assets"></div>
+                  </div>
+
+                  <div style="text-align:right;">
+                    <button class="btn btn-ghost-sm" style="color:#C43C3C; border-color:rgba(217,64,64,0.35);" onclick="openDeleteOrgModal(currentOrgIdx)"><i class="fa-solid fa-trash-can" style="font-size:11px;"></i> Delete Organization</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- LOCATIONS TAB -->
+              <div id="otab-locations" class="tab-panel" style="padding:0;">
+                <div class="detail-card">
+                  <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px;">
+                    <div class="gallery-search" style="flex:1; max-width:280px;">
+                      <i class="fa-solid fa-magnifying-glass"></i>
+                      <input type="text" id="od-loc-search" placeholder="Search locations…" oninput="renderOrgLocations()">
+                    </div>
+                    <button class="btn btn-brand" style="margin-left:auto;" onclick="openOrgLocModal(null)"><i class="fa-solid fa-plus"></i> Add Location</button>
+                  </div>
+                  <table class="gallery-table">
+                    <thead><tr><th>Name</th><th>Address</th><th style="width:150px;">Coordinates</th><th style="width:60px; text-align:right;">Jobs</th><th style="width:120px;">Last used</th><th class="col-actions"></th></tr></thead>
+                    <tbody id="od-locs-tbody"></tbody>
+                  </table>
+                  <div id="od-locs-empty" style="display:none; text-align:center; padding:40px 20px; color:var(--text-3); font-size:13px;">
+                    No locations yet. Add the places you shoot for this organization so they are ready when you create a job.
+                  </div>
+                </div>
+              </div>
+
+              <!-- ASSOCIATED CONTACTS TAB -->
+              <div id="otab-assoc" class="tab-panel" style="padding:0;">
+                <div class="detail-card">
+                  <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px; flex-wrap:wrap;">
+                    <div class="gallery-search" style="flex:1; max-width:240px;">
+                      <i class="fa-solid fa-magnifying-glass"></i>
+                      <input type="text" id="od-assoc-search" placeholder="Search contacts…" oninput="renderAssoc()">
+                    </div>
+                    <button class="btn btn-ghost-sm" style="margin-left:auto;" onclick="openImportAssocModal()"><i class="fa-solid fa-file-csv" style="font-size:11px;"></i> Import CSV</button>
+                    <button class="btn btn-ghost-sm" onclick="openAddAssocModal()"><i class="fa-solid fa-user-plus" style="font-size:11px;"></i> Add from Contacts</button>
+                    <button class="btn btn-ghost-sm" onclick="openTagMgmtModal()"><i class="fa-solid fa-tags" style="font-size:11px;"></i> Tag Management</button>
+                  </div>
+                  <div style="font-size:11px; font-weight:700; letter-spacing:0.4px; text-transform:uppercase; color:var(--text-3); margin-top:10px;">Filter by tags</div>
+                  <div class="tagf-row" id="od-tagf"></div>
+                  <div class="bulk-bar" id="od-bulkbar">
+                    <span id="od-bulk-count"></span>
+                    <button class="btn btn-ghost-sm" onclick="openBulkTagModal('add')">Add tags</button>
+                    <button class="btn btn-ghost-sm" onclick="openBulkTagModal('remove')">Remove tags</button>
+                    <button class="btn btn-ghost-sm" style="color:#C43C3C;" onclick="bulkRemoveAssoc()">Remove from organization</button>
+                  </div>
+                  <table class="gallery-table">
+                    <thead><tr><th class="col-check"><input type="checkbox" onchange="assocCheckAll(this)"></th><th>Name</th><th>Email</th><th style="width:130px;">Phone</th><th>Tags</th><th class="col-actions"></th></tr></thead>
+                    <tbody id="od-assoc-tbody"></tbody>
+                  </table>
+                  <div id="od-assoc-empty" style="display:none; text-align:center; padding:40px 20px; color:var(--text-3); font-size:13px;">
+                    No associated contacts yet. Import a list or add from your existing contacts.
+                  </div>
+                </div>
+              </div>
+
+              <!-- REPORTING TAB -->
+              <div id="otab-reporting" class="tab-panel" style="padding:0;">
+                <div id="od-rep-content"></div>
+              </div>
+
+            </div>
+
+            <!-- RIGHT RAIL -->
+            <div class="org-rail">
+              <button class="btn btn-brand" style="width:100%; justify-content:center;" onclick="crmCreateJob()"><i class="fa-solid fa-plus"></i> Create Job</button>
+              <div class="detail-card">
+                <div class="detail-card-header" style="margin-bottom:6px;">Upcoming Jobs</div>
+                <div id="od-rail-upcoming"></div>
+              </div>
+              <div class="detail-card">
+                <div class="detail-card-header" style="margin-bottom:6px;">Previous Jobs</div>
+                <div id="od-rail-previous"></div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div><!-- /view-org-detail -->
+
+
     </main>
   </div>
 </div>
@@ -4474,7 +4976,7 @@ html, body {
                   <input class="f-input" id="wz-org-query" placeholder="Search organizations…" oninput="renderOrgList()">
                 </div>
                 <div class="orgdd-list" id="wz-org-list"></div>
-                <div class="orgdd-footer" onclick="openNewOrgModal()"><i class="fa-solid fa-plus"></i> Create new organization</div>
+                <div class="orgdd-footer" onclick="openCreateOrgModal('wizard')"><i class="fa-solid fa-plus"></i> Create new organization</div>
               </div>
             </div>
           </div>
@@ -4766,59 +5268,6 @@ html, body {
   </div>
 </div>
 
-<!-- ══════════ CREATE NEW ORGANIZATION MODAL ══════════ -->
-<div class="modal-overlay" id="modal-neworg">
-  <div class="modal">
-    <div class="modal-header">
-      <div>
-        <div class="modal-title">Create New Organization</div>
-        <div class="modal-subtitle">Saved organizations prefill contacts, folders, and locations for future jobs.</div>
-      </div>
-      <button class="modal-close" onclick="cancelNewOrgModal()"><i class="fa-solid fa-xmark"></i></button>
-    </div>
-    <div class="modal-body">
-
-      <div class="f-field">
-        <label class="f-label">Organization Name <span style="color:var(--orange);">*</span></label>
-        <input class="f-input" id="no-org-name" placeholder="e.g. Pillsburg Public Schools">
-      </div>
-
-      <div class="f-field">
-        <label class="f-label">Street Address <span class="opt">(optional)</span></label>
-        <input class="f-input" id="no-org-street" placeholder="88 School Rd">
-      </div>
-      <div class="f-row">
-        <div class="f-field" style="flex:1.4;">
-          <label class="f-label">City</label>
-          <input class="f-input" id="no-org-city" placeholder="Pillsburg">
-        </div>
-        <div class="f-field" style="flex:0.5;">
-          <label class="f-label">State</label>
-          <input class="f-input" id="no-org-state" placeholder="PA">
-        </div>
-        <div class="f-field" style="flex:0.7;">
-          <label class="f-label">ZIP</label>
-          <input class="f-input" id="no-org-zip" placeholder="17322">
-        </div>
-      </div>
-
-      <div class="f-label" style="margin-bottom:8px;">Primary Contact <span style="color:var(--orange);">*</span></div>
-      <div id="no-contacts"></div>
-      <button type="button" class="add-inline-btn" onclick="addNoContactRow()"><i class="fa-solid fa-plus"></i> Add another contact</button>
-
-      <div class="f-label" style="margin-top:18px; margin-bottom:8px;">Locations <span class="opt">(optional)</span></div>
-      <div id="no-locs"></div>
-      <button type="button" class="add-inline-btn" onclick="addNoLocRow()"><i class="fa-solid fa-plus"></i> Add a location</button>
-
-    </div>
-    <div class="modal-footer">
-      <div class="spacer"></div>
-      <button class="btn btn-ghost-sm" onclick="cancelNewOrgModal()">Cancel</button>
-      <button class="btn btn-brand" onclick="saveNewOrgFull()">Save Organization</button>
-    </div>
-  </div>
-</div>
-
 <!-- ══════════ FOLDER LOCATION / ADD FOLDER MODAL ══════════ -->
 <div class="modal-overlay" id="modal-folder">
   <div class="modal modal-sm">
@@ -4913,6 +5362,296 @@ html, body {
       <button class="btn btn-brand" onclick="generateRoster()">Generate 9 Galleries</button>
     </div>
   </div>
+</div>
+
+<!-- ══════════ CREATE / EDIT ORGANIZATION MODAL (spec §5) ══════════ -->
+<div class="modal-overlay" id="modal-createorg">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="co-title">Create Organization</div>
+        <div class="modal-subtitle">Group jobs, locations, and contacts under one account.</div>
+      </div>
+      <button class="modal-close" onclick="cancelCreateOrg()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="f-label" style="margin-bottom:10px;">Organization</div>
+      <div class="f-field">
+        <label class="f-label">Organization name <span style="color:var(--orange);">*</span></label>
+        <input class="f-input" id="co-name" placeholder="e.g. Pillsburg Public Schools" oninput="coValidate()">
+      </div>
+      <div class="f-field">
+        <label class="f-label">Organization type</label>
+        <div class="smart" id="co-type-smart">
+          <input class="f-input" id="co-type" placeholder="School, Sports league, Dance studio…" oninput="smartInput('co-type-smart')" onfocus="smartInput('co-type-smart')">
+          <div class="orgdd-panel" id="co-type-smart-panel" onclick="event.stopPropagation()"></div>
+        </div>
+      </div>
+      <div class="f-field">
+        <label class="f-label">Organization address</label>
+        <input class="f-input" id="co-addr" placeholder="88 School Rd, Pillsburg, PA 17322">
+      </div>
+      <div class="f-field">
+        <label class="f-label">Website</label>
+        <input class="f-input" id="co-web" placeholder="pillsburgk12.org">
+      </div>
+
+      <div id="co-contact-group">
+        <div class="f-label" style="margin:16px 0 10px;">Primary contact</div>
+        <div class="f-row">
+          <div class="f-field"><label class="f-label">First name</label><input class="f-input" id="co-cfirst"></div>
+          <div class="f-field"><label class="f-label">Last name</label><input class="f-input" id="co-clast"></div>
+        </div>
+        <div class="f-row">
+          <div class="f-field"><label class="f-label">Email</label><input class="f-input" id="co-cemail" placeholder="email@example.com"></div>
+          <div class="f-field"><label class="f-label">Phone</label><input class="f-input" id="co-cphone" placeholder="(717) 555-0100"></div>
+        </div>
+        <div style="font-size:11.5px; color:var(--text-3); margin-top:-6px;">This person becomes the first key contact, flagged Primary. Everything else fills in from the detail view.</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div class="spacer"></div>
+      <button class="btn btn-ghost-sm" onclick="cancelCreateOrg()">Cancel</button>
+      <button class="btn btn-brand" id="co-save" disabled onclick="saveCreateOrg()">Create Organization</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ ORG LOCATION MODAL ══════════ -->
+<div class="modal-overlay" id="modal-orgloc">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <div><div class="modal-title" id="ol-title">Add Location</div></div>
+      <button class="modal-close" onclick="closeModal('modal-orgloc')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="f-field">
+        <label class="f-label">Location name <span style="color:var(--orange);">*</span></label>
+        <input class="f-input" id="ol-name" placeholder="e.g. Main Gym, Soccer Field 3, Auditorium">
+      </div>
+      <div class="f-field">
+        <label class="f-label">Address <span class="opt">(optional)</span></label>
+        <input class="f-input" id="ol-addr" placeholder="Street, city, state, ZIP">
+      </div>
+      <div class="f-field">
+        <label class="f-label">Coordinates <span class="opt">(optional)</span></label>
+        <input class="f-input" id="ol-coords" placeholder="39.9426, -76.7264">
+        <div style="font-size:11.5px; color:var(--text-3);">The address gets you to the park — the coordinates get you to the exact field.</div>
+      </div>
+      <div class="f-field">
+        <label class="f-label">Notes <span class="opt">(optional)</span></label>
+        <input class="f-input" id="ol-notes" placeholder="e.g. Call the front office before entering">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div class="spacer"></div>
+      <button class="btn btn-ghost-sm" onclick="closeModal('modal-orgloc')">Cancel</button>
+      <button class="btn btn-brand" onclick="saveOrgLoc()">Save Location</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ KEY CONTACT MODAL ══════════ -->
+<div class="modal-overlay" id="modal-keyc">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <div><div class="modal-title" id="kc-title">Add Key Contact</div></div>
+      <button class="modal-close" onclick="closeModal('modal-keyc')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="subtabs" id="kc-mode-tabs" style="margin-bottom:16px;">
+        <div class="subtab active" data-kcm="existing" onclick="kcMode(this,'existing')">Add from Contacts</div>
+        <div class="subtab" data-kcm="new" onclick="kcMode(this,'new')">Create new</div>
+      </div>
+      <div id="kc-existing">
+        <div class="check-list" id="kc-picklist" style="max-height:220px; overflow-y:auto;"></div>
+      </div>
+      <div id="kc-new" style="display:none;">
+        <div class="f-row">
+          <div class="f-field"><label class="f-label">Name <span style="color:var(--orange);">*</span></label><input class="f-input" id="kc-name"></div>
+        </div>
+        <div class="f-row">
+          <div class="f-field"><label class="f-label">Email</label><input class="f-input" id="kc-email"></div>
+          <div class="f-field"><label class="f-label">Phone</label><input class="f-input" id="kc-phone"></div>
+        </div>
+      </div>
+      <div class="f-field" style="margin-top:8px;">
+        <label class="f-label">Labels <span class="opt">— what to call them for</span></label>
+        <div class="smart" id="kc-label-smart">
+          <input class="f-input" id="kc-label" placeholder="e.g. Call for volleyball scheduling" oninput="smartInput('kc-label-smart')" onfocus="smartInput('kc-label-smart')">
+          <div class="orgdd-panel" id="kc-label-smart-panel" onclick="event.stopPropagation()"></div>
+        </div>
+        <div class="kc-labels" id="kc-label-chips"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div class="spacer"></div>
+      <button class="btn btn-ghost-sm" onclick="closeModal('modal-keyc')">Cancel</button>
+      <button class="btn btn-brand" onclick="saveKeyContact()">Add Contact</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ ADD ASSOCIATED CONTACTS PICKER ══════════ -->
+<div class="modal-overlay" id="modal-addassoc">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <div><div class="modal-title">Add from Contacts</div><div class="modal-subtitle">Select contacts to associate with this organization.</div></div>
+      <button class="modal-close" onclick="closeModal('modal-addassoc')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="check-list" id="aa-picklist" style="max-height:260px; overflow-y:auto;"></div>
+      <div class="f-field" style="margin-top:12px;">
+        <label class="f-label">Apply tags <span class="opt">(optional)</span></label>
+        <div class="smart" id="aa-tag-smart">
+          <input class="f-input" id="aa-tag" placeholder="e.g. Volleyball, Varsity, 2026 Season" oninput="smartInput('aa-tag-smart')" onfocus="smartInput('aa-tag-smart')">
+          <div class="orgdd-panel" id="aa-tag-smart-panel" onclick="event.stopPropagation()"></div>
+        </div>
+        <div class="kc-labels" id="aa-tag-chips"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div class="spacer"></div>
+      <button class="btn btn-ghost-sm" onclick="closeModal('modal-addassoc')">Cancel</button>
+      <button class="btn btn-brand" onclick="saveAddAssoc()">Add Selected</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ IMPORT CSV (ASSOCIATED CONTACTS) ══════════ -->
+<div class="modal-overlay" id="modal-importassoc">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <div><div class="modal-title">Import CSV</div><div class="modal-subtitle">Tag everyone on the way in — a roster becomes immediately useful.</div></div>
+      <button class="modal-close" onclick="closeModal('modal-importassoc')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="csv-preview" style="margin-top:0;">
+        <div class="csv-preview-head"><i class="fa-solid fa-circle-check"></i> fall_roster_2026.csv — 24 contacts detected <a class="gallery-name-link" style="margin-left:auto; font-weight:500;" onclick="toast('File picker would open here')">Replace file</a></div>
+        <table>
+          <thead><tr><th>Name</th><th>Email</th><th>Phone</th></tr></thead>
+          <tbody>
+            <tr><td>Jordan Whitfield</td><td>j.whitfield@yopmail.com</td><td>(717) 555-0821</td></tr>
+            <tr><td>Casey Nguyen</td><td>c.nguyen@yopmail.com</td><td>—</td></tr>
+            <tr><td>Morgan Ellis</td><td>m.ellis@yopmail.com</td><td>(717) 555-0533</td></tr>
+            <tr><td colspan="3" style="color:var(--text-3);">+ 21 more rows…</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="f-field" style="margin-top:14px;">
+        <label class="f-label">Tag everyone in this file</label>
+        <div class="smart" id="ia-tag-smart">
+          <input class="f-input" id="ia-tag" placeholder="e.g. Volleyball, 2026 Season" oninput="smartInput('ia-tag-smart')" onfocus="smartInput('ia-tag-smart')">
+          <div class="orgdd-panel" id="ia-tag-smart-panel" onclick="event.stopPropagation()"></div>
+        </div>
+        <div class="kc-labels" id="ia-tag-chips"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div class="spacer"></div>
+      <button class="btn btn-ghost-sm" onclick="closeModal('modal-importassoc')">Cancel</button>
+      <button class="btn btn-brand" onclick="saveImportAssoc()">Import 24 Contacts</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ TAG MANAGEMENT ══════════ -->
+<div class="modal-overlay" id="modal-tagmgmt">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <div><div class="modal-title">Tag Management</div><div class="modal-subtitle">One vocabulary across your whole account. Renames propagate everywhere.</div></div>
+      <button class="modal-close" onclick="closeModal('modal-tagmgmt')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div id="tm-list"></div>
+    </div>
+    <div class="modal-footer">
+      <div class="spacer"></div>
+      <button class="btn btn-ghost-sm" onclick="closeModal('modal-tagmgmt')">Done</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ BULK TAG MODAL ══════════ -->
+<div class="modal-overlay" id="modal-bulktag">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <div><div class="modal-title" id="bt-title">Add tags</div></div>
+      <button class="modal-close" onclick="closeModal('modal-bulktag')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="f-field">
+        <label class="f-label" id="bt-label">Tags to add</label>
+        <div class="smart" id="bt-tag-smart">
+          <input class="f-input" id="bt-tag" placeholder="Type a tag…" oninput="smartInput('bt-tag-smart')" onfocus="smartInput('bt-tag-smart')">
+          <div class="orgdd-panel" id="bt-tag-smart-panel" onclick="event.stopPropagation()"></div>
+        </div>
+        <div class="kc-labels" id="bt-tag-chips"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div class="spacer"></div>
+      <button class="btn btn-ghost-sm" onclick="closeModal('modal-bulktag')">Cancel</button>
+      <button class="btn btn-brand" id="bt-apply" onclick="applyBulkTags()">Apply</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ DELETE ORGANIZATION ══════════ -->
+<div class="modal-overlay" id="modal-delorg">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <div><div class="modal-title">Delete Organization</div></div>
+      <button class="modal-close" onclick="closeModal('modal-delorg')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="del-warn">
+        <b id="do-name"></b>, its locations, its notes, its assets, and its job defaults will be <b>permanently removed</b>. This cannot be undone. Contact records always survive — only the organization's own records go away.
+      </div>
+      <div class="f-field" style="margin-top:14px;">
+        <label class="f-label">Move contacts to another organization? <span class="opt">(optional)</span></label>
+        <select class="f-input" id="do-reassign"></select>
+        <div style="font-size:11.5px; color:var(--text-3);">If skipped, all key and associated contacts survive as standalone contacts in the Contacts list.</div>
+      </div>
+      <div class="f-field">
+        <label class="f-label">Type the organization name to confirm</label>
+        <input class="f-input" id="do-confirm" placeholder="" oninput="doValidate()">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div class="spacer"></div>
+      <button class="btn btn-ghost-sm" onclick="closeModal('modal-delorg')">Cancel</button>
+      <button class="btn btn-brand" id="do-delete" disabled style="background:#C43C3C;" onclick="confirmDeleteOrg()">Delete Organization</button>
+    </div>
+  </div>
+</div>
+
+<div class="menu-pop" id="menu-orgrow">
+  <div class="menu-pop-item" onclick="orgRowAction('view')"><i class="fa-solid fa-eye"></i> View</div>
+  <div class="menu-pop-item" onclick="orgRowAction('edit')"><i class="fa-solid fa-pencil"></i> Edit</div>
+  <div class="menu-pop-item danger" onclick="orgRowAction('delete')"><i class="fa-solid fa-trash-can"></i> Delete</div>
+</div>
+
+<div class="menu-pop" id="menu-keyc">
+  <div class="menu-pop-item" onclick="keycAction('edit')"><i class="fa-solid fa-pencil"></i> Edit</div>
+  <div class="menu-pop-item" onclick="keycAction('primary')"><i class="fa-solid fa-star"></i> Set as primary</div>
+  <div class="menu-pop-item danger" onclick="keycAction('remove')"><i class="fa-solid fa-user-minus"></i> Remove from organization</div>
+</div>
+
+<div class="menu-pop" id="menu-orgloc">
+  <div class="menu-pop-item" onclick="orglocAction('edit')"><i class="fa-solid fa-pencil"></i> Edit</div>
+  <div class="menu-pop-item danger" onclick="orglocAction('delete')"><i class="fa-solid fa-trash-can"></i> Delete</div>
+</div>
+
+<div class="menu-pop" id="menu-assoc">
+  <div class="menu-pop-item" onclick="assocAction('tags')"><i class="fa-solid fa-tags"></i> Edit tags</div>
+  <div class="menu-pop-item danger" onclick="assocAction('remove')"><i class="fa-solid fa-user-minus"></i> Remove from organization</div>
+</div>
+
+<div class="menu-pop" id="menu-asset">
+  <div class="menu-pop-item" onclick="assetAction('download')"><i class="fa-solid fa-download"></i> Download</div>
+  <div class="menu-pop-item" onclick="assetAction('logo')"><i class="fa-regular fa-image"></i> Set as logo</div>
+  <div class="menu-pop-item danger" onclick="assetAction('delete')"><i class="fa-solid fa-trash-can"></i> Delete</div>
 </div>
 
 <!-- ══════════ KEBAB MENUS ══════════ -->
@@ -5060,10 +5799,14 @@ function closeModal(id) {
     locMode = 'add';
     openModal('modal-wizard');
   }
+  if (id === 'modal-createorg' && coSource === 'wizard') {
+    coSource = 'crm';
+    openModal('modal-wizard');
+  }
 }
 
 document.querySelectorAll('.modal-overlay').forEach(ov => {
-  ov.addEventListener('click', e => { if (e.target === ov) ov.classList.remove('open'); });
+  ov.addEventListener('click', e => { if (e.target === ov) closeModal(ov.id); });
 });
 
 /* Kebab menus */
@@ -5551,6 +6294,7 @@ function openJob(key) {
   const st = document.getElementById('st-title'); if (st) st.value = j.name;
   setText('st-created', j.created); setText('st-modified', j.modified);
 
+  navSetActive('Jobs');
   /* reset to overview tab + overview report subtab */
   switchJobTabById('tab-overview');
   const repTabs = document.querySelectorAll('#tab-reports .subtab');
@@ -5725,10 +6469,12 @@ function addLocCard(container, pre) {
       '<div class="mini-field"><span class="mini-label">End · optional</span><input type="time" class="f-input ws-end" value="' + (pre.end || '') + '"></div>' +
       '<div class="mini-field grow" style="flex:1;"><span class="mini-label">Photographers</span>' + pgddHTML(pre.p || []) + '</div>' +
     '</div>' +
+    '<label class="perm-item ws-saveorg-row" style="display:none; margin-top:2px;"><input type="checkbox" class="ws-saveorg"> Save location to organization</label>' +
     '</div>';
   container.appendChild(div);
   pgddSync(div.querySelector('.pgdd'));
   updateLocSum(div);
+  updateSaveOrgRows();
 }
 
 function addLocAndExpand(btn) {
@@ -6174,7 +6920,7 @@ let locMode = 'pick', locSel = null, locLevel = null;
 
 function openLocPicker(mode) {
   locMode = mode; locLevel = null;
-  locSel = mode === 'dest' ? wzParent : null;
+  locSel = mode === 'dest' ? wzParent : (mode === 'orgdef' && currentOrgIdx !== null ? (ORGS[currentOrgIdx].folder || null) : null);
   document.getElementById('loc-query').value = '';
   document.getElementById('loc-name').value = '';
   document.getElementById('loc-name-field').style.display = mode === 'add' ? 'flex' : 'none';
@@ -6264,6 +7010,16 @@ function locValidate() {
 }
 
 function locConfirm() {
+  if (locMode === 'orgdef') {
+    if (locSel && currentOrgIdx !== null) {
+      ORGS[currentOrgIdx].folder = locSel;
+      renderOrgInfo(ORGS[currentOrgIdx]);
+      toast('Default folder updated for this organization');
+    }
+    locMode = 'add';
+    closeModal('modal-folder');
+    return;
+  }
   if (locMode === 'dest') {
     if (locSel) {
       wzParent = locSel;
@@ -6357,93 +7113,6 @@ function selectOrg(i) {
   orgChanged();
 }
 
-function noContactRowHTML() {
-  return '<div class="loc-card">' +
-    '<div class="loc-card-row">' +
-      '<input class="f-input no-cname grow" placeholder="Contact name">' +
-      '<input class="f-input no-cemail grow" placeholder="Email">' +
-      '<input class="f-input no-cphone" style="width:150px; flex-shrink:0;" placeholder="Phone">' +
-      '<button type="button" class="row-x" onclick="removeNoRow(this)" title="Remove contact"><i class="fa-solid fa-xmark"></i></button>' +
-    '</div>' +
-  '</div>';
-}
-
-function noLocRowHTML() {
-  return '<div class="loc-card">' +
-    '<div class="loc-card-row">' +
-      '<input class="f-input no-lv grow" placeholder="Location name — e.g. Main Gym">' +
-      '<input class="f-input no-lstreet grow" placeholder="Street address">' +
-      '<button type="button" class="row-x" onclick="removeNoRow(this)" title="Remove location"><i class="fa-solid fa-xmark"></i></button>' +
-    '</div>' +
-    '<div class="loc-card-row">' +
-      '<input class="f-input no-lcity w-city" placeholder="City">' +
-      '<input class="f-input no-lstate w-state" placeholder="ST">' +
-      '<input class="f-input no-lzip w-zip" placeholder="ZIP">' +
-    '</div>' +
-  '</div>';
-}
-
-function addNoContactRow() { document.getElementById('no-contacts').insertAdjacentHTML('beforeend', noContactRowHTML()); }
-function addNoLocRow() { document.getElementById('no-locs').insertAdjacentHTML('beforeend', noLocRowHTML()); }
-
-function removeNoRow(btn) {
-  const card = btn.closest('.loc-card');
-  const wrap = card.parentElement;
-  if (wrap.id === 'no-contacts' && wrap.querySelectorAll('.loc-card').length <= 1) return;
-  card.remove();
-}
-
-function openNewOrgModal() {
-  document.querySelectorAll('.orgdd-panel.open').forEach(pp => pp.classList.remove('open'));
-  document.getElementById('modal-wizard').classList.remove('open');
-  ['no-org-name', 'no-org-street', 'no-org-city', 'no-org-state', 'no-org-zip'].forEach(id => { document.getElementById(id).value = ''; });
-  document.getElementById('no-contacts').innerHTML = noContactRowHTML();
-  document.getElementById('no-locs').innerHTML = '';
-  openModal('modal-neworg');
-  document.getElementById('no-org-name').focus();
-}
-
-function cancelNewOrgModal() {
-  closeModal('modal-neworg');
-  openModal('modal-wizard');
-}
-
-function saveNewOrgFull() {
-  const name = fval('no-org-name').trim();
-  if (!name) { toast('Organization name is required'); return; }
-
-  const contacts = [];
-  document.querySelectorAll('#no-contacts .loc-card').forEach(row => {
-    const cn = row.querySelector('.no-cname').value.trim();
-    if (!cn) return;
-    contacts.push({ name: cn, email: row.querySelector('.no-cemail').value.trim(), phone: row.querySelector('.no-cphone').value.trim() });
-  });
-  if (!contacts.length) { toast('Add at least one primary contact'); return; }
-
-  const locs = [];
-  document.querySelectorAll('#no-locs .loc-card').forEach(row => {
-    const v = row.querySelector('.no-lv').value.trim();
-    const street = row.querySelector('.no-lstreet').value.trim();
-    const city = row.querySelector('.no-lcity').value.trim();
-    if (!v && !street && !city) return;
-    locs.push({ v: v || 'Location', street: street, city: city, state: row.querySelector('.no-lstate').value.trim(), zip: row.querySelector('.no-lzip').value.trim() });
-  });
-
-  const street = fval('no-org-street').trim(), city = fval('no-org-city').trim(), state = fval('no-org-state').trim(), zip = fval('no-org-zip').trim();
-  const addr = [street, city, (state + ' ' + zip).trim()].filter(Boolean).join(', ');
-
-  ORGS.push({
-    name: name, addr: addr,
-    contact: contacts[0].name, email: contacts[0].email, phone: contacts[0].phone,
-    contacts: contacts, locs: locs
-  });
-
-  closeModal('modal-neworg');
-  openModal('modal-wizard');
-  selectOrg(ORGS.length - 1);
-  toast('Organization “' + name + '” saved');
-}
-
 function orgChanged() {
   const o = selectedOrgIdx !== null ? ORGS[selectedOrgIdx] : null;
   document.getElementById('wz-org-manual').style.display = o ? 'none' : 'block';
@@ -6464,6 +7133,7 @@ function orgChanged() {
   }
   applyOrgFolderDefault(o);
   refreshLocSelects();
+  updateSaveOrgRows();
 }
 
 function applyOrgFolderDefault(o) {
@@ -6838,6 +7508,7 @@ function buildReview() {
     '<div class="review-row"><span class="review-key">Job Name</span><span class="review-val">' + name + '</span></div>' +
     '<div class="review-row"><span class="review-key">Organization</span><span class="review-val">' + o.name + (o.contact && o.contact !== '—' ? ' <span style="color:var(--text-3); font-weight:400;">· ' + o.contact + '</span>' : '') + '</span></div>' +
     '<div class="review-row"><span class="review-key">Create In</span><span class="review-val"><i class="fa-solid fa-folder" style="font-size:11px; margin-right:5px; color:var(--text-3);"></i>' + parent + ' / ' + name + '</span></div>' +
+    (selectedOrgIdx !== null && ORGS[selectedOrgIdx].preset ? '<div class="review-row"><span class="review-key">Gallery Preset</span><span class="review-val">' + ORGS[selectedOrgIdx].preset + ' <span style="color:var(--text-3);">(organization default)</span></span></div>' : '') +
     '<div class="review-row"><span class="review-key">Schedule</span><span class="review-val">' + schedHTML + '</span></div>' +
     '<div class="review-row"><span class="review-key">Delivery Deadline</span><span class="review-val">' + deadline + '</span></div>' +
     '<div class="review-row"><span class="review-key">Subject Data</span><span class="review-val">' + modeTxt + '</span></div>' +
@@ -6934,6 +7605,29 @@ function createJob() {
         '</div>' +
       '</div>' +
     '</div>';
+  if (selectedOrgIdx !== null) {
+    const org = ensureOrgShape(ORGS[selectedOrgIdx]);
+    org.jobs.push(key);
+    /* custom locations marked "Save to organization" */
+    document.querySelectorAll('#wz-shoots .loc-card').forEach(lc => {
+      const cb = lc.querySelector('.ws-saveorg');
+      const v = lc.querySelector('.ws-venue').value.trim();
+      if (cb && cb.checked && v && !org.locs.some(l => l.v === v)) {
+        org.locs.push({
+          v: v, street: lc.querySelector('.ws-street').value.trim(),
+          city: lc.querySelector('.ws-city').value.trim(), state: lc.querySelector('.ws-state').value.trim(),
+          zip: lc.querySelector('.ws-zip').value.trim(), jobs: 1, last: dateTxt
+        });
+      }
+    });
+    /* subjects imported for this org become associated contacts */
+    if (isCsv) {
+      if (TAG_VOCAB.indexOf('Fall 2026 Roster') < 0) TAG_VOCAB.push('Fall 2026 Roster');
+      [{ name: 'Chloe Abbott', email: 'j.abbott@yopmail.com' }, { name: 'Mateo Alvarez', email: 'alvarez.fam@yopmail.com' }].forEach(c => {
+        if (!org.assoc.some(a => a.name === c.name)) org.assoc.push({ name: c.name, email: c.email, phone: '', tags: ['Fall 2026 Roster'] });
+      });
+    }
+  }
   document.querySelector('.jobs-list').insertAdjacentHTML('afterbegin', card);
   const allChip = document.querySelector('#view-jobs-list .jobs-filterbar .subtab[data-f="all"]');
   filterJobs(allChip, 'all');
@@ -7073,6 +7767,1127 @@ function renderQR() {
     '<rect x="' + (fx + 0.5) + '" y="' + (fy + 0.5) + '" width="6" height="6" fill="none" stroke="#1D1D1F" stroke-width="1"/>' +
     '<rect x="' + (fx + 2) + '" y="' + (fy + 2) + '" width="3" height="3" fill="#1D1D1F"/>';
   svg.innerHTML = cells + finder(0, 0) + finder(22, 0) + finder(0, 22);
+}
+
+/* ══════════ CRM — ORGANIZATIONS ══════════ */
+const PROTO_TODAY_KEY = 721; /* Jul 21, 2026 — (month+1)*100+day */
+const PROTO_TODAY_LABEL = 'Jul 21, 2026';
+const ORG_TYPE_SEEDS = ['School', 'Sports league', 'Dance studio', 'Corporate', 'Church', 'Daycare'];
+let ORG_TYPE_VOCAB = ORG_TYPE_SEEDS.slice();
+let KC_LABEL_VOCAB = ['Scheduling', 'Picture day coordination', 'Billing', 'Call for volleyball scheduling'];
+let TAG_VOCAB = ['Soccer', 'Baseball', 'Dance', 'Varsity', 'JV', 'Spring 2026', '2026 Season', 'Grade 1', 'Grade 3', 'Grade 5', 'Raptors U12', 'Eagles U10', 'A Cast', 'B Cast'];
+
+const ACCOUNT_CONTACTS = [
+  { name: 'Dana Smith', email: 'dana.smith@yopmail.com', phone: '(910) 263-1188' },
+  { name: 'Priya Williams', email: 'priya.w@yopmail.com', phone: '(717) 555-0912' },
+  { name: 'Tom Johnson', email: 'tjohnson44@yopmail.com', phone: '(717) 555-0477' },
+  { name: 'Grace Davis', email: 'gdavis@yopmail.com', phone: '' },
+  { name: 'Luis Martinez', email: 'lmartinez@yopmail.com', phone: '(717) 555-0341' },
+  { name: 'Ana Thompson', email: 'ana.thompson@yopmail.com', phone: '(717) 555-0290' },
+  { name: 'Beth Carter', email: 'bcarter@yopmail.com', phone: '(717) 555-0721' },
+  { name: 'Sam Ortiz', email: 'sortiz@yopmail.com', phone: '' },
+  { name: 'Nina Price', email: 'nprice@yopmail.com', phone: '(717) 555-0930' },
+  { name: 'Mia Chen', email: 'mia.chen@yopmail.com', phone: '(717) 555-0644' },
+  { name: 'Coach Ray Davis', email: 'rdavis@riversideysa.org', phone: '(717) 555-0177' },
+  { name: 'Nancy Ito', email: 'n.ito@lincolnpta.org', phone: '(717) 555-0388' }
+];
+
+const ORG_EXTRAS = {
+  'Riverside Youth Sports Association': {
+    type: 'Sports league', website: 'riversideysa.org', preset: 'Youth Sports — Standard', jobs: ['riverside'],
+    keyContacts: [
+      { name: 'Karen Mello', email: 'karen.mello@riversideysa.org', phone: '(717) 555-0134', labels: ['Scheduling'], primary: true },
+      { name: 'Coach Ray Davis', email: 'rdavis@riversideysa.org', phone: '(717) 555-0177', labels: ['Team photo day coordination'], primary: false }
+    ],
+    assoc: [
+      { name: 'Dana Smith', email: 'dana.smith@yopmail.com', phone: '(910) 263-1188', tags: ['Soccer', 'Spring 2026', 'Raptors U12'] },
+      { name: 'Priya Williams', email: 'priya.w@yopmail.com', phone: '(717) 555-0912', tags: ['Soccer', 'Spring 2026', 'Raptors U12'] },
+      { name: 'Tom Johnson', email: 'tjohnson44@yopmail.com', phone: '(717) 555-0477', tags: ['Soccer', 'Eagles U10'] },
+      { name: 'Grace Davis', email: 'gdavis@yopmail.com', phone: '', tags: ['Soccer', 'Eagles U10'] },
+      { name: 'Luis Martinez', email: 'lmartinez@yopmail.com', phone: '(717) 555-0341', tags: ['Soccer', 'Raptors U12'] },
+      { name: 'Ana Thompson', email: 'ana.thompson@yopmail.com', phone: '(717) 555-0290', tags: ['Soccer', 'Eagles U10'] }
+    ],
+    notes: [{ t: 'Rain date confirmed for May 21 with Karen. Coach Davis owns the team photo schedule.', d: 'May 2, 2026', a: 'Robert Campbell' }],
+    assets: [
+      { n: 'League_Crest.png', t: 'img', s: '240 KB', d: 'Apr 20, 2026', logo: true },
+      { n: 'Riverside_YSA_Services_Agreement.pdf', t: 'pdf', s: '1.2 MB', d: 'Apr 26, 2026' },
+      { n: 'Picture_Day_Flyer_Spring26.pdf', t: 'pdf', s: '480 KB', d: 'Apr 30, 2026' }
+    ]
+  },
+  'Lincoln Elementary PTA': {
+    type: 'School', website: 'lincolnpta.org', preset: 'School Portraits — Standard', jobs: ['lincoln'],
+    keyContacts: [
+      { name: 'Alan Pierce', email: 'a.pierce@lincolnpta.org', phone: '(717) 555-0301', labels: ['Picture day scheduling'], primary: true },
+      { name: 'Nancy Ito', email: 'n.ito@lincolnpta.org', phone: '(717) 555-0388', labels: ['Office manager — building access'], primary: false }
+    ],
+    assoc: [
+      { name: 'Jess Abbott', email: 'j.abbott@yopmail.com', phone: '(717) 555-0188', tags: ['Grade 3', '2026 Season'] },
+      { name: 'Rosa Alvarez', email: 'alvarez.fam@yopmail.com', phone: '', tags: ['Grade 1', '2026 Season'] },
+      { name: 'Neil Bennett', email: 'rbennett@yopmail.com', phone: '(717) 555-0242', tags: ['Grade 5', '2026 Season'] }
+    ],
+    notes: [{ t: 'Kindergarten shoots first. Gym access from 7am — check in with Nancy at the office.', d: 'May 28, 2026', a: 'Robert Campbell' }],
+    assets: [{ n: 'Room_Schedule.pdf', t: 'pdf', s: '210 KB', d: 'May 28, 2026' }]
+  },
+  'Keystone Performing Arts Boosters': {
+    type: 'Dance studio', website: 'keystonearts.org', preset: 'Dance & Recital', jobs: ['keystone'],
+    keyContacts: [
+      { name: 'Dana Whitfield', email: 'dana@keystonearts.org', phone: '(717) 555-0455', labels: ['Recital planning'], primary: true }
+    ],
+    assoc: [
+      { name: 'Mia Chen', email: 'mia.chen@yopmail.com', phone: '(717) 555-0644', tags: ['Dance', 'A Cast'] },
+      { name: 'Sofia Reyes', email: 's.reyes@yopmail.com', phone: '', tags: ['Dance', 'B Cast'] }
+    ],
+    notes: [], assets: []
+  },
+  'York Central Little League': {
+    type: 'Sports league', website: 'yorklittleleague.org', preset: 'Youth Sports — Standard', jobs: ['york'],
+    keyContacts: [
+      { name: 'Ray Delgado', email: 'ray@yorklittleleague.org', phone: '(717) 555-0512', labels: ['Scheduling'], primary: true },
+      { name: 'Beth Carter', email: 'bcarter@yopmail.com', phone: '(717) 555-0721', labels: ['Sponsor coordination'], primary: false }
+    ],
+    assoc: [
+      { name: 'Beth Carter', email: 'bcarter@yopmail.com', phone: '(717) 555-0721', tags: ['Baseball', 'Varsity', '2026 Season'] },
+      { name: 'Sam Ortiz', email: 'sortiz@yopmail.com', phone: '', tags: ['Baseball', '2026 Season'] },
+      { name: 'Nina Price', email: 'nprice@yopmail.com', phone: '(717) 555-0930', tags: ['Baseball', 'JV'] }
+    ],
+    notes: [{ t: 'Sponsor banners get photographed for the league — Beth sends the list each season.', d: 'Jul 2, 2026', a: 'Robert Campbell' }],
+    assets: [{ n: 'York_LL_Agreement.pdf', t: 'pdf', s: '1.3 MB', d: 'May 30, 2026' }, { n: 'Sponsor_Banner_List.pdf', t: 'pdf', s: '180 KB', d: 'Jul 2, 2026' }]
+  },
+  'Pillsburg Public Schools': {
+    type: 'School', website: 'pillsburgk12.org', preset: '', jobs: [],
+    keyContacts: [{ name: 'Mara Quinn', email: 'm.quinn@pillsburgk12.org', phone: '(717) 555-0611', labels: ['Main office'], primary: true }],
+    assoc: [], notes: [], assets: []
+  }
+};
+
+function ensureOrgShape(o) {
+  const x = ORG_EXTRAS[o.name];
+  if (x && !o._shaped) Object.keys(x).forEach(k => { if (o[k] === undefined) o[k] = x[k]; });
+  o._shaped = true;
+  o.type = o.type || '';
+  o.website = o.website || '';
+  o.preset = o.preset || '';
+  o.jobs = o.jobs || [];
+  o.notes = o.notes || [];
+  o.assets = o.assets || [];
+  o.assoc = o.assoc || [];
+  o.locs = o.locs || [];
+  if (!o.keyContacts) {
+    o.keyContacts = (o.contact && o.contact !== '—')
+      ? [{ name: o.contact, email: o.email || '', phone: o.phone || '', labels: [], primary: true }] : [];
+  }
+  return o;
+}
+
+function orgPrimary(o) { return o.keyContacts.find(k => k.primary) || o.keyContacts[0] || null; }
+
+function syncOrgPrimary(o) {
+  const p = orgPrimary(o);
+  o.contact = p ? p.name : '—';
+  o.email = p ? p.email : '';
+  o.phone = p ? p.phone : '';
+}
+
+const _orgOrderCache = {};
+function orgAllOrders(o) {
+  if (_orgOrderCache[o.name] && _orgOrderCache[o.name].n === o.jobs.length) return _orgOrderCache[o.name].orders;
+  let all = [];
+  o.jobs.forEach(k => {
+    const j = JOBS[k];
+    if (!j) return;
+    generateOrders(j).forEach(ord => all.push(Object.assign({ jobKey: k, jobName: j.name }, ord)));
+  });
+  _orgOrderCache[o.name] = { n: o.jobs.length, orders: all };
+  return all;
+}
+
+function orgRevenue(o) { return orgAllOrders(o).reduce((s, x) => s + x.amt, 0); }
+function orgInitials(name) { return name.split(' ').filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase(); }
+const dkey = o => (o.m + 1) * 100 + o.d;
+
+/* ── Navigation ── */
+function navSetActive(label) {
+  document.querySelectorAll('.left-nav .nav-item').forEach(n => n.classList.toggle('active', n.dataset.label === label));
+}
+
+function showCRM() {
+  ORGS.forEach(ensureOrgShape);
+  navSetActive('CRM');
+  renderTypeFilter();
+  renderOrgList2();
+  renderCrmContacts();
+  showView('view-crm');
+}
+
+function crmTab(el, paneId) {
+  el.parentElement.querySelectorAll('.subtab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('#view-crm .crm-pane').forEach(p => p.classList.toggle('active', p.id === paneId));
+}
+
+function renderCrmContacts() {
+  const rows = ACCOUNT_CONTACTS.map(c => {
+    const orgCount = ORGS.filter(o => (o.keyContacts || []).some(k => k.name === c.name) || (o.assoc || []).some(a => a.name === c.name)).length;
+    return '<tr><td style="font-weight:600; color:var(--text);">' + c.name + '</td><td>' + c.email + '</td><td>' + (c.phone || '—') + '</td><td class="count-cell">' + (orgCount || '—') + '</td></tr>';
+  }).join('');
+  document.getElementById('crm-contacts-tbody').innerHTML = rows;
+}
+
+/* ── Organizations list ── */
+let crmSort = { col: 'name', dir: 1 };
+let crmRowCtx = null;
+
+function crmSortBy(col) {
+  if (crmSort.col === col) crmSort.dir = -crmSort.dir;
+  else crmSort = { col: col, dir: 1 };
+  renderOrgList2();
+}
+
+function renderTypeFilter() {
+  const used = [];
+  ORGS.forEach(o => { if (o.type && used.indexOf(o.type) < 0) used.push(o.type); });
+  const sel = document.getElementById('crm-type-filter');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="all">All types</option>' + used.sort().map(t => '<option>' + t + '</option>').join('');
+  sel.value = [...sel.options].some(op => op.value === cur) ? cur : 'all';
+}
+
+function orgSortVal(o, col) {
+  if (col === 'name') return o.name.toLowerCase();
+  if (col === 'type') return (o.type || '').toLowerCase();
+  if (col === 'email') return (o.email || '').toLowerCase();
+  if (col === 'phone') return o.phone || '';
+  if (col === 'jobs') return o.jobs.length;
+  if (col === 'revenue') return orgRevenue(o);
+  return '';
+}
+
+function renderOrgList2() {
+  const q = fval('crm-org-search').trim().toLowerCase();
+  const tf = fval('crm-type-filter');
+  document.querySelectorAll('#crm-org-tablewrap .sort-arrow').forEach(s => s.textContent = '');
+  const arrow = document.getElementById('sa-' + crmSort.col);
+  if (arrow) arrow.textContent = crmSort.dir === 1 ? '▲' : '▼';
+
+  const list = ORGS.map((o, i) => ({ o: ensureOrgShape(o), i }))
+    .filter(x => !q || x.o.name.toLowerCase().indexOf(q) >= 0)
+    .filter(x => tf === 'all' || x.o.type === tf)
+    .sort((a, b) => {
+      const va = orgSortVal(a.o, crmSort.col), vb = orgSortVal(b.o, crmSort.col);
+      return (va < vb ? -1 : va > vb ? 1 : 0) * crmSort.dir;
+    });
+
+  const wrap = document.getElementById('crm-org-tablewrap');
+  const empty = document.getElementById('crm-org-empty');
+  if (!ORGS.length) { wrap.style.display = 'none'; empty.style.display = 'block'; return; }
+  wrap.style.display = ''; empty.style.display = 'none';
+
+  document.getElementById('crm-org-tbody').innerHTML = list.map(x => {
+    const o = x.o;
+    return '<tr style="cursor:pointer;" onclick="openOrg(' + x.i + ')">' +
+      '<td onclick="event.stopPropagation()"><input type="checkbox"></td>' +
+      '<td><div style="display:flex; align-items:center; gap:10px;"><div class="org-avatar-sm' + (o.assets.some(a => a.logo) ? ' has-logo' : '') + '">' + orgInitials(o.name) + '</div><span style="font-weight:600; color:var(--text);">' + o.name + '</span></div></td>' +
+      '<td>' + (o.type ? '<span class="chip chip-teal">' + o.type + '</span>' : '<span class="type-cell">—</span>') + '</td>' +
+      '<td class="type-cell">' + (o.email || '—') + '</td>' +
+      '<td class="type-cell">' + (o.phone || '—') + '</td>' +
+      '<td class="count-cell" style="text-align:right;">' + o.jobs.length + '</td>' +
+      '<td class="amount-cell">' + fmt$(orgRevenue(o)) + '</td>' +
+      '<td class="col-actions" onclick="event.stopPropagation()"><button class="kebab-btn" onclick="crmRowCtx=' + x.i + '; openMenu(event,\'menu-orgrow\')"><i class="fa-solid fa-ellipsis"></i></button></td>' +
+    '</tr>';
+  }).join('');
+  setText('crm-org-count', list.length + ' of ' + ORGS.length + ' organizations');
+}
+
+function orgRowAction(act) {
+  document.querySelectorAll('.menu-pop').forEach(m => m.classList.remove('open'));
+  if (crmRowCtx === null) return;
+  if (act === 'view') openOrg(crmRowCtx);
+  if (act === 'edit') openCreateOrgModal('edit', crmRowCtx);
+  if (act === 'delete') openDeleteOrgModal(crmRowCtx);
+}
+
+/* ── Smart list dropdowns (3 separate vocabularies, one pattern) ── */
+const SMART = {};
+function registerSmarts() {
+  SMART['co-type-smart'] = { input: 'co-type', vocab: () => ORG_TYPE_VOCAB, multi: false };
+  SMART['kc-label-smart'] = { input: 'kc-label', vocab: () => KC_LABEL_VOCAB, multi: true, chips: 'kc-label-chips', store: [] };
+  SMART['aa-tag-smart'] = { input: 'aa-tag', vocab: () => TAG_VOCAB, multi: true, chips: 'aa-tag-chips', store: [] };
+  SMART['ia-tag-smart'] = { input: 'ia-tag', vocab: () => TAG_VOCAB, multi: true, chips: 'ia-tag-chips', store: [] };
+  SMART['bt-tag-smart'] = { input: 'bt-tag', vocab: () => TAG_VOCAB, multi: true, chips: 'bt-tag-chips', store: [] };
+}
+
+function smartInput(id) {
+  const s = SMART[id];
+  const q = fval(s.input).trim().toLowerCase();
+  const panel = document.getElementById(id + '-panel');
+  const matches = s.vocab().filter(v => !q || v.toLowerCase().indexOf(q) >= 0).slice(0, 8);
+  s._last = matches;
+  let html = matches.map((v, i) => '<div class="orgdd-item" onclick="smartPickIdx(\'' + id + '\',' + i + ')">' + v + '</div>').join('');
+  const exact = s.vocab().some(v => v.toLowerCase() === q);
+  if (q && !exact) html += '<div class="orgdd-footer" onclick="smartCreate(\'' + id + '\')"><i class="fa-solid fa-plus"></i> Create “' + fval(s.input).trim() + '”</div>';
+  panel.innerHTML = html || '<div style="padding:10px; font-size:12px; color:var(--text-3);">Type to create a new value.</div>';
+  panel.classList.add('open');
+}
+
+function smartApply(id, val) {
+  const s = SMART[id];
+  const vocab = s.vocab();
+  if (vocab.indexOf(val) < 0) vocab.push(val);
+  if (s.multi) {
+    if (s.store.indexOf(val) < 0) s.store.push(val);
+    document.getElementById(s.input).value = '';
+    renderSmartChips(id);
+  } else {
+    document.getElementById(s.input).value = val;
+  }
+  document.getElementById(id + '-panel').classList.remove('open');
+}
+
+function smartPickIdx(id, i) { smartApply(id, SMART[id]._last[i]); }
+function smartCreate(id) {
+  const v = fval(SMART[id].input).trim();
+  if (v) smartApply(id, v);
+}
+
+function renderSmartChips(id) {
+  const s = SMART[id];
+  document.getElementById(s.chips).innerHTML = s.store.map((v, i) =>
+    '<span class="chip chip-gray">' + v + ' <i class="fa-solid fa-xmark" style="cursor:pointer; margin-left:3px;" onclick="SMART[\'' + id + '\'].store.splice(' + i + ',1); renderSmartChips(\'' + id + '\')"></i></span>'
+  ).join('');
+}
+
+function smartReset(id) {
+  const s = SMART[id];
+  if (s.multi) { s.store = []; renderSmartChips(id); }
+  document.getElementById(s.input).value = '';
+}
+
+/* ── Create / Edit Organization modal ── */
+let coSource = 'crm', coEditIdx = null;
+
+function openCreateOrgModal(source, idx) {
+  coSource = source; coEditIdx = (source === 'edit') ? idx : null;
+  if (source === 'wizard') {
+    document.querySelectorAll('.orgdd-panel.open').forEach(pp => pp.classList.remove('open'));
+    document.getElementById('modal-wizard').classList.remove('open');
+  }
+  ['co-name', 'co-type', 'co-addr', 'co-web', 'co-cfirst', 'co-clast', 'co-cemail', 'co-cphone'].forEach(id => { document.getElementById(id).value = ''; });
+  document.getElementById('co-contact-group').style.display = source === 'edit' ? 'none' : 'block';
+  setText('co-title', source === 'edit' ? 'Edit Organization' : 'Create Organization');
+  setText('co-save', source === 'edit' ? 'Save Changes' : 'Create Organization');
+  if (source === 'edit') {
+    const o = ORGS[idx];
+    document.getElementById('co-name').value = o.name;
+    document.getElementById('co-type').value = o.type;
+    document.getElementById('co-addr').value = o.addr;
+    document.getElementById('co-web').value = o.website;
+  }
+  coValidate();
+  openModal('modal-createorg');
+  document.getElementById('co-name').focus();
+}
+
+function coValidate() {
+  const btn = document.getElementById('co-save');
+  if (fval('co-name').trim()) btn.removeAttribute('disabled');
+  else btn.setAttribute('disabled', '');
+}
+
+function cancelCreateOrg() {
+  closeModal('modal-createorg');
+  if (coSource === 'wizard') openModal('modal-wizard');
+}
+
+function saveCreateOrg() {
+  const name = fval('co-name').trim();
+  if (!name) return;
+  const type = fval('co-type').trim();
+  if (type && ORG_TYPE_VOCAB.indexOf(type) < 0) ORG_TYPE_VOCAB.push(type);
+
+  if (coSource === 'edit') {
+    const o = ORGS[coEditIdx];
+    o.name = name; o.type = type;
+    o.addr = fval('co-addr').trim(); o.website = fval('co-web').trim();
+    closeModal('modal-createorg');
+    renderOrgList2(); renderTypeFilter();
+    if (document.getElementById('view-org-detail').classList.contains('active')) openOrg(coEditIdx);
+    toast('Organization updated');
+    return;
+  }
+
+  const cfirst = fval('co-cfirst').trim(), clast = fval('co-clast').trim();
+  const cname = (cfirst + ' ' + clast).trim();
+  const o = ensureOrgShape({
+    name: name, type: type, addr: fval('co-addr').trim(), website: fval('co-web').trim(),
+    contact: cname || '—', email: fval('co-cemail').trim(), phone: fval('co-cphone').trim(),
+    locs: [], jobs: [], folder: ''
+  });
+  if (cname) o.keyContacts = [{ name: cname, email: o.email, phone: o.phone, labels: [], primary: true }];
+  ORGS.push(o);
+  closeModal('modal-createorg');
+  toast('Organization “' + name + '” created');
+  if (coSource === 'wizard') {
+    openModal('modal-wizard');
+    selectOrg(ORGS.length - 1);
+  } else {
+    renderTypeFilter(); renderOrgList2();
+    openOrg(ORGS.length - 1);
+  }
+}
+
+/* ── Organization detail ── */
+let currentOrgIdx = null;
+let keycCtx = null, orglocCtx = null, assocCtx = null, assetCtx = null;
+
+function openOrg(i) {
+  currentOrgIdx = i;
+  const o = ensureOrgShape(ORGS[i]);
+  navSetActive('CRM');
+  renderOrgHeader(o);
+  renderOrgInfo(o);
+  renderOrgLocations();
+  document.getElementById('od-assoc-search').value = '';
+  assocTagF = [];
+  renderAssoc();
+  renderOrgRail(o);
+  renderOrgReporting();
+  const tabs = document.querySelectorAll('#view-org-detail .job-tab');
+  orgTab(tabs[0], 'otab-info');
+  showView('view-org-detail');
+}
+
+function orgTab(el, paneId) {
+  document.querySelectorAll('#view-org-detail .job-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  ['otab-info', 'otab-locations', 'otab-assoc', 'otab-reporting'].forEach(id => {
+    const p = document.getElementById(id);
+    p.classList.toggle('active', id === paneId);
+    p.style.display = id === paneId ? 'block' : 'none';
+  });
+}
+
+function renderOrgHeader(o) {
+  const av = document.getElementById('od-avatar');
+  av.textContent = orgInitials(o.name);
+  av.classList.toggle('has-logo', o.assets.some(a => a.logo));
+  setText('od-name', o.name);
+  document.getElementById('od-typechip').innerHTML = o.type ? '<span class="chip chip-teal">' + o.type + '</span>' : '<span class="type-cell">No type set</span>';
+}
+
+function renderOrgInfo(o) {
+  const fld = (l, v) => '<div class="detail-field-row"><span class="detail-field-label">' + l + '</span><span class="detail-field-value">' + (v || '<span style="color:var(--text-3);">—</span>') + '</span></div>';
+  document.getElementById('od-details').innerHTML =
+    fld('Organization name', o.name) +
+    fld('Organization type', o.type ? '<span class="chip chip-teal">' + o.type + '</span>' : '') +
+    fld('Main address', o.addr) +
+    fld('Website', o.website ? '<a class="gallery-name-link">' + o.website + '</a>' : '');
+
+  /* key contacts */
+  const kc = o.keyContacts.map((k, i) =>
+    '<div class="kc-row">' +
+      '<div class="avatar-chip avatar-c" style="margin-left:0; border:none;">' + orgInitials(k.name) + '</div>' +
+      '<div class="kc-main">' +
+        '<div class="kc-name">' + k.name + (k.primary ? '<span class="chip chip-orange">Primary</span>' : '') + '</div>' +
+        '<div class="kc-sub">' + [k.email, k.phone].filter(Boolean).join(' · ') + '</div>' +
+        (k.labels.length ? '<div class="kc-labels">' + k.labels.map(l => '<span class="chip chip-gray">' + l + '</span>').join('') + '</div>' : '') +
+      '</div>' +
+      '<button class="kebab-btn" onclick="keycCtx=' + i + '; openMenu(event,\'menu-keyc\')"><i class="fa-solid fa-ellipsis"></i></button>' +
+    '</div>'
+  ).join('');
+  document.getElementById('od-keycontacts').innerHTML = kc ||
+    '<div class="rail-empty">No contacts yet. Add the people you call to schedule or plan shoots.</div>';
+
+  /* job defaults */
+  const presetSel = document.getElementById('od-preset');
+  presetSel.value = o.preset || '';
+  if (presetSel.value !== (o.preset || '')) presetSel.value = '';
+  document.getElementById('od-folder-crumb').innerHTML = o.folder
+    ? '<i class="fa-solid fa-folder"></i>' + o.folder.split(' / ').map(s => '<span>' + s + '</span>').join('<span class="crumb-sep">/</span>')
+    : '<span style="color:var(--text-3);">No default folder</span>';
+  setText('od-defaults-empty', (!o.preset && !o.folder) ? 'Set defaults to speed up job creation for this organization.' : '');
+
+  /* notes */
+  document.getElementById('od-notes').innerHTML = o.notes.map((n, i) =>
+    '<div class="note-entry"><div class="note-meta"><b>' + n.a + '</b><span>' + n.d + '</span>' +
+      '<span class="note-actions">' +
+      '<button class="kebab-btn" title="Edit" onclick="editOrgNote(' + i + ')"><i class="fa-solid fa-pencil"></i></button>' +
+      '<button class="kebab-btn" title="Delete" onclick="deleteOrgNote(' + i + ')"><i class="fa-solid fa-trash-can"></i></button></span></div>' +
+      '<div class="note-text">' + n.t + '</div></div>'
+  ).join('');
+
+  /* assets */
+  document.getElementById('od-assets').innerHTML = o.assets.map((a, i) =>
+    '<div class="kc-row">' +
+      '<div class="asset-icon"><i class="fa-' + (a.t === 'img' ? 'regular fa-image' : 'solid fa-file-pdf') + '"></i></div>' +
+      '<div class="kc-main"><div class="kc-name">' + a.n + (a.logo ? '<span class="chip chip-teal">Logo</span>' : '') + '</div>' +
+      '<div class="kc-sub">' + a.s + ' · uploaded ' + a.d + '</div></div>' +
+      '<button class="kebab-btn" onclick="assetCtx=' + i + '; openMenu(event,\'menu-asset\')"><i class="fa-solid fa-ellipsis"></i></button>' +
+    '</div>'
+  ).join('') || '<div class="rail-empty">No files yet. Upload logos, forms, or anything else related to this organization.</div>';
+}
+
+function renderOrgRail(o) {
+  const upcoming = o.jobs.filter(k => JOBS[k] && JOBS[k].phase < 2);
+  const previous = o.jobs.filter(k => JOBS[k] && JOBS[k].phase >= 2);
+  const jobRow = (k, showRev) => {
+    const j = JOBS[k];
+    const rev = showRev ? fmt$(generateOrders(j).reduce((s, x) => s + x.amt, 0)) : '';
+    const photog = j.photogs && j.photogs.length ? j.photogs[0].name.split(' ')[0] + (j.photogs.length > 1 ? ' +' + (j.photogs.length - 1) : '') : '';
+    return '<div class="rail-job-row" onclick="openJob(\'' + k + '\')">' +
+      '<div class="rail-job-name">' + j.name + '</div>' +
+      '<div class="rail-job-meta">' + j.shoot + ' · ' + j.loc.split(',')[0] + (showRev ? ' · <b style="color:var(--text-2);">' + rev + '</b>' : ' · ' + photog) + '</div>' +
+    '</div>';
+  };
+  document.getElementById('od-rail-upcoming').innerHTML = upcoming.map(k => jobRow(k, false)).join('') || '<div class="rail-empty">No upcoming jobs.</div>';
+  document.getElementById('od-rail-previous').innerHTML = (previous.map(k => jobRow(k, true)).join('') +
+    (previous.length ? '<div style="padding-top:10px;"><a class="gallery-name-link" style="font-size:12px;" onclick="navJobs(); toast(\'Jobs list filtered to ' + o.name.replace(/'/g, '') + ' — prototype shows all jobs\')">View all</a></div>' : '')) ||
+    '<div class="rail-empty">No previous jobs.</div>';
+}
+
+function crmCreateJob() {
+  const idx = currentOrgIdx;
+  openWizard();
+  selectOrg(idx);
+}
+
+/* header actions */
+function uploadOrgLogo() {
+  const o = ORGS[currentOrgIdx];
+  o.assets.forEach(a => { a.logo = false; });
+  o.assets.unshift({ n: 'Org_Logo.png', t: 'img', s: '180 KB', d: PROTO_TODAY_LABEL, logo: true });
+  renderOrgHeader(o); renderOrgInfo(o);
+  toast('Logo uploaded — stored in Org Assets and flagged as the logo');
+}
+
+/* key contacts */
+let kcModeVal = 'existing', kcEditIdx = null;
+
+function openKeyContactModal(editIdx) {
+  kcEditIdx = (editIdx === undefined) ? null : editIdx;
+  const o = ORGS[currentOrgIdx];
+  smartReset('kc-label-smart');
+  document.getElementById('kc-name').value = '';
+  document.getElementById('kc-email').value = '';
+  document.getElementById('kc-phone').value = '';
+  setText('kc-title', kcEditIdx === null ? 'Add Key Contact' : 'Edit Key Contact');
+  const tabs = document.getElementById('kc-mode-tabs');
+  if (kcEditIdx !== null) {
+    tabs.style.display = 'none';
+    kcSetMode('new');
+    const k = o.keyContacts[kcEditIdx];
+    document.getElementById('kc-name').value = k.name;
+    document.getElementById('kc-email').value = k.email;
+    document.getElementById('kc-phone').value = k.phone;
+    SMART['kc-label-smart'].store = k.labels.slice();
+    renderSmartChips('kc-label-smart');
+  } else {
+    tabs.style.display = 'inline-flex';
+    tabs.querySelectorAll('.subtab').forEach(t => t.classList.toggle('active', t.dataset.kcm === 'existing'));
+    kcSetMode('existing');
+    const existing = o.keyContacts.map(k => k.name);
+    document.getElementById('kc-picklist').innerHTML = ACCOUNT_CONTACTS.filter(c => existing.indexOf(c.name) < 0).map(c =>
+      '<div class="check-item" onclick="flipCheck(this)"><input type="checkbox">' +
+      '<div class="avatar-chip avatar-c" style="margin-left:0; border:none;">' + orgInitials(c.name) + '</div>' +
+      '<div><div class="check-name">' + c.name + '</div><div class="check-sub">' + c.email + '</div></div></div>'
+    ).join('') || '<div class="rail-empty">Everyone in your contact list is already a key contact here.</div>';
+  }
+  openModal('modal-keyc');
+}
+
+function kcMode(el, mode) {
+  el.parentElement.querySelectorAll('.subtab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  kcSetMode(mode);
+}
+
+function kcSetMode(mode) {
+  kcModeVal = mode;
+  document.getElementById('kc-existing').style.display = mode === 'existing' ? 'block' : 'none';
+  document.getElementById('kc-new').style.display = mode === 'new' ? 'block' : 'none';
+}
+
+function saveKeyContact() {
+  const o = ORGS[currentOrgIdx];
+  const labels = SMART['kc-label-smart'].store.slice();
+  labels.forEach(l => { if (KC_LABEL_VOCAB.indexOf(l) < 0) KC_LABEL_VOCAB.push(l); });
+  if (kcEditIdx !== null) {
+    const k = o.keyContacts[kcEditIdx];
+    k.name = fval('kc-name').trim() || k.name;
+    k.email = fval('kc-email').trim();
+    k.phone = fval('kc-phone').trim();
+    k.labels = labels;
+    if (k.primary) syncOrgPrimary(o);
+  } else if (kcModeVal === 'existing') {
+    const picked = [...document.querySelectorAll('#kc-picklist .check-item.checked .check-name')].map(n => n.textContent);
+    if (!picked.length) { toast('Select at least one contact'); return; }
+    picked.forEach(nm => {
+      const c = ACCOUNT_CONTACTS.find(x => x.name === nm);
+      o.keyContacts.push({ name: nm, email: c ? c.email : '', phone: c ? c.phone : '', labels: labels.slice(), primary: !o.keyContacts.length });
+    });
+  } else {
+    const nm = fval('kc-name').trim();
+    if (!nm) { toast('Contact name is required'); return; }
+    o.keyContacts.push({ name: nm, email: fval('kc-email').trim(), phone: fval('kc-phone').trim(), labels: labels, primary: !o.keyContacts.length });
+    if (!ACCOUNT_CONTACTS.some(c => c.name === nm)) ACCOUNT_CONTACTS.push({ name: nm, email: fval('kc-email').trim(), phone: fval('kc-phone').trim() });
+  }
+  syncOrgPrimary(o);
+  closeModal('modal-keyc');
+  renderOrgInfo(o); renderOrgList2(); renderCrmContacts();
+  toast(kcEditIdx !== null ? 'Contact updated' : 'Key contact added');
+}
+
+function keycAction(act) {
+  document.querySelectorAll('.menu-pop').forEach(m => m.classList.remove('open'));
+  const o = ORGS[currentOrgIdx];
+  if (keycCtx === null) return;
+  if (act === 'edit') { openKeyContactModal(keycCtx); return; }
+  if (act === 'primary') {
+    o.keyContacts.forEach((k, i) => { k.primary = i === keycCtx; });
+    syncOrgPrimary(o);
+    toast('Primary contact updated — list view email and phone follow');
+  }
+  if (act === 'remove') {
+    const wasPrimary = o.keyContacts[keycCtx].primary;
+    o.keyContacts.splice(keycCtx, 1);
+    if (wasPrimary && o.keyContacts.length) o.keyContacts[0].primary = true;
+    syncOrgPrimary(o);
+    toast('Removed from organization — the contact record is kept');
+  }
+  renderOrgInfo(o); renderOrgList2();
+}
+
+/* job defaults */
+function saveOrgDefaults() {
+  const o = ORGS[currentOrgIdx];
+  o.preset = fval('od-preset');
+  renderOrgInfo(o);
+  toast('Job defaults saved');
+}
+
+function openOrgFolderPicker() { openLocPicker('orgdef'); }
+
+/* notes */
+let noteEditIdx = null;
+function saveOrgNote() {
+  const o = ORGS[currentOrgIdx];
+  const t = fval('od-note-input').trim();
+  if (!t) return;
+  if (noteEditIdx !== null) { o.notes.splice(noteEditIdx, 1); noteEditIdx = null; }
+  o.notes.unshift({ t: t, d: PROTO_TODAY_LABEL, a: 'Robert Campbell' });
+  document.getElementById('od-note-input').value = '';
+  document.getElementById('od-note-save').setAttribute('disabled', '');
+  renderOrgInfo(o);
+}
+
+function editOrgNote(i) {
+  const o = ORGS[currentOrgIdx];
+  document.getElementById('od-note-input').value = o.notes[i].t;
+  document.getElementById('od-note-save').removeAttribute('disabled');
+  noteEditIdx = i;
+  document.getElementById('od-note-input').focus();
+}
+
+function deleteOrgNote(i) {
+  ORGS[currentOrgIdx].notes.splice(i, 1);
+  renderOrgInfo(ORGS[currentOrgIdx]);
+}
+
+/* assets */
+function uploadOrgAsset() {
+  const o = ORGS[currentOrgIdx];
+  o.assets.unshift({ n: 'Picture_Day_Flyer.pdf', t: 'pdf', s: '380 KB', d: PROTO_TODAY_LABEL });
+  renderOrgInfo(o);
+  toast('File uploaded to Org Assets');
+}
+
+function assetAction(act) {
+  document.querySelectorAll('.menu-pop').forEach(m => m.classList.remove('open'));
+  const o = ORGS[currentOrgIdx];
+  if (assetCtx === null) return;
+  if (act === 'download') { toast('Downloading ' + o.assets[assetCtx].n + '…'); return; }
+  if (act === 'logo') {
+    o.assets.forEach((a, i) => { a.logo = i === assetCtx; });
+    toast('Logo updated — drives the header avatar');
+  }
+  if (act === 'delete') o.assets.splice(assetCtx, 1);
+  renderOrgHeader(o); renderOrgInfo(o);
+}
+
+/* ── Locations tab ── */
+function renderOrgLocations() {
+  if (currentOrgIdx === null) return;
+  const o = ORGS[currentOrgIdx];
+  const q = fval('od-loc-search').trim().toLowerCase();
+  const list = o.locs.map((l, i) => ({ l, i })).filter(x => !q || x.l.v.toLowerCase().indexOf(q) >= 0);
+  const tbody = document.getElementById('od-locs-tbody');
+  const empty = document.getElementById('od-locs-empty');
+  tbody.innerHTML = list.map(x => {
+    const l = x.l;
+    const addr = [l.street, l.city, (l.state ? l.state + ' ' : '') + (l.zip || '')].filter(s => s && s.trim()).join(', ');
+    return '<tr>' +
+      '<td style="font-weight:600; color:var(--text);">' + l.v + (l.notes ? '<div style="font-size:11.5px; color:var(--text-3); font-weight:400;">' + l.notes + '</div>' : '') + '</td>' +
+      '<td class="type-cell">' + (addr || '—') + '</td>' +
+      '<td class="type-cell mono-num">' + (l.coords || '—') + '</td>' +
+      '<td class="count-cell" style="text-align:right;">' + (l.jobs || 0) + '</td>' +
+      '<td class="modified-cell">' + (l.last || '—') + '</td>' +
+      '<td class="col-actions"><button class="kebab-btn" onclick="orglocCtx=' + x.i + '; openMenu(event,\'menu-orgloc\')"><i class="fa-solid fa-ellipsis"></i></button></td>' +
+    '</tr>';
+  }).join('');
+  const any = o.locs.length > 0;
+  tbody.parentElement.style.display = any ? '' : 'none';
+  empty.style.display = any ? 'none' : 'block';
+}
+
+let olEditIdx = null;
+function openOrgLocModal(idx) {
+  olEditIdx = idx;
+  const o = ORGS[currentOrgIdx];
+  setText('ol-title', idx === null ? 'Add Location' : 'Edit Location');
+  const l = idx !== null ? o.locs[idx] : { v: '', street: '', city: '', state: '', zip: '', coords: '', notes: '' };
+  document.getElementById('ol-name').value = l.v || '';
+  document.getElementById('ol-addr').value = [l.street, l.city, (l.state ? l.state + ' ' : '') + (l.zip || '')].filter(s => s && s.trim()).join(', ');
+  document.getElementById('ol-coords').value = l.coords || '';
+  document.getElementById('ol-notes').value = l.notes || '';
+  openModal('modal-orgloc');
+  document.getElementById('ol-name').focus();
+}
+
+function saveOrgLoc() {
+  const o = ORGS[currentOrgIdx];
+  const name = fval('ol-name').trim();
+  if (!name) { toast('Location name is required'); return; }
+  const addrParts = fval('ol-addr').split(',').map(s => s.trim());
+  const stZip = (addrParts[2] || '').split(' ');
+  const rec = {
+    v: name, street: addrParts[0] || '', city: addrParts[1] || '',
+    state: stZip[0] || '', zip: stZip.slice(1).join(' ') || '',
+    coords: fval('ol-coords').trim(), notes: fval('ol-notes').trim(),
+    jobs: olEditIdx !== null ? (o.locs[olEditIdx].jobs || 0) : 0,
+    last: olEditIdx !== null ? (o.locs[olEditIdx].last || '') : ''
+  };
+  if (olEditIdx !== null) o.locs[olEditIdx] = rec;
+  else o.locs.push(rec);
+  closeModal('modal-orgloc');
+  renderOrgLocations(); renderOrgInfo(o);
+  toast(olEditIdx !== null ? 'Location updated' : 'Location added');
+}
+
+function orglocAction(act) {
+  document.querySelectorAll('.menu-pop').forEach(m => m.classList.remove('open'));
+  const o = ORGS[currentOrgIdx];
+  if (orglocCtx === null) return;
+  if (act === 'edit') { openOrgLocModal(orglocCtx); return; }
+  if (act === 'delete') {
+    if (confirm('Delete “' + o.locs[orglocCtx].v + '”? Past jobs keep their own location record, so history does not break.')) {
+      o.locs.splice(orglocCtx, 1);
+      renderOrgLocations();
+      toast('Location deleted');
+    }
+  }
+}
+
+/* ── Associated Contacts tab ── */
+let assocTagF = [];
+
+function orgTagsInUse(o) {
+  const t = [];
+  o.assoc.forEach(a => a.tags.forEach(x => { if (t.indexOf(x) < 0) t.push(x); }));
+  return t.sort();
+}
+
+function renderAssoc() {
+  if (currentOrgIdx === null) return;
+  const o = ORGS[currentOrgIdx];
+  const q = fval('od-assoc-search').trim().toLowerCase();
+
+  document.getElementById('od-tagf').innerHTML = orgTagsInUse(o).map(t =>
+    '<span class="tagf-chip' + (assocTagF.indexOf(t) >= 0 ? ' on' : '') + '" onclick="toggleAssocTagF(\'' + t.replace(/'/g, "\\'") + '\')">' + t + '</span>'
+  ).join('') || '<span style="font-size:12px; color:var(--text-3);">No tags in use yet.</span>';
+
+  const list = o.assoc.map((a, i) => ({ a, i }))
+    .filter(x => !q || x.a.name.toLowerCase().indexOf(q) >= 0 || x.a.email.toLowerCase().indexOf(q) >= 0)
+    .filter(x => assocTagF.every(t => x.a.tags.indexOf(t) >= 0));
+
+  const tbody = document.getElementById('od-assoc-tbody');
+  tbody.innerHTML = list.map(x =>
+    '<tr>' +
+      '<td><input type="checkbox" class="assoc-check" data-i="' + x.i + '" onchange="updateBulkBar()"></td>' +
+      '<td style="font-weight:600; color:var(--text);">' + x.a.name + '</td>' +
+      '<td class="type-cell">' + (x.a.email || '—') + '</td>' +
+      '<td class="type-cell">' + (x.a.phone || '—') + '</td>' +
+      '<td>' + (x.a.tags.map(t => '<span class="chip chip-gray" style="margin:1px 2px 1px 0;">' + t + '</span>').join('') || '—') + '</td>' +
+      '<td class="col-actions"><button class="kebab-btn" onclick="assocCtx=' + x.i + '; openMenu(event,\'menu-assoc\')"><i class="fa-solid fa-ellipsis"></i></button></td>' +
+    '</tr>'
+  ).join('');
+  const any = o.assoc.length > 0;
+  tbody.parentElement.style.display = any ? '' : 'none';
+  document.getElementById('od-assoc-empty').style.display = any ? 'none' : 'block';
+  updateBulkBar();
+}
+
+function toggleAssocTagF(t) {
+  const i = assocTagF.indexOf(t);
+  if (i >= 0) assocTagF.splice(i, 1); else assocTagF.push(t);
+  renderAssoc();
+}
+
+function assocCheckAll(cb) {
+  document.querySelectorAll('.assoc-check').forEach(c => { c.checked = cb.checked; });
+  updateBulkBar();
+}
+
+function assocSelected() {
+  return [...document.querySelectorAll('.assoc-check')].filter(c => c.checked).map(c => parseInt(c.dataset.i, 10));
+}
+
+function updateBulkBar() {
+  const n = assocSelected().length;
+  document.getElementById('od-bulkbar').classList.toggle('show', n > 0);
+  setText('od-bulk-count', n + ' selected');
+}
+
+function assocAction(act) {
+  document.querySelectorAll('.menu-pop').forEach(m => m.classList.remove('open'));
+  if (assocCtx === null) return;
+  if (act === 'tags') { openBulkTagModal('row'); return; }
+  if (act === 'remove') {
+    ORGS[currentOrgIdx].assoc.splice(assocCtx, 1);
+    renderAssoc();
+    toast('Removed from organization — the contact record and its tags are kept');
+  }
+}
+
+/* add from contacts */
+function openAddAssocModal() {
+  const o = ORGS[currentOrgIdx];
+  smartReset('aa-tag-smart');
+  const existing = o.assoc.map(a => a.name);
+  document.getElementById('aa-picklist').innerHTML = ACCOUNT_CONTACTS.filter(c => existing.indexOf(c.name) < 0).map(c =>
+    '<div class="check-item" onclick="flipCheck(this)"><input type="checkbox">' +
+    '<div class="avatar-chip avatar-c" style="margin-left:0; border:none;">' + orgInitials(c.name) + '</div>' +
+    '<div><div class="check-name">' + c.name + '</div><div class="check-sub">' + c.email + '</div></div></div>'
+  ).join('') || '<div class="rail-empty">Everyone in your contact list is already associated here.</div>';
+  openModal('modal-addassoc');
+}
+
+function saveAddAssoc() {
+  const o = ORGS[currentOrgIdx];
+  const tags = SMART['aa-tag-smart'].store.slice();
+  const picked = [...document.querySelectorAll('#aa-picklist .check-item.checked .check-name')].map(n => n.textContent);
+  if (!picked.length) { toast('Select at least one contact'); return; }
+  picked.forEach(nm => {
+    const c = ACCOUNT_CONTACTS.find(x => x.name === nm);
+    o.assoc.push({ name: nm, email: c ? c.email : '', phone: c ? c.phone : '', tags: tags.slice() });
+  });
+  closeModal('modal-addassoc');
+  renderAssoc();
+  toast(picked.length + ' contact' + (picked.length === 1 ? '' : 's') + ' associated');
+}
+
+/* import CSV */
+function openImportAssocModal() {
+  smartReset('ia-tag-smart');
+  openModal('modal-importassoc');
+}
+
+function saveImportAssoc() {
+  const o = ORGS[currentOrgIdx];
+  const tags = SMART['ia-tag-smart'].store.slice();
+  [
+    { name: 'Jordan Whitfield', email: 'j.whitfield@yopmail.com', phone: '(717) 555-0821' },
+    { name: 'Casey Nguyen', email: 'c.nguyen@yopmail.com', phone: '' },
+    { name: 'Morgan Ellis', email: 'm.ellis@yopmail.com', phone: '(717) 555-0533' }
+  ].forEach(c => {
+    o.assoc.push({ name: c.name, email: c.email, phone: c.phone, tags: tags.slice() });
+    if (!ACCOUNT_CONTACTS.some(x => x.name === c.name)) ACCOUNT_CONTACTS.push(c);
+  });
+  closeModal('modal-importassoc');
+  renderAssoc(); renderCrmContacts();
+  toast('24 contacts imported and tagged' + (tags.length ? ' with ' + tags.join(', ') : '') + ' (3 shown in prototype)');
+}
+
+/* bulk tag modal — modes: add, remove, row */
+let btMode = 'add';
+function openBulkTagModal(mode) {
+  btMode = mode;
+  smartReset('bt-tag-smart');
+  setText('bt-title', mode === 'remove' ? 'Remove tags' : mode === 'row' ? 'Edit tags' : 'Add tags');
+  setText('bt-label', mode === 'remove' ? 'Tags to remove' : 'Tags to add');
+  if (mode === 'row') {
+    SMART['bt-tag-smart'].store = ORGS[currentOrgIdx].assoc[assocCtx].tags.slice();
+    renderSmartChips('bt-tag-smart');
+  }
+  openModal('modal-bulktag');
+}
+
+function applyBulkTags() {
+  const o = ORGS[currentOrgIdx];
+  const tags = SMART['bt-tag-smart'].store.slice();
+  tags.forEach(t => { if (TAG_VOCAB.indexOf(t) < 0) TAG_VOCAB.push(t); });
+  if (btMode === 'row') {
+    o.assoc[assocCtx].tags = tags;
+  } else {
+    assocSelected().forEach(i => {
+      const a = o.assoc[i];
+      if (btMode === 'add') tags.forEach(t => { if (a.tags.indexOf(t) < 0) a.tags.push(t); });
+      else a.tags = a.tags.filter(t => tags.indexOf(t) < 0);
+    });
+  }
+  closeModal('modal-bulktag');
+  renderAssoc();
+  toast('Tags updated');
+}
+
+function bulkRemoveAssoc() {
+  const o = ORGS[currentOrgIdx];
+  const sel = assocSelected().sort((a, b) => b - a);
+  sel.forEach(i => o.assoc.splice(i, 1));
+  renderAssoc();
+  toast(sel.length + ' removed from organization — contact records and tags are kept');
+}
+
+/* tag management */
+function tagUsage(t) {
+  let n = 0;
+  ORGS.forEach(o => (o.assoc || []).forEach(a => { if (a.tags.indexOf(t) >= 0) n++; }));
+  return n;
+}
+
+function openTagMgmtModal() {
+  renderTagMgmt();
+  openModal('modal-tagmgmt');
+}
+
+function renderTagMgmt() {
+  document.getElementById('tm-list').innerHTML = TAG_VOCAB.slice().sort().map(t =>
+    '<div class="kc-row" style="gap:10px;">' +
+      '<input class="f-input" style="height:30px; font-size:12.5px; max-width:240px;" value="' + t.replace(/"/g, '&quot;') + '" onchange="renameTag(\'' + t.replace(/'/g, "\\'") + '\', this.value)">' +
+      '<span class="type-cell" style="flex:1;">' + tagUsage(t) + ' contact' + (tagUsage(t) === 1 ? '' : 's') + '</span>' +
+      '<button class="kebab-btn" title="Delete tag" onclick="deleteTag(\'' + t.replace(/'/g, "\\'") + '\')"><i class="fa-solid fa-trash-can"></i></button>' +
+    '</div>'
+  ).join('') || '<div class="rail-empty">No tags yet.</div>';
+}
+
+function renameTag(oldT, newT) {
+  newT = newT.trim();
+  if (!newT || newT === oldT) { renderTagMgmt(); return; }
+  const i = TAG_VOCAB.indexOf(oldT);
+  if (i >= 0) TAG_VOCAB[i] = newT;
+  ORGS.forEach(o => (o.assoc || []).forEach(a => {
+    const ti = a.tags.indexOf(oldT);
+    if (ti >= 0) a.tags[ti] = newT;
+  }));
+  renderTagMgmt(); renderAssoc();
+  toast('“' + oldT + '” renamed to “' + newT + '” everywhere');
+}
+
+function deleteTag(t) {
+  const n = tagUsage(t);
+  if (!confirm('Delete tag “' + t + '”? It will be removed from ' + n + ' contact' + (n === 1 ? '' : 's') + '.')) return;
+  TAG_VOCAB = TAG_VOCAB.filter(x => x !== t);
+  ORGS.forEach(o => (o.assoc || []).forEach(a => { a.tags = a.tags.filter(x => x !== t); }));
+  renderTagMgmt(); renderAssoc();
+  toast('Tag deleted');
+}
+
+/* ── Reporting tab ── */
+let repRange = 'all', repGran = 'month';
+
+function repBounds() {
+  if (repRange === 'month') return [701, PROTO_TODAY_KEY];
+  if (repRange === 'last30') return [621, PROTO_TODAY_KEY];
+  if (repRange === 'custom') {
+    const f = fval('rep-from'), t = fval('rep-to');
+    const k = v => v ? parseInt(v.split('-')[1], 10) * 100 + parseInt(v.split('-')[2], 10) : null;
+    return [k(f) || 101, k(t) || 1231];
+  }
+  return [101, 1231]; /* this year / all time — prototype data is all 2026 */
+}
+
+function setRepRange(el, r) {
+  el.parentElement.querySelectorAll('.subtab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  repRange = r;
+  renderOrgReporting();
+}
+
+function renderOrgReporting() {
+  if (currentOrgIdx === null) return;
+  const o = ORGS[currentOrgIdx];
+  const el = document.getElementById('od-rep-content');
+  const all = orgAllOrders(o);
+
+  if (!all.length) {
+    el.innerHTML = '<div class="detail-card" style="text-align:center; padding:50px 20px; color:var(--text-3);">' +
+      '<i class="fa-solid fa-chart-bar" style="font-size:26px; opacity:0.3; display:block; margin-bottom:12px;"></i>' +
+      '<div style="font-size:13.5px; margin-bottom:16px;">Looks like you have not had any orders yet.</div>' +
+      '<button class="btn btn-brand" onclick="crmCreateJob()"><i class="fa-solid fa-plus"></i> Create Job</button></div>';
+    return;
+  }
+
+  const b = repBounds();
+  const inRange = all.filter(x => dkey(x) >= b[0] && dkey(x) <= b[1]);
+  const rev = inRange.reduce((s, x) => s + x.amt, 0);
+  const jobsIn = o.jobs.filter(k => inRange.some(x => x.jobKey === k));
+  const preN = inRange.filter(x => x.pre).length;
+  const convParts = jobsIn.map(k => parseInt(JOBS[k].conv, 10)).filter(n => !isNaN(n));
+  const conv = convParts.length ? Math.round(convParts.reduce((s, n) => s + n, 0) / convParts.length) + '%' : '—';
+
+  const tile = (label, val, sub) =>
+    '<div class="stat-tile"><div class="stat-label">' + label + '</div><div class="stat-value" style="font-size:20px;">' + val + '</div>' +
+    (sub ? '<div class="stat-delta flat">' + sub + '</div>' : '') + '</div>';
+
+  /* chart buckets */
+  let buckets = [];
+  if (repGran === 'year') {
+    buckets = [{ label: '2026', val: rev }];
+  } else if (repGran === 'day') {
+    const seen = {};
+    inRange.forEach(x => { const k = dkey(x); seen[k] = (seen[k] || 0) + x.amt; });
+    buckets = Object.keys(seen).sort((a, b2) => a - b2).map(k =>
+      ({ label: MONTHS[Math.floor(k / 100) - 1] + ' ' + (k % 100), val: seen[k] }));
+  } else {
+    const seen = {};
+    inRange.forEach(x => { seen[x.m] = (seen[x.m] || 0) + x.amt; });
+    buckets = Object.keys(seen).sort((a, b2) => a - b2).map(m => ({ label: MONTHS[m], val: seen[m] }));
+  }
+  const maxV = Math.max.apply(null, buckets.map(x => x.val).concat([1]));
+  const chart = buckets.length
+    ? '<div class="cols-chart crm-cols">' + buckets.map((x, i) =>
+        '<div class="col-slot" onmouseenter="tipShow(event, \'' + x.label + ' — ' + fmt$(x.val) + '\')" onmousemove="tipMove(event)" onmouseleave="tipHide()">' +
+        ((x.val === maxV || i === buckets.length - 1) ? '<div class="col-cap">' + fmt$(x.val) + '</div>' : '') +
+        '<div class="col-bar" style="height:' + Math.max(x.val / maxV * 100, 2) + '%;"></div></div>').join('') +
+      '</div><div class="cols-x">' + buckets.map(x => '<span>' + x.label + '</span>').join('') + '</div>'
+    : '<div style="padding:30px; text-align:center; color:var(--text-3); font-size:12.5px;">No orders in this range.</div>';
+
+  /* revenue by job */
+  const jobRows = o.jobs.map(k => {
+    const j = JOBS[k];
+    const jo = inRange.filter(x => x.jobKey === k);
+    return { j, k, orders: jo.length, rev: jo.reduce((s, x) => s + x.amt, 0) };
+  }).sort((a, b2) => b2.rev - a.rev).map(r =>
+    '<tr><td><a class="gallery-name-link" onclick="openJob(\'' + r.k + '\')">' + r.j.name + '</a></td>' +
+    '<td class="modified-cell">' + r.j.shoot + '</td>' +
+    '<td class="type-cell">' + r.j.loc.split(',')[0] + '</td>' +
+    '<td class="type-cell">' + (r.j.photogs || []).map(p => p.name.split(' ')[0]).join(', ') + '</td>' +
+    '<td class="count-cell" style="text-align:right;">' + r.j.tiles.gal + '</td>' +
+    '<td class="count-cell" style="text-align:right;">' + r.j.views[0] + '</td>' +
+    '<td class="count-cell" style="text-align:right;">' + r.orders + '</td>' +
+    '<td class="count-cell" style="text-align:right;">' + (r.j.conv[0] || '—') + '</td>' +
+    '<td class="amount-cell">' + fmt$(r.rev) + '</td></tr>'
+  ).join('');
+
+  /* revenue by photographer — split by gallery attribution, Unassigned included */
+  const per = {};
+  inRange.forEach(x => {
+    const p = x.photog || 'Unassigned';
+    per[p] = per[p] || { orders: 0, rev: 0, gals: {} };
+    per[p].orders++; per[p].rev += x.amt; per[p].gals[x.gallery] = 1;
+  });
+  const pgRows = Object.keys(per).sort((a, b2) => per[b2].rev - per[a].rev).map(p =>
+    '<tr><td style="font-weight:600; color:var(--text);">' + p + '</td>' +
+    '<td class="count-cell" style="text-align:right;">' + Object.keys(per[p].gals).length + '</td>' +
+    '<td class="count-cell" style="text-align:right;">' + per[p].orders + '</td>' +
+    '<td class="amount-cell">' + fmt$(per[p].rev) + '</td></tr>'
+  ).join('');
+
+  /* engagement */
+  const engRows = o.jobs.map(k => {
+    const j = JOBS[k];
+    return '<tr><td><a class="gallery-name-link" onclick="openJob(\'' + k + '\')">' + j.name + '</a></td>' +
+      '<td class="count-cell" style="text-align:right;">' + j.tiles.gal + '</td>' +
+      '<td class="count-cell" style="text-align:right;">' + j.views[0] + '</td>' +
+      '<td class="count-cell" style="text-align:right;">' + j.eng.pct + '%</td></tr>';
+  }).join('');
+
+  el.innerHTML =
+    '<div class="detail-card">' +
+      '<div class="rep-range-row">' +
+        '<div class="subtabs" style="margin-bottom:0;">' +
+          ['month|This month', 'last30|Last 30 days', 'year|This year', 'all|All time', 'custom|Custom'].map(x => {
+            const p = x.split('|');
+            return '<div class="subtab' + (repRange === p[0] ? ' active' : '') + '" onclick="setRepRange(this,\'' + p[0] + '\')">' + p[1] + '</div>';
+          }).join('') +
+        '</div>' +
+        (repRange === 'custom'
+          ? '<div class="filter-field"><span class="filter-label">From</span><input type="date" class="f-input" id="rep-from" style="height:32px;" value="2026-05-01" onchange="renderOrgReporting()"></div>' +
+            '<div class="filter-field"><span class="filter-label">To</span><input type="date" class="f-input" id="rep-to" style="height:32px;" value="2026-07-21" onchange="renderOrgReporting()"></div>'
+          : '') +
+        '<div class="filter-field" style="margin-left:auto;"><span class="filter-label">Granularity</span>' +
+          '<select class="filter-select" onchange="repGran=this.value; renderOrgReporting()">' +
+          ['day', 'month', 'year'].map(g => '<option value="' + g + '"' + (repGran === g ? ' selected' : '') + '>' + g[0].toUpperCase() + g.slice(1) + '</option>').join('') +
+        '</select></div>' +
+        '<button class="btn btn-ghost-sm" onclick="toast(\'Exporting report to CSV…\')"><i class="fa-solid fa-arrow-up-from-bracket" style="font-size:11px;"></i> Export</button>' +
+      '</div>' +
+      '<div style="font-size:11.5px; color:var(--text-3); margin-bottom:14px;">Revenue is sourced from store orders only — not BookMe payments or manual invoices.</div>' +
+      '<div class="overview-stats" style="grid-template-columns:repeat(3,1fr); margin-bottom:12px;">' +
+        tile('Total revenue', fmt$(rev)) + tile('Total jobs', jobsIn.length) +
+        tile('Avg revenue / job', jobsIn.length ? fmt$(rev / jobsIn.length) : '—') +
+      '</div>' +
+      '<div class="overview-stats" style="grid-template-columns:repeat(3,1fr); margin-bottom:0;">' +
+        tile('Total orders', inRange.length, preN + ' pre-orders') +
+        tile('Avg order value', inRange.length ? '$' + (rev / inRange.length).toFixed(2) : '—') +
+        tile('Order conversion rate', conv) +
+      '</div>' +
+    '</div>' +
+    '<div class="detail-card" style="margin-top:16px;"><div class="chart-title">Revenue over time</div><div class="chart-sub">Across the selected range</div>' + chart + '</div>' +
+    '<div class="detail-card" style="margin-top:16px; padding:0; overflow:hidden;"><div class="chart-title" style="padding:16px 16px 0;">Revenue by job</div><div class="chart-sub" style="padding:0 16px;">Sorted by revenue</div>' +
+      '<table class="gallery-table"><thead><tr><th>Job</th><th style="width:110px;">Date</th><th>Location</th><th>Photographer</th><th style="width:70px; text-align:right;">Galleries</th><th style="width:70px; text-align:right;">Views</th><th style="width:64px; text-align:right;">Orders</th><th style="width:60px; text-align:right;">Conv.</th><th style="width:90px; text-align:right;">Revenue</th></tr></thead><tbody>' + jobRows + '</tbody></table></div>' +
+    '<div class="detail-card" style="margin-top:16px; padding:0; overflow:hidden;"><div class="chart-title" style="padding:16px 16px 0;">Revenue by photographer</div><div class="chart-sub" style="padding:0 16px;">Split by gallery attribution — unassigned galleries roll into an Unassigned row so totals reconcile</div>' +
+      '<table class="gallery-table"><thead><tr><th>Photographer</th><th style="width:120px; text-align:right;">Galleries</th><th style="width:90px; text-align:right;">Orders</th><th style="width:110px; text-align:right;">Revenue</th></tr></thead><tbody>' + pgRows + '</tbody></table></div>' +
+    '<div class="detail-card" style="margin-top:16px; padding:0; overflow:hidden;"><div class="chart-title" style="padding:16px 16px 0;">Gallery engagement</div><div class="chart-sub" style="padding:0 16px;">Views by job</div>' +
+      '<table class="gallery-table"><thead><tr><th>Job</th><th style="width:90px; text-align:right;">Galleries</th><th style="width:90px; text-align:right;">Views</th><th style="width:90px; text-align:right;">Viewed</th></tr></thead><tbody>' + engRows + '</tbody></table></div>';
+}
+
+/* ── Delete organization ── */
+let delOrgIdx = null;
+
+function openDeleteOrgModal(i) {
+  delOrgIdx = i;
+  const o = ORGS[i];
+  setText('do-name', o.name);
+  document.getElementById('do-confirm').value = '';
+  document.getElementById('do-confirm').placeholder = o.name;
+  document.getElementById('do-reassign').innerHTML =
+    '<option value="">Skip — keep as standalone contacts</option>' +
+    ORGS.map((x, xi) => xi === i ? '' : '<option value="' + xi + '">' + x.name + '</option>').join('');
+  doValidate();
+  openModal('modal-delorg');
+}
+
+function doValidate() {
+  const ok = delOrgIdx !== null && fval('do-confirm').trim() === ORGS[delOrgIdx].name;
+  const btn = document.getElementById('do-delete');
+  if (ok) btn.removeAttribute('disabled'); else btn.setAttribute('disabled', '');
+}
+
+function confirmDeleteOrg() {
+  const o = ORGS[delOrgIdx];
+  const target = fval('do-reassign');
+  if (target !== '') {
+    const t = ensureOrgShape(ORGS[parseInt(target, 10)]);
+    o.keyContacts.forEach(k => { if (!t.keyContacts.some(x => x.name === k.name)) t.keyContacts.push(Object.assign({}, k, { primary: false })); });
+    o.assoc.forEach(a => { if (!t.assoc.some(x => x.name === a.name)) t.assoc.push(a); });
+  }
+  ORGS.splice(delOrgIdx, 1);
+  if (selectedOrgIdx === delOrgIdx) selectedOrgIdx = null;
+  closeModal('modal-delorg');
+  delOrgIdx = null;
+  showCRM();
+  toast('Organization deleted' + (target !== '' ? ' — contacts moved' : ' — contacts kept as standalone records'));
+}
+
+/* ── init hooks ── */
+registerSmarts();
+document.querySelectorAll('.smart input').forEach(inp => inp.addEventListener('click', e => e.stopPropagation()));
+
+
+function navJobs() { navSetActive('Jobs'); showView('view-jobs-list'); }
+
+function updateSaveOrgRows() {
+  document.querySelectorAll('.ws-saveorg-row').forEach(r => {
+    r.style.display = selectedOrgIdx !== null ? 'flex' : 'none';
+  });
 }
 
 /* ══════════ INIT ══════════ */
