@@ -4794,6 +4794,7 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
               <div class="job-tab" data-otab="otab-locations" onclick="orgTab(this,'otab-locations')">Locations</div>
               <div class="job-tab" data-otab="otab-assoc" onclick="orgTab(this,'otab-assoc')">Associated Contacts</div>
               <div class="job-tab" data-otab="otab-reporting" onclick="orgTab(this,'otab-reporting')">Reporting</div>
+              <div class="job-tab" data-otab="otab-assets" onclick="orgTab(this,'otab-assets')">Org Assets</div>
             </div>
           </div>
 
@@ -4804,41 +4805,20 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
               <div id="otab-info" class="tab-panel active" style="padding:0; display:block;">
                 <div class="org-cards">
 
-                  <div class="detail-card">
-                    <div class="detail-card-header">Organization Details</div>
-                    <div class="detail-fields" id="od-details"></div>
-                  </div>
-
-                  <div class="detail-card">
-                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
-                      <div class="detail-card-header" style="margin-bottom:0;">Key Contacts</div>
-                      <button class="btn btn-ghost-sm" onclick="openKeyContactModal()"><i class="fa-solid fa-plus" style="font-size:10px;"></i> Add Contact</button>
+                  <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; align-items:start;">
+                    <div class="detail-card">
+                      <div class="detail-card-header">Organization Details</div>
+                      <div class="detail-fields" id="od-details"></div>
                     </div>
-                    <div style="font-size:12px; color:var(--text-3); margin-bottom:6px;">The people to call about this organization.</div>
-                    <div id="od-keycontacts"></div>
-                  </div>
 
-                  <div class="detail-card">
-                    <div class="detail-card-header">Job Defaults</div>
-                    <div style="font-size:12px; color:var(--text-3); margin:-12px 0 14px;">Applied automatically when this organization is selected during job creation. Overridable at job time.</div>
-                    <div class="f-field">
-                      <label class="f-label">Default gallery preset</label>
-                      <select class="f-input" id="od-preset" onchange="saveOrgDefaults()">
-                        <option value="">No default preset</option>
-                        <option>Youth Sports — Standard</option>
-                        <option>School Portraits — Standard</option>
-                        <option>Dance &amp; Recital</option>
-                        <option>Corporate Headshots</option>
-                      </select>
-                    </div>
-                    <div class="f-field" style="margin-bottom:4px;">
-                      <label class="f-label">Default folder location</label>
-                      <div class="dest-row">
-                        <span class="crumb" id="od-folder-crumb"></span>
-                        <button type="button" class="add-inline-btn" onclick="openOrgFolderPicker()">Change</button>
+                    <div class="detail-card">
+                      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+                        <div class="detail-card-header" style="margin-bottom:0;">Key Contacts</div>
+                        <button class="btn btn-ghost-sm" onclick="openKeyContactModal()"><i class="fa-solid fa-plus" style="font-size:10px;"></i> Add Contact</button>
                       </div>
+                      <div style="font-size:12px; color:var(--text-3); margin-bottom:6px;">The people to call about this organization.</div>
+                      <div id="od-keycontacts"></div>
                     </div>
-                    <div style="font-size:11.5px; color:var(--text-3);" id="od-defaults-empty"></div>
                   </div>
 
                   <div class="detail-card">
@@ -4848,15 +4828,6 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
                       <button class="btn btn-brand" id="od-note-save" disabled onclick="saveOrgNote()">Save</button>
                     </div>
                     <div id="od-notes"></div>
-                  </div>
-
-                  <div class="detail-card">
-                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
-                      <div class="detail-card-header" style="margin-bottom:0;">Org Assets</div>
-                      <button class="btn btn-ghost-sm" onclick="uploadOrgAsset()"><i class="fa-solid fa-arrow-up-from-bracket" style="font-size:10px;"></i> Upload</button>
-                    </div>
-                    <div style="font-size:12px; color:var(--text-3); margin-bottom:6px;">Logos, forms, flyers, agreements, campus maps — anything for this organization.</div>
-                    <div id="od-assets"></div>
                   </div>
 
                   <div style="text-align:right;">
@@ -4928,11 +4899,47 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
                 <div id="od-rep-content"></div>
               </div>
 
+              <!-- ORG ASSETS TAB -->
+              <div id="otab-assets" class="tab-panel" style="padding:0;">
+                <div class="detail-card">
+                  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+                    <div class="detail-card-header" style="margin-bottom:0;">Org Assets</div>
+                    <button class="btn btn-ghost-sm" onclick="uploadOrgAsset()"><i class="fa-solid fa-arrow-up-from-bracket" style="font-size:10px;"></i> Upload</button>
+                  </div>
+                  <div style="font-size:12px; color:var(--text-3); margin-bottom:6px;">Logos, forms, flyers, agreements, campus maps — anything for this organization.</div>
+                  <div id="od-assets"></div>
+                </div>
+              </div>
+
             </div>
 
             <!-- RIGHT RAIL -->
             <div class="org-rail">
               <button class="btn btn-brand" style="width:100%; justify-content:center;" onclick="crmCreateJob()"><i class="fa-solid fa-plus"></i> Create Job</button>
+
+              <div class="detail-card">
+                <div class="detail-card-header">Job Defaults</div>
+                <div style="font-size:11.5px; color:var(--text-3); margin:-10px 0 12px;">Applied automatically when this organization is selected during job creation. Overridable at job time.</div>
+                <div class="f-field">
+                  <label class="f-label">Default gallery preset</label>
+                  <select class="f-input" id="od-preset" onchange="saveOrgDefaults()">
+                    <option value="">No default preset</option>
+                    <option>Youth Sports — Standard</option>
+                    <option>School Portraits — Standard</option>
+                    <option>Dance &amp; Recital</option>
+                    <option>Corporate Headshots</option>
+                  </select>
+                </div>
+                <div class="f-field" style="margin-bottom:4px;">
+                  <label class="f-label">Default folder location</label>
+                  <div class="dest-row">
+                    <span class="crumb" id="od-folder-crumb"></span>
+                    <button type="button" class="add-inline-btn" onclick="openOrgFolderPicker()">Change</button>
+                  </div>
+                </div>
+                <div style="font-size:11.5px; color:var(--text-3);" id="od-defaults-empty"></div>
+              </div>
+
               <div class="detail-card">
                 <div class="detail-card-header" style="margin-bottom:6px;">Upcoming Jobs</div>
                 <div id="od-rail-upcoming"></div>
@@ -8167,7 +8174,7 @@ function openOrg(i) {
 function orgTab(el, paneId) {
   document.querySelectorAll('#view-org-detail .job-tab').forEach(t => t.classList.remove('active'));
   el.classList.add('active');
-  ['otab-info', 'otab-locations', 'otab-assoc', 'otab-reporting'].forEach(id => {
+  ['otab-info', 'otab-locations', 'otab-assoc', 'otab-reporting', 'otab-assets'].forEach(id => {
     const p = document.getElementById(id);
     p.classList.toggle('active', id === paneId);
     p.style.display = id === paneId ? 'block' : 'none';
