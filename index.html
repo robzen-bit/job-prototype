@@ -5257,15 +5257,6 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
         <div id="wz-schedule-later-note" style="display:none; font-size:12.5px; color:var(--text-3); margin-top:18px; padding:14px; background:var(--bg); border-radius:var(--r-sm);">
           <i class="fa-regular fa-clock" style="margin-right:6px;"></i>No shoot dates yet — you can add them from the job any time.
         </div>
-
-        <!-- Delivery date -->
-        <div class="f-row wz-2col" style="margin-top:20px;">
-          <div class="f-field">
-            <label class="f-label">Delivery Date <span class="opt">(optional)</span></label>
-            <input class="f-input" id="wz-deadline" type="date">
-          </div>
-          <div class="f-field"></div>
-        </div>
       </div>
 
       <!-- STEP : SETUP -->
@@ -7616,7 +7607,6 @@ function openWizard() {
   document.getElementById('wz-sched-helper').style.display = 'block';
   document.getElementById('wz-shoots').innerHTML = '';
   wizAddShoot();
-  document.getElementById('wz-deadline').value = '';
   document.getElementById('wz-notes').value = '';
   /* setup choice */
   setupMode = 'now';
@@ -7792,7 +7782,6 @@ function fmtInputDate(raw) {
 function buildReview() {
   const name = fval('wz-name').trim() || 'Untitled Job';
   const o = resolveOrg();
-  const deadline = fmtInputDate(fval('wz-deadline')) || '—';
   const parent = wzParent;
   const shoots = schedMode === 'later' ? [] : parseShoots();
   let schedHTML;
@@ -7811,7 +7800,6 @@ function buildReview() {
     '<div class="review-row"><span class="review-key">Create In</span><span class="review-val"><i class="fa-solid fa-folder" style="font-size:11px; margin-right:5px; color:var(--text-3);"></i>' + parent + ' / ' + name + '</span></div>' +
     (selectedOrgIdx !== null && ORGS[selectedOrgIdx].preset ? '<div class="review-row"><span class="review-key">Gallery Preset</span><span class="review-val">' + ORGS[selectedOrgIdx].preset + ' <span style="color:var(--text-3);">(organization default)</span></span></div>' : '') +
     '<div class="review-row"><span class="review-key">Schedule</span><span class="review-val">' + schedHTML + '</span></div>' +
-    '<div class="review-row"><span class="review-key">Delivery Deadline</span><span class="review-val">' + deadline + '</span></div>' +
     '<div class="review-row"><span class="review-key">Photographers</span><span class="review-val">' + (uniqP.length ? uniqP.map(n => n.split(' ')[0]).join(', ') : '<span style="color:var(--text-3);">Assign later</span>') + '</span></div>' +
     '<div class="review-row"><span class="review-key">Setup</span><span class="review-val">' + (setupMode === 'later' || !selectedJobType ? '<span style="color:var(--text-3);">Not set up yet — configure from the job</span>' : JOB_TYPE_LOOKUP[selectedJobType].title) + '</span></div>';
 }
@@ -7838,7 +7826,6 @@ function createJob() {
   const locTxt = shoots.length && shoots[0].locs.length
     ? shoots[0].locs[0].v + (nLocs > 1 ? ' +' + (nLocs - 1) + ' more' : '')
     : 'Locations TBD';
-  const deadline = fmtInputDate(fval('wz-deadline')) || '—';
   const key = 'newjob' + (++newJobSeq);
   const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 30) || 'new-job';
   const uniqP = [];
@@ -7849,7 +7836,7 @@ function createJob() {
 
   JOBS[key] = {
     key: key, seed: 5 + newJobSeq, icon: 'fa-briefcase',
-    name: name, org2: o.name, shoot: dateTxt, deadline: deadline, loc: locTxt,
+    name: name, org2: o.name, shoot: dateTxt, deadline: '—', loc: locTxt,
     path: wzParent,
     contact: [o.contact, o.email || ''], notes: fval('wz-notes').trim(),
     created: 'Jun 3, 2026', modified: 'Jun 3, 2026',
