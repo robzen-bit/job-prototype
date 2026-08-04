@@ -4799,9 +4799,9 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
             </div>
             <div class="job-tabs">
               <div class="job-tab active" data-otab="otab-info" onclick="orgTab(this,'otab-info')">Info</div>
-              <div class="job-tab" data-otab="otab-jobs" onclick="orgTab(this,'otab-jobs')">Jobs</div>
               <div class="job-tab" data-otab="otab-locations" onclick="orgTab(this,'otab-locations')">Locations</div>
               <div class="job-tab" data-otab="otab-assoc" onclick="orgTab(this,'otab-assoc')">Associated Contacts</div>
+              <div class="job-tab" data-otab="otab-jobs" onclick="orgTab(this,'otab-jobs')">Jobs</div>
               <div class="job-tab" data-otab="otab-reporting" onclick="orgTab(this,'otab-reporting')">Reporting</div>
               <div class="job-tab" data-otab="otab-assets" onclick="orgTab(this,'otab-assets')">Org Assets</div>
             </div>
@@ -4842,19 +4842,6 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
                   <div style="text-align:right;">
                     <button class="btn btn-ghost-sm" style="color:#C43C3C; border-color:rgba(217,64,64,0.35);" onclick="openDeleteOrgModal(currentOrgIdx)"><i class="fa-solid fa-trash-can" style="font-size:11px;"></i> Delete Organization</button>
                   </div>
-                </div>
-              </div>
-
-              <!-- JOBS TAB -->
-              <div id="otab-jobs" class="tab-panel" style="padding:0;">
-                <div class="jobs-filterbar" style="padding:0 0 14px;">
-                  <div class="subtabs" id="od-jobs-filter"></div>
-                </div>
-                <div class="jobs-list" id="od-jobs-list" style="padding:0;"></div>
-                <div id="od-jobs-empty" style="display:none; text-align:center; padding:50px 20px; color:var(--text-3);">
-                  <i class="fa-solid fa-briefcase" style="font-size:26px; opacity:0.3; display:block; margin-bottom:12px;"></i>
-                  <div style="font-size:13.5px; margin-bottom:16px;">No jobs yet for this organization.</div>
-                  <button class="btn btn-brand" onclick="crmCreateJob()"><i class="fa-solid fa-plus"></i> Create Job</button>
                 </div>
               </div>
 
@@ -4916,6 +4903,19 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
                 </div>
               </div>
 
+              <!-- JOBS TAB -->
+              <div id="otab-jobs" class="tab-panel" style="padding:0;">
+                <div class="jobs-filterbar" style="padding:0 0 14px;">
+                  <div class="subtabs" id="od-jobs-filter"></div>
+                </div>
+                <div class="jobs-list" id="od-jobs-list" style="padding:0;"></div>
+                <div id="od-jobs-empty" style="display:none; text-align:center; padding:50px 20px; color:var(--text-3);">
+                  <i class="fa-solid fa-briefcase" style="font-size:26px; opacity:0.3; display:block; margin-bottom:12px;"></i>
+                  <div style="font-size:13.5px; margin-bottom:16px;">No jobs yet for this organization.</div>
+                  <button class="btn btn-brand" onclick="crmCreateJob()"><i class="fa-solid fa-plus"></i> Create Job</button>
+                </div>
+              </div>
+
               <!-- REPORTING TAB -->
               <div id="otab-reporting" class="tab-panel" style="padding:0;">
                 <div id="od-rep-content"></div>
@@ -4965,10 +4965,6 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
               <div class="detail-card">
                 <div class="detail-card-header" style="margin-bottom:6px;">Upcoming Jobs</div>
                 <div id="od-rail-upcoming"></div>
-              </div>
-              <div class="detail-card">
-                <div class="detail-card-header" style="margin-bottom:6px;">Previous Jobs</div>
-                <div id="od-rail-previous"></div>
               </div>
             </div>
 
@@ -8201,7 +8197,7 @@ function openOrg(i) {
 function orgTab(el, paneId) {
   document.querySelectorAll('#view-org-detail .job-tab').forEach(t => t.classList.remove('active'));
   el.classList.add('active');
-  ['otab-info', 'otab-jobs', 'otab-locations', 'otab-assoc', 'otab-reporting', 'otab-assets'].forEach(id => {
+  ['otab-info', 'otab-locations', 'otab-assoc', 'otab-jobs', 'otab-reporting', 'otab-assets'].forEach(id => {
     const p = document.getElementById(id);
     p.classList.toggle('active', id === paneId);
     p.style.display = id === paneId ? 'block' : 'none';
@@ -8270,20 +8266,15 @@ function renderOrgInfo(o) {
 
 function renderOrgRail(o) {
   const upcoming = o.jobs.filter(k => JOBS[k] && JOBS[k].phase < 2);
-  const previous = o.jobs.filter(k => JOBS[k] && JOBS[k].phase >= 2);
-  const jobRow = (k, showRev) => {
+  const jobRow = (k) => {
     const j = JOBS[k];
-    const rev = showRev ? fmt$(generateOrders(j).reduce((s, x) => s + x.amt, 0)) : '';
     const photog = j.photogs && j.photogs.length ? j.photogs[0].name.split(' ')[0] + (j.photogs.length > 1 ? ' +' + (j.photogs.length - 1) : '') : '';
     return '<div class="rail-job-row" onclick="openJob(\'' + k + '\')">' +
       '<div class="rail-job-name">' + j.name + '</div>' +
-      '<div class="rail-job-meta">' + j.shoot + ' · ' + j.loc.split(',')[0] + (showRev ? ' · <b style="color:var(--text-2);">' + rev + '</b>' : ' · ' + photog) + '</div>' +
+      '<div class="rail-job-meta">' + j.shoot + ' · ' + j.loc.split(',')[0] + ' · ' + photog + '</div>' +
     '</div>';
   };
-  document.getElementById('od-rail-upcoming').innerHTML = upcoming.map(k => jobRow(k, false)).join('') || '<div class="rail-empty">No upcoming jobs.</div>';
-  document.getElementById('od-rail-previous').innerHTML = (previous.map(k => jobRow(k, true)).join('') +
-    (previous.length ? '<div style="padding-top:10px;"><a class="gallery-name-link" style="font-size:12px;" onclick="navJobs(); toast(\'Jobs list filtered to ' + o.name.replace(/'/g, '') + ' — prototype shows all jobs\')">View all</a></div>' : '')) ||
-    '<div class="rail-empty">No previous jobs.</div>';
+  document.getElementById('od-rail-upcoming').innerHTML = upcoming.map(jobRow).join('') || '<div class="rail-empty">No upcoming jobs.</div>';
 }
 
 /* ── Jobs tab (org-filtered jobs list) ── */
