@@ -6740,14 +6740,14 @@ function addLocCard(container, pre) {
       '<select class="f-input ws-locsel grow" onchange="locSelChanged(this)">' + locOptionsHTML(locs, selVal) + '</select>' +
     '</div>' +
     '<div class="loc-card-row">' +
-      '<input class="f-input ws-venue grow" placeholder="Location name / label — e.g. Main Gym" value="' + (pre.v || '') + '" oninput="updateLocSum(this.closest(\'.loc-card\')); updateWizNextState()">' +
-      '<input class="f-input ws-street grow" placeholder="Street address" value="' + (pre.street || '') + '">' +
+      '<input class="f-input ws-venue grow" placeholder="Location name / label — e.g. Main Gym" value="' + (pre.v || '') + '" oninput="onLocFieldInput(this)">' +
+      '<input class="f-input ws-street grow" placeholder="Street address" value="' + (pre.street || '') + '" oninput="onLocFieldInput(this)">' +
       '<button type="button" class="row-x" onclick="removeLocCard(this)" title="Remove location"><i class="fa-solid fa-xmark"></i></button>' +
     '</div>' +
     '<div class="loc-card-row">' +
-      '<input class="f-input ws-city w-city" placeholder="City" value="' + (pre.city || '') + '">' +
-      '<input class="f-input ws-state w-state" placeholder="ST" value="' + (pre.state || '') + '">' +
-      '<input class="f-input ws-zip w-zip" placeholder="ZIP" value="' + (pre.zip || '') + '">' +
+      '<input class="f-input ws-city w-city" placeholder="City" value="' + (pre.city || '') + '" oninput="onLocFieldInput(this)">' +
+      '<input class="f-input ws-state w-state" placeholder="ST" value="' + (pre.state || '') + '" oninput="onLocFieldInput(this)">' +
+      '<input class="f-input ws-zip w-zip" placeholder="ZIP" value="' + (pre.zip || '') + '" oninput="onLocFieldInput(this)">' +
     '</div>' +
     '<div class="loc-card-row" style="align-items:flex-end;">' +
       '<div class="mini-field"><span class="mini-label">Start</span><input type="time" class="f-input ws-start" value="' + (pre.start || '') + '"></div>' +
@@ -7533,6 +7533,7 @@ function locSelChanged(sel) {
   if (sel.value === '__newloc') {
     ['ws-venue', 'ws-street', 'ws-city', 'ws-state', 'ws-zip'].forEach(c => { lc.querySelector('.' + c).value = ''; });
     lc.querySelector('.ws-venue').focus();
+    updateSaveOrgRowForCard(lc);
     updateWizNextState();
     return;
   }
@@ -7544,6 +7545,14 @@ function locSelChanged(sel) {
   lc.querySelector('.ws-state').value = L.state;
   lc.querySelector('.ws-zip').value = L.zip;
   updateLocSum(lc);
+  updateSaveOrgRowForCard(lc);
+  updateWizNextState();
+}
+
+function onLocFieldInput(el) {
+  const lc = el.closest('.loc-card');
+  updateLocSum(lc);
+  updateSaveOrgRowForCard(lc);
   updateWizNextState();
 }
 
@@ -9663,10 +9672,40 @@ document.querySelectorAll('.smart input').forEach(inp => inp.addEventListener('c
 
 function navJobs() { navSetActive('Jobs'); showView('view-jobs-list'); }
 
+function orgLocContextActive(lc) {
+  if (lc.closest('#sh-locs')) return !!(currentJob && ORGS.find(x => x.name === currentJob.org2));
+  return selectedOrgIdx !== null;
+}
+
+function locCardMatchesSavedIdx(lc) {
+  const locs = activeOrgLocs(lc);
+  const venue = lc.querySelector('.ws-venue').value.trim();
+  const street = lc.querySelector('.ws-street').value.trim();
+  const city = lc.querySelector('.ws-city').value.trim();
+  const state = lc.querySelector('.ws-state').value.trim();
+  const zip = lc.querySelector('.ws-zip').value.trim();
+  return locs.findIndex(l => l.v === venue && (l.street || '') === street && (l.city || '') === city && (l.state || '') === state && (l.zip || '') === zip);
+}
+
+function updateSaveOrgRowForCard(lc) {
+  const row = lc.querySelector('.ws-saveorg-row');
+  if (!row) return;
+  const sel = lc.querySelector('.ws-locsel');
+  const selVal = sel ? sel.value : '';
+  let show = false;
+  if (orgLocContextActive(lc)) {
+    if (selVal === '__newloc') show = true;
+    else if (selVal !== '') show = locCardMatchesSavedIdx(lc) < 0;
+  }
+  row.style.display = show ? 'flex' : 'none';
+  if (!show) {
+    const cb = row.querySelector('.ws-saveorg');
+    if (cb) cb.checked = false;
+  }
+}
+
 function updateSaveOrgRows() {
-  document.querySelectorAll('.ws-saveorg-row').forEach(r => {
-    r.style.display = selectedOrgIdx !== null ? 'flex' : 'none';
-  });
+  document.querySelectorAll('.loc-card').forEach(updateSaveOrgRowForCard);
 }
 
 /* ══════════ INIT ══════════ */
