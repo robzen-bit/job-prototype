@@ -2250,6 +2250,20 @@ html, body {
 .dz-uploaded { font-size: 13px; font-weight: 600; color: #16a34a; display: flex; align-items: center; gap: 7px; }
 .dz-uploaded i { font-size: 15px; opacity: 1; display: inline; margin: 0; color: #22c55e; }
 
+/* Ecommerce step — preorder nested settings */
+.ecom-nest { border: 1px solid var(--line); border-radius: var(--r-sm); padding: 14px 16px 6px; margin-top: 14px; background: #FAFAFC; transition: opacity 0.15s ease; }
+.ecom-disabled { opacity: 0.45; pointer-events: none; }
+.ecom-set-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 0; }
+.pct-wrap { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.pct-wrap input { width: 74px; text-align: right; }
+.pct-wrap span { font-size: 13px; font-weight: 600; color: var(--text-2); }
+.ecom-warn { display: flex; align-items: flex-start; gap: 9px; background: #FEF3E7; border: 1px solid #F0C89B; border-radius: var(--r-sm); padding: 10px 12px; font-size: 12.5px; color: #8A5A1E; line-height: 1.5; margin-bottom: 10px; }
+.ecom-warn i { color: var(--orange); font-size: 13px; margin-top: 2px; }
+.ecom-check { display: flex; align-items: flex-start; gap: 10px; padding: 12px 0; border-top: 1px solid var(--line); cursor: pointer; }
+.ecom-check input { margin-top: 2px; accent-color: var(--orange); }
+.ecom-check b { display: block; font-size: 13px; font-weight: 600; color: var(--text); }
+.ecom-check small { display: block; margin-top: 3px; font-size: 12px; color: var(--text-3); line-height: 1.5; }
+
 /* Import Subject List — data matching table */
 .match-table { width: 100%; border-collapse: collapse; font-size: 13px; }
 .match-table th { text-align: left; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-3); padding: 10px; border-bottom: 1px solid var(--line); }
@@ -5468,6 +5482,67 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
       </div>
 
       <!-- STEP 4 : REVIEW -->
+      <!-- ══ ECOMMERCE (import flow) ══ -->
+      <div class="wiz-pane" id="wiz-ecom">
+        <div class="wiz-info" style="margin-top:0;">
+          <i class="fa-solid fa-circle-info"></i>
+          <div>These settings can always be changed later in the job settings.</div>
+        </div>
+
+        <div id="wz-ecom-headline" style="font-size:13px; color:var(--text-2); line-height:1.65; margin:16px 0 12px;"></div>
+
+        <div class="f-label" style="margin-bottom:6px;">Price List</div>
+        <select class="f-input" id="wz-ecom-pricelist" onchange="onEcomPriceListChange()"></select>
+
+        <div style="border:1px solid var(--line); border-radius:var(--r-sm); padding:0 14px; margin-top:18px;">
+          <div class="toggle-row">
+            <div>
+              <div class="toggle-row-title">Preorder</div>
+              <div class="toggle-row-desc">Preorder allows your customers to place orders before their galleries have content. You can offer discounts and other incentives to drive early sales.</div>
+              <div class="toggle-row-desc" id="wz-preorder-hint" style="color:var(--orange); display:none;">Select a price list above to enable preorder.</div>
+            </div>
+            <button class="toggle" id="wz-preorder-toggle" onclick="togglePreorder()"></button>
+          </div>
+        </div>
+
+        <div class="ecom-nest" id="wz-preorder-settings">
+          <div class="f-label" style="margin-bottom:2px;">Preorder Settings</div>
+
+          <div class="ecom-set-row">
+            <div>
+              <div class="toggle-row-title">Blanket discount</div>
+              <div class="toggle-row-desc">Apply a percentage discount across the entire price list during preorder.</div>
+            </div>
+            <div class="pct-wrap">
+              <input type="number" class="f-input" id="wz-pre-discount" min="1" max="100" placeholder="0" oninput="onPreDiscountInput(this)" onchange="onPreDiscountCommit(this)">
+              <span>%</span>
+            </div>
+          </div>
+          <div class="ecom-warn" id="wz-pre-discount-warn" style="display:none;">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span>That’s a steep discount — make sure your price list is priced to support a discount this high.</span>
+          </div>
+
+          <label class="ecom-check">
+            <input type="checkbox" id="wz-pre-noship" onchange="onPreCheckChange()">
+            <span><b>No shipping fee</b><small>Waive shipping charges on all preorder purchases.</small></span>
+          </label>
+          <label class="ecom-check">
+            <input type="checkbox" id="wz-pre-pkgonly" onchange="onPreCheckChange()">
+            <span><b>Packages only</b><small>Limit preorder purchases to packages — individual products become available after galleries are delivered.</small></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- ══ DEADLINES (stub — next build) ══ -->
+      <div class="wiz-pane" id="wiz-deadlines">
+        <div class="coming-soon" style="min-height:260px;">
+          <i class="fa-solid fa-hammer"></i>
+          <p><b style="color:var(--text); font-size:15px;">Deadlines</b></p>
+          <p style="font-size:12px;">This step isn’t built yet — deadline configuration will be added separately.</p>
+        </div>
+      </div>
+
       <div class="wiz-pane" id="wiz-4">
         <div class="f-label" style="margin-bottom:8px;">Automation presets</div>
         <div style="border:1px solid var(--line); border-radius:var(--r-sm); padding:0 14px; margin-bottom:18px;">
@@ -7797,6 +7872,7 @@ function openWizard() {
   renderJobTypes();
   csvHasHeaders = true; csvPreset = 'Matthews'; csvRoleConfig = 'same'; csvBulkRole = 'Client';
   resetImportState();
+  resetEcomState();
   resetRegFormState();
   resetDuringState();
   wizPaint();
@@ -7867,6 +7943,7 @@ function renderJobTypes() {
 function selectJobType(id) {
   selectedJobType = id;
   importPhase = 'upload'; importBusy = false; importResult = null;
+  resetEcomState();
   resetRegFormState();
   resetDuringState();
   renderJobTypes();
@@ -8166,6 +8243,98 @@ function runImport() {
   }, 1400);
 }
 
+/* ══════════ ECOMMERCE STEP (import flow) ══════════ */
+const PRICE_LISTS = [
+  'Standard Volume Price List',
+  'School Portrait Pricing',
+  'Sports League Pricing',
+  'Premium Print Collection',
+  'Digital Only — Volume',
+  'Holiday Mini Sessions'
+];
+/* which presets carry a price list (null = none) */
+const PRESET_PRICE_LISTS = {
+  'Matthews': 'Standard Volume Price List',
+  'Smith Family': null,
+  'Corporate': null,
+  'Sports Season': 'Sports League Pricing',
+  'School Portrait': 'School Portrait Pricing',
+  'Mystic Falls School Portraits': null
+};
+
+let ecomPriceList = '', ecomPLTouched = false, preorderOn = false;
+let preDiscount = '', preNoShipFee = false, prePackagesOnly = false;
+
+function resetEcomState() {
+  ecomPriceList = ''; ecomPLTouched = false; preorderOn = false;
+  preDiscount = ''; preNoShipFee = false; prePackagesOnly = false;
+}
+
+function presetPriceList() { return PRESET_PRICE_LISTS[csvPreset] || ''; }
+
+function renderEcomStep() {
+  /* follow the preset until the user makes their own pick */
+  if (!ecomPLTouched) ecomPriceList = presetPriceList();
+  const fromPreset = presetPriceList();
+  document.getElementById('wz-ecom-headline').innerHTML = fromPreset
+    ? 'You chose to use the <b>' + escHtml(csvPreset) + '</b> preset. This preset included the price list shown below. However, if you’d like to use a different price list, you can select a different price list in the dropdown below.'
+    : 'You chose to use the <b>' + escHtml(csvPreset) + '</b> preset. This preset did not include a price list. Would you like to add a price list for this job? If so, please select one from the dropdown below.';
+  document.getElementById('wz-ecom-pricelist').innerHTML =
+    '<option value=""' + (!ecomPriceList ? ' selected' : '') + '>Please select a price list</option>' +
+    PRICE_LISTS.map(pl => '<option' + (pl === ecomPriceList ? ' selected' : '') + '>' + pl + '</option>').join('');
+  document.getElementById('wz-pre-discount').value = preDiscount;
+  document.getElementById('wz-pre-noship').checked = preNoShipFee;
+  document.getElementById('wz-pre-pkgonly').checked = prePackagesOnly;
+  updateDiscountWarn();
+  paintEcomEnablement();
+}
+
+function paintEcomEnablement() {
+  const hasPL = !!ecomPriceList;
+  const tgl = document.getElementById('wz-preorder-toggle');
+  tgl.classList.toggle('on', hasPL && preorderOn);
+  tgl.classList.toggle('ecom-disabled', !hasPL);
+  document.getElementById('wz-preorder-hint').style.display = hasPL ? 'none' : 'block';
+  document.getElementById('wz-preorder-settings').classList.toggle('ecom-disabled', !(hasPL && preorderOn));
+}
+
+function onEcomPriceListChange() {
+  ecomPriceList = fval('wz-ecom-pricelist');
+  ecomPLTouched = true;
+  paintEcomEnablement();
+}
+
+function togglePreorder() {
+  if (!ecomPriceList) return;
+  preorderOn = !preorderOn;
+  paintEcomEnablement();
+}
+
+function onPreDiscountInput(inp) {
+  const n = parseFloat(inp.value);
+  if (!isNaN(n) && n > 100) inp.value = 100;
+  preDiscount = inp.value;
+  updateDiscountWarn();
+}
+
+function onPreDiscountCommit(inp) {
+  const n = parseFloat(inp.value);
+  if (inp.value !== '' && (isNaN(n) || n < 1)) inp.value = '';
+  else if (n > 100) inp.value = 100;
+  preDiscount = inp.value;
+  updateDiscountWarn();
+}
+
+function updateDiscountWarn() {
+  const n = parseFloat(preDiscount);
+  document.getElementById('wz-pre-discount-warn').style.display = (!isNaN(n) && n > 50) ? 'flex' : 'none';
+}
+
+function onPreCheckChange() {
+  preNoShipFee = document.getElementById('wz-pre-noship').checked;
+  prePackagesOnly = document.getElementById('wz-pre-pkgonly').checked;
+}
+
 function renderCsvSetup() {
   document.getElementById('csv-hdr-yes').classList.toggle('on', csvHasHeaders === true);
   document.getElementById('csv-hdr-no').classList.toggle('on', csvHasHeaders === false);
@@ -8416,11 +8585,12 @@ function paintDuringPhase() {
   if (duringPhase === 'form') renderRegFormBuilder('wz-ph-during-form-mount');
 }
 
-const WIZ_LABELS = { 'wiz-1': 'Details', 'wiz-sched': 'Schedule', 'wiz-setup': 'Setup', 'wiz-placeholder': 'Setup Details', 'wiz-4': 'Review' };
+const WIZ_LABELS = { 'wiz-1': 'Details', 'wiz-sched': 'Schedule', 'wiz-setup': 'Setup', 'wiz-placeholder': 'Setup Details', 'wiz-ecom': 'Ecommerce', 'wiz-deadlines': 'Deadlines', 'wiz-4': 'Review' };
 
 function wizFlow() {
   const flow = ['wiz-1', 'wiz-sched', 'wiz-setup'];
   if (setupMode === 'now' && selectedJobType) flow.push('wiz-placeholder');
+  if (setupMode === 'now' && selectedJobType === 'import') flow.push('wiz-ecom', 'wiz-deadlines');
   flow.push('wiz-4');
   return flow;
 }
@@ -8484,7 +8654,7 @@ function wizPaint() {
   const flow = wizFlow();
   if (wizStep > flow.length) wizStep = flow.length;
   const curPane = flow[wizStep - 1];
-  ['wiz-1', 'wiz-sched', 'wiz-setup', 'wiz-placeholder', 'wiz-4'].forEach(id => {
+  ['wiz-1', 'wiz-sched', 'wiz-setup', 'wiz-placeholder', 'wiz-ecom', 'wiz-deadlines', 'wiz-4'].forEach(id => {
     document.getElementById(id).classList.toggle('active', id === curPane);
   });
   renderWizSteps();
@@ -8504,6 +8674,7 @@ function wizPaint() {
     else if (t === 'duringreg') { renderBulkSetup(); paintDuringPhase(); }
     else if (t) setText('wz-ph-type', JOB_TYPE_LOOKUP[t].title);
   }
+  if (curPane === 'wiz-ecom') renderEcomStep();
   if (curPane === 'wiz-4') buildReview();
   updateWizNextState();
 }
@@ -8540,6 +8711,13 @@ function buildReview() {
     '<div class="review-row"><span class="review-key">Setup</span><span class="review-val">' + (setupMode === 'later' || !selectedJobType ? '<span style="color:var(--text-3);">Not set up yet — configure from the job</span>' : JOB_TYPE_LOOKUP[selectedJobType].title) + '</span></div>' +
     (setupMode === 'now' && selectedJobType === 'import' && importResult
       ? '<div class="review-row"><span class="review-key">Subjects</span><span class="review-val">' + importResult.contacts.length + ' contact' + (importResult.contacts.length === 1 ? '' : 's') + ' imported · ' + importResult.galleries + ' galler' + (importResult.galleries === 1 ? 'y' : 'ies') + ' will be created</span></div>'
+      : '') +
+    (setupMode === 'now' && selectedJobType === 'import'
+      ? '<div class="review-row"><span class="review-key">Ecommerce</span><span class="review-val">' + (ecomPriceList
+          ? escHtml(ecomPriceList) + (preorderOn
+              ? ' · Preorder on' + (preDiscount ? ' · ' + preDiscount + '% discount' : '') + (preNoShipFee ? ' · no shipping fee' : '') + (prePackagesOnly ? ' · packages only' : '')
+              : ' · Preorder off')
+          : '<span style="color:var(--text-3);">No price list — attach later from job settings</span>') + '</span></div>'
       : '');
 }
 
@@ -8624,6 +8802,16 @@ function createJob() {
     J.contactsFoot = J.contacts.length + ' contact' + (J.contacts.length === 1 ? '' : 's');
     J.steps[0].d = importResult.galleries + ' galleries generated from the subject list';
     J.cta = ['Download QR Codes', "toast('Downloading QR codes for " + importResult.galleries + " galleries…')"];
+  }
+  if (setupMode === 'now' && selectedJobType === 'import') {
+    JOBS[key].po = {
+      setup: !!(ecomPriceList && preorderOn),
+      pricelist: ecomPriceList || 'Attach later',
+      link: JOBS[key].po.link,
+      discount: preorderOn && preDiscount ? preDiscount + '%' : '',
+      noShipFee: preorderOn && preNoShipFee,
+      packagesOnly: preorderOn && prePackagesOnly
+    };
   }
 
   const card =
