@@ -5591,6 +5591,7 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
     <div class="modal-footer">
       <button class="btn btn-ghost-sm" id="wiz-back" onclick="wizNav(-1)" style="visibility:hidden;">Back</button>
       <div class="spacer"></div>
+      <button class="btn btn-ghost-sm" id="wiz-saveexit" onclick="wizSaveAndExit()" style="display:none;">Save &amp; Exit</button>
       <span style="font-size:12px; color:var(--text-3);" id="wiz-count">Step 1 of 4</span>
       <button class="btn btn-brand" id="wiz-next" onclick="wizNav(1)">Next <i class="fa-solid fa-arrow-right" style="font-size:11px;"></i></button>
     </div>
@@ -9252,9 +9253,12 @@ function updateWizNextState() {
   const flow = wizFlow();
   const cur = flow[wizStep - 1];
   const btn = document.getElementById('wiz-next');
-  if (!btn) return;
-  if (stepValid(cur)) btn.removeAttribute('disabled');
-  else btn.setAttribute('disabled', '');
+  if (btn) {
+    if (stepValid(cur)) btn.removeAttribute('disabled');
+    else btn.setAttribute('disabled', '');
+  }
+  const se = document.getElementById('wiz-saveexit');
+  if (se) se.style.display = (stepValid('wiz-1') && wizStep < flow.length) ? '' : 'none';
 }
 
 function wizNav(dir) {
@@ -9359,7 +9363,13 @@ function buildReview() {
       : '');
 }
 
-function createJob() {
+function wizSaveAndExit() {
+  if (!stepValid('wiz-1')) return;
+  createJob({ early: true });
+}
+
+function createJob(opts) {
+  opts = opts || {};
   const name = fval('wz-name').trim() || 'Untitled Job';
   const o = resolveOrg();
   if (selectedOrgIdx !== null && document.getElementById('wz-dest-savedef-cb').checked) {
@@ -9396,9 +9406,10 @@ function createJob() {
     contact: [o.contact, o.email || ''], notes: fval('wz-notes').trim(),
     created: 'Jun 3, 2026', modified: 'Jun 3, 2026',
     phase: 0,
+    needsSetup: !!opts.early,
     shoots: shoots,
     steps: [
-      { icon: 'fa-gear', t: 'Setup', d: 'Add folders and galleries to get started', badge: 'In Progress' },
+      { icon: 'fa-gear', t: 'Setup', d: opts.early ? 'Saved before setup was finished — pick up where you left off.' : 'Add folders and galleries to get started', badge: 'In Progress' },
       { icon: 'fa-camera', t: 'Shoot Day', d: shoots.length ? 'Scheduled ' + shoots[0].date + (shoots.length > 1 ? ' + ' + (shoots.length - 1) + ' more date' + (shoots.length > 2 ? 's' : '') : '') : 'Dates & locations to be added later' },
       { icon: 'fa-arrow-up', t: 'Upload', d: 'Photographers upload after the shoot' },
       { icon: 'fa-tag', t: 'Sales', d: 'Share galleries, run campaigns, track orders' }
@@ -9457,7 +9468,7 @@ function createJob() {
   const card =
     '<div class="job-card" data-status="planning" data-tags="active upcoming" style="cursor:pointer;" onclick="openJob(\'' + key + '\')">' +
       '<div class="job-info">' +
-        '<span class="job-status-pill pill-planning">Setup</span>' +
+        '<span class="job-status-pill pill-planning">' + (opts.early ? 'Setup Incomplete' : 'Setup') + '</span>' +
         '<div class="job-name">' + name + '</div>' +
         '<div class="job-meta">' +
           '<div class="job-meta-row shoot-date"><i class="fa-solid fa-camera"></i> Shoot: ' + dateTxt + '</div>' +
@@ -9500,7 +9511,7 @@ function createJob() {
   refreshJobCounts();
   closeModal('modal-wizard');
   showView('view-jobs-list');
-  toast('Job created');
+  toast(opts.early ? 'Job saved — finish setup anytime from the job' : 'Job created');
 }
 
 /* ══════════ TEAM ══════════ */
