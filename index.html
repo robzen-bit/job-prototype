@@ -8521,7 +8521,12 @@ function dlResolvedHTML(key) {
   const r = dlResolve(key);
   if (!r.err) return '<div class="dl-resolved"><i class="fa-solid fa-arrow-turn-up" style="transform:rotate(90deg); font-size:10px; margin-right:5px; color:var(--text-3);"></i>Resolves to <b>' + fmtInputDate(r.iso) + ' at ' + fmtTime(r.time) + '</b></div>';
   if (r.err === 'loop') return '<div class="dl-resolved dl-error"><i class="fa-solid fa-triangle-exclamation" style="font-size:11px; margin-right:5px;"></i>Circular reference — these rules depend on each other. Adjust one of them.</div>';
-  if (r.err === 'anchor-missing') return '<div class="dl-resolved dl-unresolved">Can’t resolve yet — the anchor date has no value.</div>';
+  if (r.err === 'anchor-missing') {
+    const msg = key === 'upload' ? 'Can’t resolve yet — the job has no shoot dates scheduled.'
+      : key === 'delivery' ? 'Can’t resolve yet — set the upload deadline first.'
+      : 'Can’t resolve yet — the anchor date has no value.';
+    return '<div class="dl-resolved dl-unresolved">' + msg + '</div>';
+  }
   return '<div class="dl-resolved dl-unresolved">Select an anchor date to resolve this rule.</div>';
 }
 
@@ -8535,8 +8540,19 @@ function templateOptionsHTML(selected) {
 function autoReminderHTML(key, label, purpose) {
   const a = dlAutos[key].reminders[0];
   const parentDT = dlDT(key);
+  /* the photographer reminder is relative-only: locked to [n] days BEFORE the upload deadline */
+  if (key === 'upload') { a.mode = 'relative'; a.rel = 'before'; }
+  const locked = key === 'upload';
   let timing;
-  if (a.mode === 'specific') {
+  if (locked) {
+    timing = '<div class="dl-rule">' +
+      '<input type="number" class="f-input dl-num" min="0" max="365" value="' + a.num + '" onchange="autoFieldChanged(\'' + key + '\', \'num\', this.value)">' +
+      '<span class="dl-days">days before the upload deadline</span>' +
+      '<span class="dl-days">at</span>' +
+      '<input type="time" class="f-input" style="width:auto;" value="' + a.time + '" onchange="autoFieldChanged(\'' + key + '\', \'time\', this.value)">' +
+    '</div>' +
+    '<div class="dl-anchor-lock"><i class="fa-solid fa-lock" style="font-size:10px;"></i> Always sends relative to the upload deadline</div>';
+  } else if (a.mode === 'specific') {
     const minDate = nowLocalDT().slice(0, 10);
     const maxDate = parentDT ? parentDT.slice(0, 10) : '';
     timing = '<div class="dl-rule">' +
@@ -8572,10 +8588,11 @@ function autoReminderHTML(key, label, purpose) {
     '</div>' +
     '<div class="dl-auto-controls' + (a.on ? '' : ' ecom-disabled') + '">' +
       '<select class="f-input" style="margin-bottom:10px;" onchange="autoTemplateChanged(\'' + key + '\', this)">' + templateOptionsHTML(a.template) + '</select>' +
-      '<div class="dl-modes" style="margin:6px 0 8px;">' +
-        '<label class="rdot-row" onclick="autoFieldChanged(\'' + key + '\', \'mode\', \'specific\')"><span class="rdot' + (a.mode === 'specific' ? ' on' : '') + '"></span>Specific date &amp; time</label>' +
-        '<label class="rdot-row" onclick="autoFieldChanged(\'' + key + '\', \'mode\', \'relative\')"><span class="rdot' + (a.mode === 'relative' ? ' on' : '') + '"></span>Relative to this deadline</label>' +
-      '</div>' +
+      (locked ? '' :
+        '<div class="dl-modes" style="margin:6px 0 8px;">' +
+          '<label class="rdot-row" onclick="autoFieldChanged(\'' + key + '\', \'mode\', \'specific\')"><span class="rdot' + (a.mode === 'specific' ? ' on' : '') + '"></span>Specific date &amp; time</label>' +
+          '<label class="rdot-row" onclick="autoFieldChanged(\'' + key + '\', \'mode\', \'relative\')"><span class="rdot' + (a.mode === 'relative' ? ' on' : '') + '"></span>Relative to this deadline</label>' +
+        '</div>') +
       timing + sendLine +
     '</div>' +
   '</div>';
@@ -8621,8 +8638,8 @@ function deliveryAutosHTML() {
         '<span class="dl-days">before the delivery deadline</span>' +
       '</div>' +
       '<div class="dl-rule" style="margin-top:8px; gap:18px;">' +
-        '<label class="ecom-check" style="border-top:none; padding:0;"><input type="checkbox"' + (rm.chEmail ? ' checked' : '') + ' onchange="remindFieldChanged(\'chEmail\', this.checked)"><span><b>Email</b></span></label>' +
-        '<label class="ecom-check" style="border-top:none; padding:0;"><input type="checkbox"' + (rm.chSms ? ' checked' : '') + ' onchange="remindFieldChanged(\'chSms\', this.checked)"><span><b>SMS</b><small>Uses the verified number on your account.</small></span></label>' +
+        '<label class="ecom-check" style="border-top:none; padding:0; align-items:center;"><input type="checkbox"' + (rm.chEmail ? ' checked' : '') + ' onchange="remindFieldChanged(\'chEmail\', this.checked)"><span><b>Email</b></span></label>' +
+        '<label class="ecom-check" style="border-top:none; padding:0; align-items:center;"><input type="checkbox"' + (rm.chSms ? ' checked' : '') + ' onchange="remindFieldChanged(\'chSms\', this.checked)"><span><b>SMS</b></span></label>' +
       '</div>' +
       rmLine +
     '</div>' +
@@ -8635,10 +8652,12 @@ function renderDeadlines() {
   if (!mount) return;
   const tzEl = document.getElementById('dl-tz');
   if (tzEl) { try { tzEl.textContent = Intl.DateTimeFormat().resolvedOptions().timeZone.replace(/_/g, ' '); } catch (e) { tzEl.textContent = 'local time'; } }
+  /* locked anchors: upload follows the shoot schedule, delivery follows the upload deadline */
+  if (dlState.upload.mode === 'relative') { dlState.upload.anchor = 'shoot:last'; dlState.upload.rel = 'after'; }
+  if (dlState.delivery.mode === 'relative') { dlState.delivery.anchor = 'dl:upload'; dlState.delivery.rel = 'after'; }
   mount.innerHTML = DL_KEYS.map(key => {
     const s = dlState[key];
     const disabled = key === 'preorder' && !preorderActive();
-    const anchors = dlAnchorOptions(key);
     let controls;
     if (s.mode === 'specific') {
       controls = '<div class="dl-rule">' +
@@ -8646,7 +8665,40 @@ function renderDeadlines() {
         '<span class="dl-days">at</span>' +
         '<input type="time" class="f-input" style="width:auto;" value="' + s.time + '" onchange="dlTimeChanged(\'' + key + '\', this)">' +
       '</div>';
+      if (key === 'delivery') {
+        const dDT = dlDT('delivery'), uDT = dlDT('upload');
+        if (dDT && uDT && dDT < uDT) {
+          controls += '<div class="ecom-warn" style="margin-top:10px;"><i class="fa-solid fa-triangle-exclamation"></i><span>This delivery deadline (' + fmtDT(dDT) + ') falls before the upload deadline (' + fmtDT(uDT) + ').</span></div>';
+        }
+      }
+    } else if (key === 'upload') {
+      const dates = wizShootDatesISO();
+      const shootLabel = dates.length
+        ? (dates.length > 1 ? 'the last shoot date' : 'the shoot date') + ' <b>(' + fmtInputDate(dates[dates.length - 1]) + ')</b>'
+        : 'the shoot date <span style="color:var(--text-3);">(not scheduled yet)</span>';
+      controls =
+        '<div class="dl-rule">' +
+          '<input type="number" class="f-input dl-num" min="0" max="365" value="' + s.num + '" onchange="dlNumChanged(\'' + key + '\', this)">' +
+          '<span class="dl-days">days after ' + shootLabel + '</span>' +
+          '<span class="dl-days">at</span>' +
+          '<input type="time" class="f-input" style="width:auto;" value="' + s.time + '" onchange="dlTimeChanged(\'' + key + '\', this)">' +
+        '</div>' +
+        '<div class="dl-anchor-lock"><i class="fa-solid fa-lock" style="font-size:10px;"></i> Anchored to the shoot schedule</div>' +
+        dlResolvedHTML(key);
+    } else if (key === 'delivery') {
+      const uDT = dlDT('upload');
+      const upLabel = 'the upload deadline ' + (uDT ? '<b>(' + fmtInputDate(uDT.slice(0, 10)) + ')</b>' : '<span style="color:var(--text-3);">(not set yet)</span>');
+      controls =
+        '<div class="dl-rule">' +
+          '<input type="number" class="f-input dl-num" min="0" max="365" value="' + s.num + '" onchange="dlNumChanged(\'' + key + '\', this)">' +
+          '<span class="dl-days">days after ' + upLabel + '</span>' +
+          '<span class="dl-days">at</span>' +
+          '<input type="time" class="f-input" style="width:auto;" value="' + s.time + '" onchange="dlTimeChanged(\'' + key + '\', this)">' +
+        '</div>' +
+        '<div class="dl-anchor-lock"><i class="fa-solid fa-lock" style="font-size:10px;"></i> Anchored to the upload deadline</div>' +
+        dlResolvedHTML(key);
     } else {
+      const anchors = dlAnchorOptions(key);
       const anchorOpts = anchors.length
         ? anchors.map(o => '<option value="' + o.v + '"' + (o.v === s.anchor ? ' selected' : '') + '>' + o.label + '</option>').join('') +
           (s.anchor && !anchors.some(o => o.v === s.anchor) ? '<option value="' + s.anchor + '" selected>Missing anchor date</option>' : '')
@@ -8772,9 +8824,14 @@ function dlModeChanged(key, mode) {
   if (dlState[key].mode === mode) return;
   const s = dlCloneState(key);
   s.mode = mode;
-  if (mode === 'relative' && !s.anchor) {
-    const opts = dlAnchorOptions(key);
-    s.anchor = opts.length ? opts[0].v : '';
+  if (mode === 'relative') {
+    /* upload is locked to the shoot schedule; delivery is locked to after the upload deadline */
+    if (key === 'upload') { s.anchor = 'shoot:last'; s.rel = 'after'; }
+    else if (key === 'delivery') { s.anchor = 'dl:upload'; s.rel = 'after'; }
+    else if (!s.anchor) {
+      const opts = dlAnchorOptions(key);
+      s.anchor = opts.length ? opts[0].v : '';
+    }
   }
   dlAttemptChange(key, s);
 }
