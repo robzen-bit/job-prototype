@@ -9694,8 +9694,8 @@ function updateSaveOrgRowForCard(lc) {
   const selVal = sel ? sel.value : '';
   let show = false;
   if (orgLocContextActive(lc)) {
-    if (selVal === '__newloc') show = true;
-    else if (selVal !== '') show = locCardMatchesSavedIdx(lc) < 0;
+    if (selVal === '' || selVal === '__newloc') show = true;
+    else show = locCardMatchesSavedIdx(lc) < 0;
   }
   row.style.display = show ? 'flex' : 'none';
   if (!show) {
