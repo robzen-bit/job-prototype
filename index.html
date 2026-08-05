@@ -2237,6 +2237,35 @@ html, body {
 
 .dropzone b { color: var(--teal); font-weight: 600; }
 
+/* Import Subject List — functional CSV dropzone states */
+#wz-csv-drop { min-height: 160px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; background: #fafafa; border-width: 2px; }
+#wz-csv-drop:hover { border-color: var(--orange); background: #FFF9F4; }
+#wz-csv-drop.dragover { border-color: var(--orange); background: #FFF6EF; }
+#wz-csv-drop.uploaded { border-color: #22c55e; background: #f0fdf4; border-style: solid; }
+#wz-csv-drop.uploaded:hover { border-color: #16a34a; background: #f0fdf4; }
+.dz-btn { display: inline-flex; align-items: center; gap: 8px; background: #1a1a1a; color: #fff; border: none; border-radius: 999px; padding: 10px 22px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; }
+.dz-btn:hover { background: #333; }
+.dz-btn i { font-size: 13px; opacity: 1; display: inline; margin: 0; }
+.dz-cap { font-size: 12.5px; color: var(--text-3); }
+.dz-uploaded { font-size: 13px; font-weight: 600; color: #16a34a; display: flex; align-items: center; gap: 7px; }
+.dz-uploaded i { font-size: 15px; opacity: 1; display: inline; margin: 0; color: #22c55e; }
+
+/* Import Subject List — data matching table */
+.match-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.match-table th { text-align: left; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-3); padding: 10px; border-bottom: 1px solid var(--line); }
+.match-table td { padding: 10px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+.match-table tbody tr:last-child td { border-bottom: none; }
+.match-ico { width: 26px; text-align: center; color: var(--text-3); }
+.match-hdr { font-weight: 600; color: var(--text); }
+.match-prev { color: var(--text-2); max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.match-prev i.ok { color: #22c55e; margin-right: 7px; }
+.match-prev i.bad { color: #ef4444; margin-right: 7px; }
+.match-sel { height: 32px; font-size: 12.5px; width: 100%; min-width: 150px; }
+.match-clear-cell { width: 52px; text-align: right; }
+.match-clear { color: var(--orange); text-decoration: underline; font-size: 12.5px; cursor: pointer; font-weight: 600; }
+.match-role-row td { background: #fafafa; }
+.match-role-label { font-size: 12px; font-weight: 700; color: var(--text-2); margin-right: 10px; }
+
 .doc-icon {
   width: 36px; height: 36px;
   border-radius: var(--r-xs);
@@ -5330,43 +5359,61 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
 
         <!-- Import Subject List → Create via CSV (matches the Volume Wizard flow, folder-setup step skipped since the job already has a destination) -->
         <div id="wz-ph-import" style="display:none;">
-          <div class="wiz-info" style="margin-top:0;">
-            <i class="fa-solid fa-circle-info"></i>
-            <div>Upload subject data to generate galleries in bulk and apply a preset. <a class="gallery-name-link" onclick="toast('Opens the Volume Wizard help article')">Click here</a> for more info.</div>
+
+          <!-- Phase 1: CSV upload + preset/role config -->
+          <div id="wz-import-upload">
+            <div class="wiz-info" style="margin-top:0;">
+              <i class="fa-solid fa-circle-info"></i>
+              <div>Upload subject data to generate galleries in bulk and apply a preset. <a class="gallery-name-link" onclick="toast('Opens the Volume Wizard help article')">Click here</a> for more info.</div>
+            </div>
+
+            <div class="detail-card" style="margin-top:16px;">
+              <div class="detail-card-header" style="margin-bottom:4px;">Create via CSV</div>
+              <div style="font-size:12.5px; color:var(--text-3); margin-bottom:18px;">Create galleries in bulk by importing a CSV file. <a class="gallery-name-link" onclick="toast('Opens the CSV import guide')">Click here</a> to learn more.</div>
+
+              <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+                <span style="font-size:14px; font-weight:700; color:var(--text);">Import CSV File</span>
+                <a class="gallery-name-link" style="font-size:12.5px; font-weight:600;" onclick="downloadCsvTemplate()"><i class="fa-solid fa-arrow-down" style="font-size:10px; margin-right:4px;"></i>Download CSV template</a>
+              </div>
+              <div class="dropzone" id="wz-csv-drop" style="margin-bottom:18px;"
+                   onclick="document.getElementById('wz-csv-file').click()"
+                   ondragover="csvDragOver(event)" ondragleave="csvDragLeave(event)" ondrop="csvDrop(event)"></div>
+              <input type="file" id="wz-csv-file" accept=".csv,text/csv" style="display:none;" onchange="csvFileChosen(this)">
+
+              <div class="rdot-list" style="margin-bottom:22px;">
+                <label class="rdot-row" onclick="setCsvHeaders(true)"><span class="rdot" id="csv-hdr-yes"></span>My CSV file includes headers</label>
+                <label class="rdot-row" onclick="setCsvHeaders(false)"><span class="rdot" id="csv-hdr-no"></span>My CSV file does not include headers</label>
+              </div>
+
+              <div class="f-label" style="margin-bottom:5px;">Gallery Preset &amp; Role Configuration</div>
+              <div style="font-size:12.5px; color:var(--text-3); margin-bottom:12px;">Select a preset to apply to all galleries, then choose how to assign roles to imported contacts.</div>
+              <select class="f-input" id="csv-preset" style="margin-bottom:16px;" onchange="onCsvPresetChange()"></select>
+
+              <div class="rdot-list">
+                <label class="rdot-row" onclick="setCsvRoleConfig('same')" style="flex-wrap:wrap;">
+                  <span class="rdot" id="csv-role-same"></span>
+                  <span>All contacts should be assigned to the same role.</span>
+                  <select class="f-input" id="csv-bulk-role" style="width:auto; height:30px; font-size:12.5px; margin-left:6px;" onclick="event.stopPropagation()" onchange="setCsvRoleConfig('same')"></select>
+                </label>
+                <label class="rdot-row" onclick="setCsvRoleConfig('perColumn')" style="align-items:flex-start;">
+                  <span class="rdot" id="csv-role-percol" style="margin-top:1px;"></span>
+                  <span>I would like to assign contacts to roles during the matching phase.</span>
+                </label>
+              </div>
+            </div>
           </div>
 
-          <div class="detail-card" style="margin-top:16px;">
-            <div class="detail-card-header" style="margin-bottom:4px;">Create via CSV</div>
-            <div style="font-size:12.5px; color:var(--text-3); margin-bottom:18px;">Create galleries in bulk by importing a CSV file. <a class="gallery-name-link" onclick="toast('Opens the CSV import guide')">Click here</a> to learn more.</div>
-
-            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
-              <span style="font-size:14px; font-weight:700; color:var(--text);">Import CSV File</span>
-              <a class="gallery-name-link" style="font-size:12.5px; font-weight:600;" onclick="toast('Downloading CSV template…')"><i class="fa-solid fa-arrow-down" style="font-size:10px; margin-right:4px;"></i>Download CSV template</a>
+          <!-- Phase 2: Data Matching -->
+          <div id="wz-import-match" style="display:none;">
+            <div style="text-align:center; margin:4px 0 18px;">
+              <div style="font-size:16px; font-weight:700; color:var(--text);">Data Matching</div>
+              <div style="font-size:12.5px; color:var(--text-3); margin-top:4px;">Select which fields we should copy the information into. Email matching is required.</div>
             </div>
-            <div class="dropzone" style="margin-bottom:18px;" onclick="toast('File picker would open here')">
-              <i class="fa-solid fa-cloud-arrow-up"></i>
-              <b>Browse Files</b> or drag and drop to upload
-            </div>
-
-            <div class="rdot-list" style="margin-bottom:22px;">
-              <label class="rdot-row" onclick="setCsvHeaders(true)"><span class="rdot" id="csv-hdr-yes"></span>My CSV file includes headers</label>
-              <label class="rdot-row" onclick="setCsvHeaders(false)"><span class="rdot" id="csv-hdr-no"></span>My CSV file does not include headers</label>
-            </div>
-
-            <div class="f-label" style="margin-bottom:5px;">Gallery Preset &amp; Role Configuration</div>
-            <div style="font-size:12.5px; color:var(--text-3); margin-bottom:12px;">Select a preset to apply to all galleries, then choose how to assign roles to imported contacts.</div>
-            <select class="f-input" id="csv-preset" style="margin-bottom:16px;" onchange="onCsvPresetChange()"></select>
-
-            <div class="rdot-list">
-              <label class="rdot-row" onclick="setCsvRoleConfig('same')" style="flex-wrap:wrap;">
-                <span class="rdot" id="csv-role-same"></span>
-                <span>All contacts should be assigned to the same role.</span>
-                <select class="f-input" id="csv-bulk-role" style="width:auto; height:30px; font-size:12.5px; margin-left:6px;" onclick="event.stopPropagation()" onchange="setCsvRoleConfig('same')"></select>
-              </label>
-              <label class="rdot-row" onclick="setCsvRoleConfig('perColumn')" style="align-items:flex-start;">
-                <span class="rdot" id="csv-role-percol" style="margin-top:1px;"></span>
-                <span>I would like to assign contacts to roles during the matching phase.</span>
-              </label>
+            <div class="detail-card" style="padding:6px 10px;">
+              <table class="match-table">
+                <thead><tr><th></th><th>CSV Header</th><th>Preview</th><th>Header Match</th><th></th></tr></thead>
+                <tbody id="wz-match-tbody"></tbody>
+              </table>
             </div>
           </div>
         </div>
@@ -7749,6 +7796,7 @@ function openWizard() {
   document.getElementById('wz-setup-helper').style.display = 'block';
   renderJobTypes();
   csvHasHeaders = true; csvPreset = 'Matthews'; csvRoleConfig = 'same'; csvBulkRole = 'Client';
+  resetImportState();
   resetRegFormState();
   resetDuringState();
   wizPaint();
@@ -7818,6 +7866,7 @@ function renderJobTypes() {
 
 function selectJobType(id) {
   selectedJobType = id;
+  importPhase = 'upload'; importBusy = false; importResult = null;
   resetRegFormState();
   resetDuringState();
   renderJobTypes();
@@ -7853,6 +7902,270 @@ const SYSTEM_ROLE_NAMES = ['Default', 'Guest', 'Client'];
 
 let csvHasHeaders = true, csvPreset = 'Matthews', csvRoleConfig = 'same', csvBulkRole = 'Client';
 
+/* CSV file + matching state */
+let csvFileName = '', csvRawRows = [], csvHeaders = [], csvRows = [], csvColCount = 0;
+let csvMappings = [], csvColRoles = {};
+let importPhase = 'upload', importBusy = false, importResult = null;
+
+const MATCH_FIELDS = [
+  { id: 'email', label: 'Email' },
+  { id: 'first', label: 'First Name' },
+  { id: 'last', label: 'Last Name' },
+  { id: 'full', label: 'Full Name' },
+  { id: 'phone', label: 'Mobile Phone' }
+];
+
+const escHtml = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+function resetImportState() {
+  csvFileName = ''; csvRawRows = []; csvHeaders = []; csvRows = []; csvColCount = 0;
+  csvMappings = []; csvColRoles = {};
+  importPhase = 'upload'; importBusy = false; importResult = null;
+}
+
+/* proper CSV parse: quoted fields, embedded commas/quotes, \r\n and \n, skips fully-empty rows */
+function parseCSV(text) {
+  const rows = []; let row = [], cell = '', inQ = false;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (inQ) {
+      if (ch === '"') { if (text[i + 1] === '"') { cell += '"'; i++; } else inQ = false; }
+      else cell += ch;
+    } else if (ch === '"') inQ = true;
+    else if (ch === ',') { row.push(cell); cell = ''; }
+    else if (ch === '\n' || ch === '\r') {
+      if (ch === '\r' && text[i + 1] === '\n') i++;
+      row.push(cell); rows.push(row); row = []; cell = '';
+    } else cell += ch;
+  }
+  if (cell !== '' || row.length) { row.push(cell); rows.push(row); }
+  return rows.filter(r => r.some(c => String(c).trim() !== ''));
+}
+
+function applyCsvHeaderMode() {
+  if (!csvRawRows.length) { csvHeaders = []; csvRows = []; csvColCount = 0; return; }
+  csvColCount = csvRawRows.reduce((m, r) => Math.max(m, r.length), 0);
+  if (csvHasHeaders) { csvHeaders = csvRawRows[0].slice(); csvRows = csvRawRows.slice(1); }
+  else { csvHeaders = []; csvRows = csvRawRows.slice(); }
+}
+
+function colAlpha(i) {
+  let s = ''; i++;
+  while (i > 0) { s = String.fromCharCode(65 + (i - 1) % 26) + s; i = Math.floor((i - 1) / 26); }
+  return s;
+}
+
+function colLabel(i) {
+  return (csvHasHeaders && csvHeaders[i] && String(csvHeaders[i]).trim()) ? String(csvHeaders[i]).trim() : 'Column ' + colAlpha(i);
+}
+
+/* auto-match: header keywords or @-containing preview → field, numbered in order of appearance */
+function autoMatchColumns() {
+  csvMappings = []; csvColRoles = {};
+  const counts = { email: 0, first: 0, last: 0, full: 0, phone: 0 };
+  for (let i = 0; i < csvColCount; i++) {
+    const h = (csvHasHeaders ? String(csvHeaders[i] || '') : '').toLowerCase();
+    const pv = String((csvRows[0] && csvRows[0][i]) || '').toLowerCase();
+    let f = null;
+    if (h.indexOf('email') >= 0 || pv.indexOf('@') >= 0) f = 'email';
+    else if (h.indexOf('first') >= 0 && h.indexOf('name') >= 0) f = 'first';
+    else if (h.indexOf('last') >= 0 && h.indexOf('name') >= 0) f = 'last';
+    else if (h.indexOf('fullname') >= 0 || (h.indexOf('full') >= 0 && h.indexOf('name') >= 0)) f = 'full';
+    else if (h.indexOf('phone') >= 0 || h.indexOf('mobile') >= 0 || h.indexOf('cell') >= 0) f = 'phone';
+    if (f && counts[f] < 10) { counts[f]++; csvMappings[i] = { field: f, num: counts[f] }; }
+    else csvMappings[i] = null;
+  }
+}
+
+function csvDragOver(e) { e.preventDefault(); document.getElementById('wz-csv-drop').classList.add('dragover'); }
+function csvDragLeave(e) { document.getElementById('wz-csv-drop').classList.remove('dragover'); }
+function csvDrop(e) {
+  e.preventDefault();
+  document.getElementById('wz-csv-drop').classList.remove('dragover');
+  const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+  if (f) readCsvFile(f);
+}
+function csvFileChosen(input) {
+  const f = input.files && input.files[0];
+  input.value = '';
+  if (f) readCsvFile(f);
+}
+
+function readCsvFile(f) {
+  const reader = new FileReader();
+  reader.onload = () => {
+    const all = parseCSV(String(reader.result));
+    if (!all.length) { toast('That file appears to be empty'); return; }
+    csvFileName = f.name;
+    csvRawRows = all;
+    importResult = null;
+    applyCsvHeaderMode();
+    autoMatchColumns();
+    renderCsvDrop();
+    updateWizNextState();
+  };
+  reader.readAsText(f);
+}
+
+function renderCsvDrop() {
+  const dz = document.getElementById('wz-csv-drop');
+  if (!dz) return;
+  dz.classList.toggle('uploaded', !!csvFileName);
+  dz.innerHTML = csvFileName
+    ? '<div class="dz-uploaded"><i class="fa-solid fa-circle-check"></i>' + escHtml(csvFileName) + ' uploaded</div>' +
+      '<button type="button" class="dz-btn"><i class="fa-solid fa-cloud-arrow-up"></i>Replace File</button>' +
+      '<div class="dz-cap">' + csvRows.length + ' data row' + (csvRows.length === 1 ? '' : 's') + ' · ' + csvColCount + ' column' + (csvColCount === 1 ? '' : 's') + '</div>'
+    : '<button type="button" class="dz-btn"><i class="fa-solid fa-cloud-arrow-up"></i>Browse Files</button>' +
+      '<div class="dz-cap">or Drag and Drop to upload</div>';
+}
+
+function downloadCsvTemplate() {
+  const csv = 'First Name,Last Name,Email,Mobile Phone\n' +
+    'Jordan,Avery,jordan.avery@example.com,(555) 201-7788\n' +
+    'Riley,Chen,riley.chen@example.com,(555) 314-2290\n' +
+    'Sam,Okafor,sam.okafor@example.com,(555) 878-1042\n';
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = 'subject-list-template.csv';
+  document.body.appendChild(a); a.click(); a.remove();
+}
+
+/* ── matching step ── */
+function roleOptionsHTML(selected) {
+  const presetRoles = (VOLUME_PRESET_ROLES[csvPreset] || []).filter(r => SYSTEM_ROLE_NAMES.indexOf(r) < 0);
+  return '<optgroup label="System Roles">' + SYSTEM_ROLE_NAMES.map(r => '<option' + (r === selected ? ' selected' : '') + '>' + r + '</option>').join('') + '</optgroup>' +
+    (presetRoles.length ? '<optgroup label="Gallery Preset Roles">' + presetRoles.map(r => '<option' + (r === selected ? ' selected' : '') + '>' + r + '</option>').join('') + '</optgroup>' : '');
+}
+
+function matchOptionsHTML(colIdx) {
+  const cur = csvMappings[colIdx];
+  let html = '<option value=""' + (!cur ? ' selected' : '') + '>Select Column</option>';
+  MATCH_FIELDS.forEach(f => {
+    const usedByOthers = {};
+    let maxUsed = 0;
+    csvMappings.forEach((m, i) => {
+      if (m && m.field === f.id) { maxUsed = Math.max(maxUsed, m.num); if (i !== colIdx) usedByOthers[m.num] = true; }
+    });
+    const cap = Math.min(10, maxUsed + 1);
+    let opts = '';
+    for (let n = 1; n <= cap; n++) {
+      if (usedByOthers[n]) continue;
+      const sel = cur && cur.field === f.id && cur.num === n;
+      opts += '<option value="' + f.id + ':' + n + '"' + (sel ? ' selected' : '') + '>' + f.label + ' (' + n + ')</option>';
+    }
+    if (opts) html += '<optgroup label="' + f.label + '">' + opts + '</optgroup>';
+  });
+  return html;
+}
+
+function renderImportMatch() {
+  const tb = document.getElementById('wz-match-tbody');
+  if (!tb) return;
+  let html = '';
+  for (let i = 0; i < csvColCount; i++) {
+    const m = csvMappings[i];
+    const preview = String((csvRows[0] && csvRows[0][i]) || '');
+    const roleRow = csvRoleConfig === 'perColumn' && m && m.field === 'email';
+    html += '<tr>' +
+      '<td class="match-ico">' + (roleRow ? '<i class="fa-solid fa-user"></i>' : '') + '</td>' +
+      '<td class="match-hdr">' + escHtml(colLabel(i)) + '</td>' +
+      '<td class="match-prev">' + (m ? '<i class="fa-solid fa-circle-check ok"></i>' : '<i class="fa-solid fa-circle-xmark bad"></i>') + escHtml(preview) + '</td>' +
+      '<td><select class="f-input match-sel" onchange="setMatchMapping(' + i + ', this.value)">' + matchOptionsHTML(i) + '</select></td>' +
+      '<td class="match-clear-cell">' + (m ? '<a class="match-clear" onclick="clearMatchMapping(' + i + ')">Clear</a>' : '') + '</td>' +
+    '</tr>';
+    if (roleRow) {
+      html += '<tr class="match-role-row"><td></td><td colspan="4"><span class="match-role-label">Role</span>' +
+        '<select class="f-input" style="width:auto; height:30px; font-size:12.5px; display:inline-block;" onchange="setColRole(' + i + ', this.value)">' + roleOptionsHTML(csvColRoles[i] || 'Client') + '</select></td></tr>';
+    }
+  }
+  tb.innerHTML = html;
+}
+
+function setMatchMapping(colIdx, val) {
+  if (!val) csvMappings[colIdx] = null;
+  else {
+    const parts = val.split(':');
+    csvMappings[colIdx] = { field: parts[0], num: parseInt(parts[1], 10) };
+  }
+  renderImportMatch();
+  updateWizNextState();
+}
+
+function clearMatchMapping(colIdx) { csvMappings[colIdx] = null; renderImportMatch(); updateWizNextState(); }
+function setColRole(colIdx, v) { csvColRoles[colIdx] = v; }
+
+/* ── phase navigation + import execution ── */
+function importAdvancePhase(dir) {
+  if (importBusy) return true;
+  if (dir === 1 && importPhase === 'upload') { importPhase = 'match'; paintImportPhase(); return true; }
+  if (dir === 1 && importPhase === 'match') { runImport(); return true; }
+  if (dir === -1 && importPhase === 'match') { importPhase = 'upload'; paintImportPhase(); return true; }
+  return false;
+}
+
+function paintImportPhase() {
+  document.getElementById('wz-import-upload').style.display = importPhase === 'upload' ? 'block' : 'none';
+  document.getElementById('wz-import-match').style.display = importPhase === 'match' ? 'block' : 'none';
+  if (importPhase === 'match') renderImportMatch();
+  updateImportNextLabel();
+  updateWizNextState();
+}
+
+function updateImportNextLabel() {
+  const btn = document.getElementById('wiz-next');
+  if (!btn) return;
+  if (wizFlow()[wizStep - 1] !== 'wiz-placeholder' || selectedJobType !== 'import') return;
+  if (importPhase === 'upload') btn.innerHTML = 'Next <i class="fa-solid fa-arrow-right" style="font-size:11px;"></i>';
+  else if (importBusy === 'importing') btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin" style="font-size:12px;"></i> Importing…';
+  else if (importBusy === 'done') btn.innerHTML = '<i class="fa-solid fa-check" style="font-size:12px;"></i> Imported';
+  else btn.innerHTML = 'Import <i class="fa-solid fa-file-import" style="font-size:11px;"></i>';
+}
+
+function computeImport() {
+  const groups = {};
+  csvMappings.forEach((m, i) => { if (m) (groups[m.num] = groups[m.num] || {})[m.field] = i; });
+  const contacts = []; let galleries = 0;
+  csvRows.forEach(r => {
+    let any = false;
+    Object.keys(groups).forEach(n => {
+      const g = groups[n];
+      if (g.email === undefined) return;
+      const email = String(r[g.email] || '').trim();
+      if (!email) return;
+      let first = g.first !== undefined ? String(r[g.first] || '').trim() : '';
+      let last = g.last !== undefined ? String(r[g.last] || '').trim() : '';
+      if (!first && !last && g.full !== undefined) {
+        const parts = String(r[g.full] || '').trim().split(/\s+/);
+        first = parts.shift() || '';
+        last = parts.join(' ');
+      }
+      const phone = g.phone !== undefined ? String(r[g.phone] || '').trim() : '';
+      const role = csvRoleConfig === 'same' ? csvBulkRole : (csvColRoles[g.email] || 'Client');
+      contacts.push({ first: first, last: last, email: email, phone: phone, role: role });
+      any = true;
+    });
+    if (any) galleries++;
+  });
+  return { contacts: contacts, galleries: galleries };
+}
+
+function runImport() {
+  importBusy = 'importing';
+  updateImportNextLabel();
+  updateWizNextState();
+  setTimeout(() => {
+    importResult = computeImport();
+    importBusy = 'done';
+    updateImportNextLabel();
+    setTimeout(() => {
+      importBusy = false;
+      toast('Imported ' + importResult.contacts.length + ' contact' + (importResult.contacts.length === 1 ? '' : 's') + ' into ' + importResult.galleries + ' galler' + (importResult.galleries === 1 ? 'y' : 'ies'));
+      wizStep++;
+      wizPaint();
+    }, 700);
+  }, 1400);
+}
+
 function renderCsvSetup() {
   document.getElementById('csv-hdr-yes').classList.toggle('on', csvHasHeaders === true);
   document.getElementById('csv-hdr-no').classList.toggle('on', csvHasHeaders === false);
@@ -7869,7 +8182,13 @@ function renderCsvSetup() {
     (presetRoles.length ? '<optgroup label="Gallery Preset Roles">' + presetRoles.map(r => '<option' + (r === csvBulkRole ? ' selected' : '') + '>' + r + '</option>').join('') + '</optgroup>' : '');
 }
 
-function setCsvHeaders(v) { csvHasHeaders = v; renderCsvSetup(); }
+function setCsvHeaders(v) {
+  if (csvHasHeaders !== v) {
+    csvHasHeaders = v;
+    if (csvRawRows.length) { applyCsvHeaderMode(); autoMatchColumns(); renderCsvDrop(); updateWizNextState(); }
+  }
+  renderCsvSetup();
+}
 function setCsvRoleConfig(v) { csvRoleConfig = v; renderCsvSetup(); }
 
 function onCsvPresetChange() {
@@ -8127,6 +8446,11 @@ function stepValid(paneId) {
     if (setupMode === 'later') return true;
     return !!selectedJobType;
   }
+  if (paneId === 'wiz-placeholder' && selectedJobType === 'import') {
+    if (importBusy) return false;
+    if (importPhase === 'upload') return csvRows.length > 0;
+    return csvMappings.some(m => m && m.field === 'email');
+  }
   return true;
 }
 
@@ -8143,7 +8467,11 @@ function wizNav(dir) {
   const flow = wizFlow();
   const cur = flow[wizStep - 1];
   if (dir === 1 && !stepValid(cur)) return;
-  if (cur === 'wiz-placeholder' && selectedJobType === 'during' && duringAdvancePhase(dir)) {
+  if (cur === 'wiz-placeholder' && selectedJobType === 'import' && importAdvancePhase(dir)) {
+    updateWizNextState();
+    return;
+  }
+  if (cur === 'wiz-placeholder' && selectedJobType === 'duringreg' && duringAdvancePhase(dir)) {
     updateWizNextState();
     return;
   }
@@ -8167,13 +8495,13 @@ function wizPaint() {
     : 'Next <i class="fa-solid fa-arrow-right" style="font-size:11px;"></i>';
   if (curPane === 'wiz-placeholder') {
     const t = selectedJobType;
-    document.getElementById('wz-ph-generic').style.display = (t === 'import' || t === 'before' || t === 'during') ? 'none' : 'flex';
+    document.getElementById('wz-ph-generic').style.display = (t === 'import' || t === 'prereg' || t === 'duringreg') ? 'none' : 'flex';
     document.getElementById('wz-ph-import').style.display = t === 'import' ? 'block' : 'none';
-    document.getElementById('wz-ph-before').style.display = t === 'before' ? 'block' : 'none';
-    document.getElementById('wz-ph-during').style.display = t === 'during' ? 'block' : 'none';
-    if (t === 'import') renderCsvSetup();
-    else if (t === 'before') renderRegFormBuilder('wz-ph-before-mount');
-    else if (t === 'during') { renderBulkSetup(); paintDuringPhase(); }
+    document.getElementById('wz-ph-before').style.display = t === 'prereg' ? 'block' : 'none';
+    document.getElementById('wz-ph-during').style.display = t === 'duringreg' ? 'block' : 'none';
+    if (t === 'import') { renderCsvSetup(); renderCsvDrop(); paintImportPhase(); }
+    else if (t === 'prereg') renderRegFormBuilder('wz-ph-before-mount');
+    else if (t === 'duringreg') { renderBulkSetup(); paintDuringPhase(); }
     else if (t) setText('wz-ph-type', JOB_TYPE_LOOKUP[t].title);
   }
   if (curPane === 'wiz-4') buildReview();
@@ -8209,7 +8537,10 @@ function buildReview() {
     (selectedOrgIdx !== null && ORGS[selectedOrgIdx].preset ? '<div class="review-row"><span class="review-key">Gallery Preset</span><span class="review-val">' + ORGS[selectedOrgIdx].preset + ' <span style="color:var(--text-3);">(organization default)</span></span></div>' : '') +
     '<div class="review-row"><span class="review-key">Schedule</span><span class="review-val">' + schedHTML + '</span></div>' +
     '<div class="review-row"><span class="review-key">Photographers</span><span class="review-val">' + (uniqP.length ? uniqP.map(n => n.split(' ')[0]).join(', ') : '<span style="color:var(--text-3);">Assign later</span>') + '</span></div>' +
-    '<div class="review-row"><span class="review-key">Setup</span><span class="review-val">' + (setupMode === 'later' || !selectedJobType ? '<span style="color:var(--text-3);">Not set up yet — configure from the job</span>' : JOB_TYPE_LOOKUP[selectedJobType].title) + '</span></div>';
+    '<div class="review-row"><span class="review-key">Setup</span><span class="review-val">' + (setupMode === 'later' || !selectedJobType ? '<span style="color:var(--text-3);">Not set up yet — configure from the job</span>' : JOB_TYPE_LOOKUP[selectedJobType].title) + '</span></div>' +
+    (setupMode === 'now' && selectedJobType === 'import' && importResult
+      ? '<div class="review-row"><span class="review-key">Subjects</span><span class="review-val">' + importResult.contacts.length + ' contact' + (importResult.contacts.length === 1 ? '' : 's') + ' imported · ' + importResult.galleries + ' galler' + (importResult.galleries === 1 ? 'y' : 'ies') + ' will be created</span></div>'
+      : '');
 }
 
 function createJob() {
@@ -8281,6 +8612,20 @@ function createJob() {
     docs: []
   };
 
+  let galCount = 0;
+  if (setupMode === 'now' && selectedJobType === 'import' && importResult) {
+    const J = JOBS[key];
+    galCount = importResult.galleries;
+    J.tiles.gal = String(importResult.galleries);
+    J.tiles.galSub = 'created from CSV import';
+    importResult.contacts.forEach(c => J.contacts.push([c.first || '—', c.last || '—', c.email, c.phone || '—', '—', chipDark(c.role)]));
+    J.tiles.ct = String(J.contacts.length);
+    J.tiles.ctSub = 'imported from roster CSV';
+    J.contactsFoot = J.contacts.length + ' contact' + (J.contacts.length === 1 ? '' : 's');
+    J.steps[0].d = importResult.galleries + ' galleries generated from the subject list';
+    J.cta = ['Download QR Codes', "toast('Downloading QR codes for " + importResult.galleries + " galleries…')"];
+  }
+
   const card =
     '<div class="job-card" data-status="planning" data-tags="active upcoming" style="cursor:pointer;" onclick="openJob(\'' + key + '\')">' +
       '<div class="job-info">' +
@@ -8300,7 +8645,7 @@ function createJob() {
       '<div class="job-right">' +
         '<div class="avatar-stack"><div class="avatar-chip avatar-a">RC</div></div>' +
         '<div class="job-right-bottom">' +
-          '<div class="gallery-count"><i class="fa-regular fa-images" style="margin-right:4px;"></i>0 galleries</div>' +
+          '<div class="gallery-count"><i class="fa-regular fa-images" style="margin-right:4px;"></i>' + galCount + ' galleries</div>' +
           '<button class="chevron-btn" onclick="event.stopPropagation(); openJob(\'' + key + '\')"><i class="fa-solid fa-chevron-right"></i></button>' +
         '</div>' +
       '</div>' +
