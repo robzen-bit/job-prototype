@@ -4571,109 +4571,101 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
               <div class="settings-grid">
 
                 <div class="settings-nav">
-                  <div class="settings-nav-item active" onclick="switchSettings(this,'set-access')"><i class="fa-solid fa-lock"></i> Job Access</div>
-                  <div class="settings-nav-item" onclick="switchSettings(this,'set-details')"><i class="fa-solid fa-circle-info"></i> Job Details</div>
-                  <div class="settings-nav-item" onclick="switchSettings(this,'set-features')"><i class="fa-regular fa-image"></i> Features</div>
+                  <div class="settings-nav-item active" onclick="switchSettings(this,'set-jobdetails')"><i class="fa-solid fa-circle-info"></i> Job Details</div>
+                  <div class="settings-nav-item" onclick="switchSettings(this,'set-schedule')"><i class="fa-solid fa-calendar-days"></i> Schedule</div>
+                  <div class="settings-nav-item" onclick="switchSettings(this,'set-setup')"><i class="fa-solid fa-gear"></i> Setup</div>
+                  <div class="settings-nav-item" onclick="switchSettings(this,'set-ecom')"><i class="fa-solid fa-cart-shopping"></i> Ecommerce</div>
+                  <div class="settings-nav-item" onclick="switchSettings(this,'set-deadlines')"><i class="fa-regular fa-clock"></i> Deadlines &amp; Automation</div>
                 </div>
 
                 <div>
-                  <!-- ACCESS -->
-                  <div class="settings-pane active" id="set-access">
+                  <!-- JOB DETAILS -->
+                  <div class="settings-pane active" id="set-jobdetails">
+
                     <div class="detail-card">
-                      <div class="settings-section-title">Job Access</div>
-                      <div class="choice-cards">
-                        <div class="choice-card selected" onclick="selectChoice(this)">
-                          <div class="choice-icon"><i class="fa-solid fa-users"></i></div>
-                          <div class="choice-name">Public</div>
-                          <div class="choice-desc">Anyone with the link has access.</div>
+                      <div class="settings-section-title">Organization</div>
+                      <div id="jdt-org-display" style="display:flex; align-items:flex-start; justify-content:space-between; gap:14px;">
+                        <div class="org-summary" style="display:flex; flex:1;">
+                          <i class="fa-solid fa-building"></i>
+                          <div><b id="jdt-org-name">—</b><br><span id="jdt-org-addr" style="color:var(--text-3); font-size:12px; display:none;"></span></div>
                         </div>
-                        <div class="choice-card" onclick="selectChoice(this)">
-                          <div class="choice-icon"><i class="fa-solid fa-asterisk"></i></div>
-                          <div class="choice-name">Password Protected</div>
-                          <div class="choice-desc">Requires password for access.</div>
-                        </div>
-                        <div class="choice-card" onclick="selectChoice(this)">
-                          <div class="choice-icon"><i class="fa-solid fa-eye-slash"></i></div>
-                          <div class="choice-name">Hidden</div>
-                          <div class="choice-desc">Does not allow job-level access.</div>
-                        </div>
+                        <button class="btn btn-ghost-sm" onclick="jdtOrgEditStart()">Edit</button>
                       </div>
-                      <div class="settings-note">Public jobs allow anyone with the link to access. Contained folders and galleries retain their individual access settings.</div>
-                      <div class="toggle-row" style="margin-top:8px;">
-                        <div>
-                          <div class="toggle-row-title">Show Job Registration</div>
-                          <div class="toggle-row-desc">Configure payment collection, email capture and custom form fields.</div>
+                      <div id="jdt-org-edit" style="display:none;">
+                        <div class="loc-search" style="margin:0 0 8px;">
+                          <i class="fa-solid fa-magnifying-glass"></i>
+                          <input class="f-input" id="jdt-org-query" placeholder="Search organizations…" oninput="jdtRenderOrgList()">
                         </div>
-                        <button class="toggle on" onclick="flipToggle(this)"></button>
+                        <div style="border:1px solid var(--line); border-radius:var(--r-sm); overflow:hidden; margin-bottom:10px;">
+                          <div class="orgdd-list" id="jdt-org-list" style="max-height:220px;"></div>
+                          <div class="orgdd-footer" onclick="openCreateOrgModal('jobsettings')"><i class="fa-solid fa-plus"></i> Create new organization</div>
+                        </div>
+                        <button class="btn btn-ghost-sm" onclick="jdtOrgEditCancel()">Cancel</button>
                       </div>
-                      <div class="toggle-row">
-                        <div>
-                          <div class="toggle-row-title">Allow job to appear in search results</div>
-                          <div class="toggle-row-desc">Turn on to select which search results this job can appear in. Items within this job have their own settings and must be managed separately.</div>
-                        </div>
-                        <button class="toggle" onclick="flipToggle(this)"></button>
+                    </div>
+
+                    <div class="detail-card">
+                      <div class="settings-section-title">Key Contact</div>
+                      <div id="jdt-kc-display" style="display:flex; align-items:flex-start; justify-content:space-between; gap:14px;">
+                        <div><div style="font-size:13px; font-weight:600; color:var(--text);" id="jdt-kc-name">—</div>
+                        <div style="font-size:12px; color:var(--text-3); display:none;" id="jdt-kc-email"></div></div>
+                        <button class="btn btn-ghost-sm" id="jdt-kc-edit-btn" onclick="jdtKcEditStart()">Edit</button>
+                      </div>
+                      <div id="jdt-kc-edit" style="display:none;">
+                        <select class="f-input" id="jdt-kc-select" style="margin-bottom:10px;"></select>
+                        <button class="btn btn-brand" onclick="jdtKcSave()">Save</button>
+                        <button class="btn btn-ghost-sm" onclick="jdtKcEditCancel()">Cancel</button>
+                      </div>
+                    </div>
+
+                    <div class="detail-card">
+                      <div class="settings-section-title">Notes</div>
+                      <div id="jdt-notes-list"></div>
+                      <input class="f-input" id="jdt-note-input" placeholder="Write a note and press Enter to add it…" onkeydown="jdtNoteKeydown(event)" style="margin-top:10px;">
+                    </div>
+
+                  </div>
+
+                  <!-- SCHEDULE (placeholder) -->
+                  <div class="settings-pane" id="set-schedule">
+                    <div class="detail-card">
+                      <div class="settings-section-title">Schedule</div>
+                      <div class="coming-soon" style="min-height:200px;">
+                        <i class="fa-solid fa-hammer"></i>
+                        <p style="font-size:12px;">This tab isn’t built yet — shoot dates and locations will be editable here.</p>
                       </div>
                     </div>
                   </div>
 
-                  <!-- DETAILS -->
-                  <div class="settings-pane" id="set-details">
+                  <!-- SETUP (placeholder) -->
+                  <div class="settings-pane" id="set-setup">
                     <div class="detail-card">
-                      <div class="settings-section-title">Job Details</div>
-                      <div class="f-row" style="margin-bottom:14px;">
-                        <div>
-                          <div class="f-label" style="margin-bottom:4px;">Job Created</div>
-                          <div style="font-size:13px; font-weight:600;" id="st-created">Apr 28, 2026</div>
-                        </div>
-                        <div>
-                          <div class="f-label" style="margin-bottom:4px;">Job Modified</div>
-                          <div style="font-size:13px; font-weight:600;" id="st-modified">Jun 2, 2026</div>
-                        </div>
-                        <div>
-                          <div class="f-label" style="margin-bottom:4px;">Access Setting</div>
-                          <div style="font-size:13px; font-weight:600;">Public</div>
-                        </div>
+                      <div class="settings-section-title">Setup</div>
+                      <div class="coming-soon" style="min-height:200px;">
+                        <i class="fa-solid fa-hammer"></i>
+                        <p style="font-size:12px;">This tab isn’t built yet — job type and workflow setup will be editable here.</p>
                       </div>
-                      <div class="f-field">
-                        <label class="f-label">Job Title</label>
-                        <input class="f-input" id="st-title" value="Riverside Youth Soccer League — Spring 2026">
-                      </div>
-                      <div class="f-field">
-                        <label class="f-label">Job Description <span class="opt">— shown at the top of the job page</span></label>
-                        <textarea class="f-textarea" placeholder="Job description"></textarea>
-                      </div>
-                      <button class="btn btn-ghost-sm" onclick="toast('Job details saved')">Save Changes</button>
                     </div>
                   </div>
 
-                  <!-- FEATURES -->
-                  <div class="settings-pane" id="set-features">
+                  <!-- ECOMMERCE (placeholder) -->
+                  <div class="settings-pane" id="set-ecom">
                     <div class="detail-card">
-                      <div class="settings-section-title">Features</div>
-                      <div class="toggle-row">
-                        <div>
-                          <div class="toggle-row-title">Display a search bar on the job page</div>
-                          <div class="toggle-row-desc">Visitors can find their gallery by name. Only contained items set to appear in search will show in results.</div>
-                        </div>
-                        <button class="toggle on" onclick="flipToggle(this)"></button>
+                      <div class="settings-section-title">Ecommerce</div>
+                      <div class="coming-soon" style="min-height:200px;">
+                        <i class="fa-solid fa-hammer"></i>
+                        <p style="font-size:12px;">This tab isn’t built yet — price list and preorder settings will be editable here.</p>
                       </div>
-                      <div class="toggle-row">
-                        <div>
-                          <div class="toggle-row-title">Exact match search</div>
-                          <div class="toggle-row-desc">Only display results that exactly match the search query — recommended for privacy in school jobs.</div>
-                        </div>
-                        <button class="toggle on" onclick="flipToggle(this)"></button>
-                      </div>
-                      <div class="toggle-row">
-                        <div>
-                          <div class="toggle-row-title">Enforce naming convention</div>
-                          <div class="toggle-row-desc">New galleries must follow “Last, First” so roster matching and QR workflows stay reliable.</div>
-                        </div>
-                        <button class="toggle on" onclick="flipToggle(this)"></button>
-                      </div>
-                      <div class="f-field" style="margin-top:14px;">
-                        <label class="f-label">Search instructions / placeholder <span class="opt">(max 60 chars)</span></label>
-                        <input class="f-input" placeholder="Search the contents of this job…">
+                    </div>
+                  </div>
+
+                  <!-- DEADLINES & AUTOMATION (placeholder) -->
+                  <div class="settings-pane" id="set-deadlines">
+                    <div class="detail-card">
+                      <div class="settings-section-title">Deadlines &amp; Automation</div>
+                      <div class="coming-soon" style="min-height:200px;">
+                        <i class="fa-solid fa-hammer"></i>
+                        <p style="font-size:12px;">This tab isn’t built yet — deadlines and their automations will be editable here.</p>
                       </div>
                     </div>
                   </div>
@@ -5614,6 +5606,42 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
   </div>
 </div>
 
+<!-- ══════════ JOB SETTINGS: ORG CHANGE — MOVE OR KEEP FOLDER ══════════ -->
+<div class="modal-overlay" id="modal-jobmove">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <div><div class="modal-title" id="jdt-move-title">Move this job?</div></div>
+      <button class="modal-close" onclick="closeModal('modal-jobmove')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body" id="jdt-move-body" style="font-size:13px; color:var(--text-2); line-height:1.65;"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost-sm" onclick="closeModal('modal-jobmove')">Cancel</button>
+      <div class="spacer"></div>
+      <button class="btn btn-ghost-sm" onclick="jdtMoveKeepFolder()">Keep Current Folder</button>
+      <button class="btn btn-brand" onclick="jdtMoveChooseFolder()">Choose a Folder</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ JOB SETTINGS: KEY CONTACT DOESN'T BELONG TO NEW ORG ══════════ -->
+<div class="modal-overlay" id="modal-jobkcmove">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <div><div class="modal-title">Update the key contact?</div></div>
+      <button class="modal-close" onclick="closeModal('modal-jobkcmove')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body" style="font-size:13px; color:var(--text-2); line-height:1.65;">
+      <div id="jdt-kcmove-body" style="margin-bottom:14px;"></div>
+      <select class="f-input" id="jdt-kcmove-select"></select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost-sm" onclick="closeModal('modal-jobkcmove')">Skip for now</button>
+      <div class="spacer"></div>
+      <button class="btn btn-brand" onclick="jdtKcMoveConfirm()">Save</button>
+    </div>
+  </div>
+</div>
+
 <!-- ══════════ ASSIGN PHOTOGRAPHER MODAL ══════════ -->
 <div class="modal-overlay" id="modal-assign">
   <div class="modal modal-sm">
@@ -6259,6 +6287,13 @@ function closeModal(id) {
     openModal('modal-wizard');
     renderDeadlines();
   }
+  if (id === 'modal-folder' && locMode === 'jobmove') {
+    locMode = 'add';
+    if (jdtPendingOrg) openModal('modal-jobmove');   /* back to the move/keep choice — org pick is preserved */
+  }
+  if (id === 'modal-jobmove') {
+    jdtPendingOrg = null;          /* plain close = cancel the whole org change; nothing was committed yet */
+  }
 }
 
 document.querySelectorAll('.modal-overlay').forEach(ov => {
@@ -6378,7 +6413,7 @@ const JOBS = {
     shoot: 'May 14, 2026', deadline: 'May 28, 2026',
     loc: 'Riverside Park, York, PA',
     contact: ['Karen Mello', 'karen.mello@riversideysa.org'],
-    notes: 'Coordinate with Coach Davis for team photo schedule. Rain date: May 21.',
+    notes: [{ t: 'Coordinate with Coach Davis for team photo schedule. Rain date: May 21.', d: 'Apr 28, 2026', a: 'Robert Campbell' }],
     created: 'Apr 28, 2026', modified: 'Jun 2, 2026',
     phase: 2,
     steps: [
@@ -6465,7 +6500,7 @@ const JOBS = {
     shoot: 'June 2, 2026', deadline: 'June 16, 2026',
     loc: 'Lincoln Elementary, York, PA',
     contact: ['Alan Pierce', 'a.pierce@lincolnpta.org'],
-    notes: 'Gym setup from 7am. Kindergarten first, then grades 1–5 by room.',
+    notes: [{ t: 'Gym setup from 7am. Kindergarten first, then grades 1–5 by room.', d: 'May 18, 2026', a: 'Robert Campbell' }],
     created: 'May 18, 2026', modified: 'Jun 2, 2026',
     phase: 1,
     steps: [
@@ -6539,7 +6574,7 @@ const JOBS = {
     shoot: 'June 18, 2026', deadline: 'July 2, 2026',
     loc: 'Keystone Performing Arts Center, PA',
     contact: ['Dana Whitfield', 'dana@keystonearts.org'],
-    notes: 'Two recital casts — A cast 1 PM, B cast 5 PM. Stage + posed shots.',
+    notes: [{ t: 'Two recital casts — A cast 1 PM, B cast 5 PM. Stage + posed shots.', d: 'May 28, 2026', a: 'Robert Campbell' }],
     created: 'May 28, 2026', modified: 'Jun 1, 2026',
     phase: 0,
     steps: [
@@ -6588,7 +6623,7 @@ const JOBS = {
     shoot: 'July 10, 2026', deadline: 'July 24, 2026',
     loc: 'York Memorial Stadium, York, PA',
     contact: ['Ray Delgado', 'ray@yorklittleleague.org'],
-    notes: 'Team + individual for 8 teams. Sponsor banners photographed for the league.',
+    notes: [{ t: 'Team + individual for 8 teams. Sponsor banners photographed for the league.', d: 'May 30, 2026', a: 'Robert Campbell' }],
     created: 'May 30, 2026', modified: 'Jul 21, 2026',
     phase: 3,
     steps: [
@@ -6724,7 +6759,7 @@ function openJob(key) {
   const pathEl = document.getElementById('d-path');
   if (pathEl) pathEl.innerHTML = '<i class="fa-solid fa-folder" style="font-size:11px; margin-right:5px;"></i>' + (j.path || 'All Photographs');
   document.getElementById('d-contact').innerHTML = j.contact[0] + (j.contact[1] ? '<br><a href="#">' + j.contact[1] + '</a>' : '');
-  setText('d-notes', j.notes || '—');
+  setText('d-notes', (j.notes && j.notes.length) ? j.notes[0].t : '—');
 
   /* overview: stat tiles (orders + revenue computed later) */
   setText('ov-galleries', j.tiles.gal); setText('ov-galleries-sub', j.tiles.galSub);
@@ -6747,8 +6782,7 @@ function openJob(key) {
   renderOrders();
 
   /* settings */
-  const st = document.getElementById('st-title'); if (st) st.value = j.name;
-  setText('st-created', j.created); setText('st-modified', j.modified);
+  refreshJobDetailsSettings();
 
   navSetActive('Jobs');
   /* reset to overview tab + overview report subtab */
@@ -7377,7 +7411,10 @@ let locMode = 'pick', locSel = null, locLevel = null;
 function openLocPicker(mode) {
   setFullscreen('modal-folder', mode === 'dest');
   locMode = mode; locLevel = null;
-  locSel = mode === 'dest' ? wzParent : (mode === 'orgdef' && currentOrgIdx !== null ? (ORGS[currentOrgIdx].folder || null) : null);
+  locSel = mode === 'dest' ? wzParent
+    : (mode === 'orgdef' && currentOrgIdx !== null) ? (ORGS[currentOrgIdx].folder || null)
+    : (mode === 'jobmove' && jdtPendingOrg) ? (ORGS[jdtPendingOrg.idx].folder || null)
+    : null;
   document.getElementById('loc-query').value = '';
   document.getElementById('loc-name').value = '';
   document.getElementById('loc-name-field').style.display = mode === 'add' ? 'flex' : 'none';
@@ -7488,6 +7525,14 @@ function locConfirm() {
       updateSaveDefaultCheckbox();
     }
     closeModal('modal-folder');
+    return;
+  }
+  if (locMode === 'jobmove') {
+    if (locSel && currentJob) currentJob.path = locSel;
+    const pending = jdtPendingOrg;
+    locMode = 'add';                 /* done first so closeModal's cancel-handling branch doesn't fire */
+    closeModal('modal-folder');
+    if (pending) jdtCommitOrgChange(pending.idx, true);
     return;
   }
   const nm = fval('loc-name').trim();
@@ -9399,11 +9444,12 @@ function createJob(opts) {
   uniqP.sort((a, b) => (a === 'Robert Campbell' ? -1 : b === 'Robert Campbell' ? 1 : 0));
   const teamN = uniqP.length;
 
+  const initNoteTxt = fval('wz-notes').trim();
   JOBS[key] = {
     key: key, seed: 5 + newJobSeq, icon: 'fa-briefcase',
     name: name, org2: o.name, shoot: dateTxt, deadline: '—', loc: locTxt,
     path: wzParent,
-    contact: [o.contact, o.email || ''], notes: fval('wz-notes').trim(),
+    contact: [o.contact, o.email || ''], notes: initNoteTxt ? [{ t: initNoteTxt, d: PROTO_TODAY_LABEL, a: 'Robert Campbell' }] : [],
     created: 'Jun 3, 2026', modified: 'Jun 3, 2026',
     phase: 0,
     needsSetup: !!opts.early,
@@ -10006,10 +10052,207 @@ function saveCreateOrg() {
   if (coSource === 'wizard') {
     openModal('modal-wizard');
     selectOrg(ORGS.length - 1);
+  } else if (coSource === 'jobsettings') {
+    renderTypeFilter();
+    jdtRenderOrgList();
+    jdtBeginOrgChange(ORGS.length - 1);
   } else {
     renderTypeFilter(); renderOrgList2();
     openOrg(ORGS.length - 1);
   }
+}
+
+/* ══════════ JOB SETTINGS: JOB DETAILS TAB ══════════ */
+let jdtPendingOrg = null;
+
+function refreshJobDetailsSettings() {
+  if (!currentJob) return;
+  const j = currentJob;
+  const orgIdx = ORGS.findIndex(o => o.name === j.org2);
+  const org = orgIdx >= 0 ? ensureOrgShape(ORGS[orgIdx]) : null;
+
+  setText('jdt-org-name', j.org2 && j.org2 !== '—' ? j.org2 : 'No organization');
+  const addrEl = document.getElementById('jdt-org-addr');
+  addrEl.textContent = org && org.addr ? org.addr : '';
+  addrEl.style.display = org && org.addr ? 'block' : 'none';
+  document.getElementById('jdt-org-display').style.display = 'flex';
+  document.getElementById('jdt-org-edit').style.display = 'none';
+
+  setText('jdt-kc-name', j.contact[0] || '—');
+  const kcEmailEl = document.getElementById('jdt-kc-email');
+  kcEmailEl.textContent = j.contact[1] || '';
+  kcEmailEl.style.display = j.contact[1] ? 'block' : 'none';
+  document.getElementById('jdt-kc-edit-btn').style.display = org ? '' : 'none';
+  document.getElementById('jdt-kc-display').style.display = 'flex';
+  document.getElementById('jdt-kc-edit').style.display = 'none';
+
+  renderJobNotes();
+}
+
+function refreshOverviewOrgFields() {
+  if (!currentJob) return;
+  setText('d-org', currentJob.org2);
+  const pathEl = document.getElementById('d-path');
+  if (pathEl) pathEl.innerHTML = '<i class="fa-solid fa-folder" style="font-size:11px; margin-right:5px;"></i>' + (currentJob.path || 'All Photographs');
+  document.getElementById('d-contact').innerHTML = currentJob.contact[0] + (currentJob.contact[1] ? '<br><a href="#">' + currentJob.contact[1] + '</a>' : '');
+}
+
+/* -- Organization edit -- */
+function jdtOrgEditStart() {
+  document.getElementById('jdt-org-display').style.display = 'none';
+  document.getElementById('jdt-org-edit').style.display = 'block';
+  document.getElementById('jdt-org-query').value = '';
+  jdtRenderOrgList();
+  document.getElementById('jdt-org-query').focus();
+}
+
+function jdtOrgEditCancel() {
+  document.getElementById('jdt-org-display').style.display = 'flex';
+  document.getElementById('jdt-org-edit').style.display = 'none';
+}
+
+function jdtRenderOrgList() {
+  const listEl = document.getElementById('jdt-org-list');
+  if (!listEl || !currentJob) return;
+  const q = fval('jdt-org-query').trim().toLowerCase();
+  const items = ORGS.map((o, i) => ({ o: o, i: i }))
+    .filter(x => x.o.name.toLowerCase().indexOf(q) >= 0)
+    .sort((a, b) => a.o.name.localeCompare(b.o.name));
+  let html = items.map(x =>
+    '<div class="orgdd-item' + (x.o.name === currentJob.org2 ? ' on' : '') + '" onclick="jdtSelectOrg(' + x.i + ')"><i class="fa-solid fa-building"></i>' + x.o.name + '</div>'
+  ).join('');
+  if (!items.length) html = '<div style="padding:12px; text-align:center; color:var(--text-3); font-size:12px;">No organizations match.</div>';
+  listEl.innerHTML = html;
+}
+
+function jdtSelectOrg(i) {
+  if (ORGS[i].name === currentJob.org2) { jdtOrgEditCancel(); return; }
+  jdtBeginOrgChange(i);
+}
+
+function jdtBeginOrgChange(newIdx) {
+  jdtPendingOrg = { idx: newIdx };
+  const newOrg = ORGS[newIdx];
+  setText('jdt-move-title', 'Move this job to ' + newOrg.name + '?');
+  document.getElementById('jdt-move-body').innerHTML =
+    'This job currently lives in <b>' + (currentJob.path || 'All Photographs') + '</b>, under <b>' + (currentJob.org2 && currentJob.org2 !== '—' ? currentJob.org2 : 'no organization') + '</b>.<br><br>' +
+    'Do you want to move it into a folder that belongs to <b>' + newOrg.name + '</b>, or keep it in its current folder?';
+  openModal('modal-jobmove');
+}
+
+function jdtMoveChooseFolder() {
+  closeModal('modal-jobmove');
+  openLocPicker('jobmove');
+}
+
+function jdtMoveKeepFolder() {
+  closeModal('modal-jobmove');
+  jdtCommitOrgChange(jdtPendingOrg.idx, false);
+}
+
+function jdtCommitOrgChange(newIdx, folderMoved) {
+  const newOrg = ensureOrgShape(ORGS[newIdx]);
+  const oldContactName = currentJob.contact[0];
+  currentJob.org2 = newOrg.name;
+  jdtPendingOrg = null;
+  refreshJobDetailsSettings();
+  refreshOverviewOrgFields();
+  toast(folderMoved ? 'Job moved to ' + newOrg.name : 'Organization updated to ' + newOrg.name);
+  const stillValid = newOrg.keyContacts.some(k => k.name === oldContactName);
+  if (!stillValid) jdtPromptNewKeyContact(newOrg);
+}
+
+/* -- Key contact edit (independent of an org change) -- */
+function jdtKcEditStart() {
+  if (!currentJob) return;
+  const orgIdx = ORGS.findIndex(o => o.name === currentJob.org2);
+  if (orgIdx < 0) { toast('This job has no matching organization on file — add one before setting a key contact.'); return; }
+  const org = ensureOrgShape(ORGS[orgIdx]);
+  const curIdx = org.keyContacts.findIndex(k => k.name === currentJob.contact[0]);
+  const sel = document.getElementById('jdt-kc-select');
+  sel.innerHTML = org.keyContacts.map((k, i) =>
+    '<option value="' + i + '"' + (i === curIdx ? ' selected' : '') + '>' + k.name + (k.primary ? ' (Primary)' : '') + (k.labels && k.labels.length ? ' — ' + k.labels.join(', ') : '') + '</option>'
+  ).join('') + '<option value="__none"' + (curIdx < 0 ? ' selected' : '') + '>No key contact</option>';
+  document.getElementById('jdt-kc-display').style.display = 'none';
+  document.getElementById('jdt-kc-edit').style.display = 'block';
+}
+
+function jdtKcEditCancel() {
+  document.getElementById('jdt-kc-display').style.display = 'flex';
+  document.getElementById('jdt-kc-edit').style.display = 'none';
+}
+
+function jdtKcSave() {
+  const orgIdx = ORGS.findIndex(o => o.name === currentJob.org2);
+  const org = ensureOrgShape(ORGS[orgIdx]);
+  const sel = document.getElementById('jdt-kc-select');
+  if (sel.value === '__none') currentJob.contact = ['—', ''];
+  else {
+    const k = org.keyContacts[parseInt(sel.value, 10)];
+    currentJob.contact = [k.name, k.email || ''];
+  }
+  refreshJobDetailsSettings();
+  refreshOverviewOrgFields();
+  toast('Key contact updated');
+}
+
+/* -- Key contact reassignment prompted by an org change -- */
+function jdtPromptNewKeyContact(newOrg) {
+  const sel = document.getElementById('jdt-kcmove-select');
+  const primaryIdx = newOrg.keyContacts.findIndex(k => k.primary);
+  sel.innerHTML = newOrg.keyContacts.map((k, i) =>
+    '<option value="' + i + '"' + (i === (primaryIdx >= 0 ? primaryIdx : 0) ? ' selected' : '') + '>' + k.name + (k.primary ? ' (Primary)' : '') + '</option>'
+  ).join('') + '<option value="__none">No key contact for now</option>';
+  document.getElementById('jdt-kcmove-body').innerHTML =
+    '<b>' + (currentJob.contact[0] || 'The current key contact') + '</b> doesn’t belong to <b>' + newOrg.name + '</b>. Choose a key contact from the new organization, or skip for now.';
+  openModal('modal-jobkcmove');
+}
+
+function jdtKcMoveConfirm() {
+  const orgIdx = ORGS.findIndex(o => o.name === currentJob.org2);
+  const org = ensureOrgShape(ORGS[orgIdx]);
+  const sel = document.getElementById('jdt-kcmove-select');
+  if (sel.value === '__none') currentJob.contact = ['—', ''];
+  else {
+    const k = org.keyContacts[parseInt(sel.value, 10)];
+    currentJob.contact = [k.name, k.email || ''];
+  }
+  closeModal('modal-jobkcmove');
+  refreshJobDetailsSettings();
+  refreshOverviewOrgFields();
+  toast('Key contact updated');
+}
+
+/* -- Notes: accumulating, timestamped, delete-only -- */
+function renderJobNotes() {
+  const el = document.getElementById('jdt-notes-list');
+  if (!el || !currentJob) return;
+  const notes = currentJob.notes || [];
+  el.innerHTML = notes.length ? notes.map((n, i) =>
+    '<div class="note-entry"><div class="note-meta"><b>' + n.a + '</b><span>' + n.d + '</span>' +
+      '<span class="note-actions"><button class="kebab-btn" title="Delete" onclick="deleteJobNote(' + i + ')"><i class="fa-solid fa-trash-can"></i></button></span></div>' +
+      '<div class="note-text">' + n.t + '</div></div>'
+  ).join('') : '<div style="font-size:12.5px; color:var(--text-3); padding:8px 0;">No notes yet.</div>';
+}
+
+function jdtNoteKeydown(e) {
+  if (e.key !== 'Enter') return;
+  e.preventDefault();
+  const inp = document.getElementById('jdt-note-input');
+  const t = inp.value.trim();
+  if (!t || !currentJob) return;
+  currentJob.notes = currentJob.notes || [];
+  currentJob.notes.unshift({ t: t, d: PROTO_TODAY_LABEL, a: 'Robert Campbell' });
+  inp.value = '';
+  renderJobNotes();
+  setText('d-notes', currentJob.notes[0].t);
+}
+
+function deleteJobNote(i) {
+  if (!currentJob || !currentJob.notes) return;
+  currentJob.notes.splice(i, 1);
+  renderJobNotes();
+  setText('d-notes', currentJob.notes.length ? currentJob.notes[0].t : '—');
 }
 
 /* ── Organization detail ── */
