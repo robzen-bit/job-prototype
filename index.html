@@ -2264,6 +2264,22 @@ html, body {
 .ecom-check b { display: block; font-size: 13px; font-weight: 600; color: var(--text); }
 .ecom-check small { display: block; margin-top: 3px; font-size: 12px; color: var(--text-3); line-height: 1.5; }
 
+/* Deadlines step */
+.dl-block { border: 1px solid var(--line); border-radius: var(--r-sm); padding: 16px; margin-top: 14px; background: var(--surface); transition: opacity 0.15s ease; }
+.dl-title { font-size: 13.5px; font-weight: 700; color: var(--text); }
+.dl-desc { margin-top: 3px; font-size: 12px; color: var(--text-3); line-height: 1.5; }
+.dl-helper { margin-top: 6px; font-size: 12px; color: var(--orange); }
+.dl-modes { display: flex; gap: 22px; margin: 12px 0 10px; }
+.dl-modes .rdot-row { font-size: 12.5px; }
+.dl-rule { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.dl-rule .dl-num { width: 64px; text-align: right; }
+.dl-rule span.dl-days { font-size: 12.5px; color: var(--text-2); font-weight: 600; }
+.dl-rule select { width: auto; }
+.dl-resolved { margin-top: 9px; font-size: 12.5px; color: var(--text-2); }
+.dl-resolved b { color: var(--text); }
+.dl-resolved.dl-unresolved { color: var(--text-3); font-style: italic; }
+.dl-resolved.dl-error { color: #B4231F; font-style: normal; font-weight: 600; }
+
 /* Import Subject List — data matching table */
 .match-table { width: 100%; border-collapse: collapse; font-size: 13px; }
 .match-table th { text-align: left; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-3); padding: 10px; border-bottom: 1px solid var(--line); }
@@ -5534,13 +5550,15 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
         </div>
       </div>
 
-      <!-- ══ DEADLINES (stub — next build) ══ -->
+      <!-- ══ DEADLINES (import flow) ══ -->
       <div class="wiz-pane" id="wiz-deadlines">
-        <div class="coming-soon" style="min-height:260px;">
-          <i class="fa-solid fa-hammer"></i>
-          <p><b style="color:var(--text); font-size:15px;">Deadlines</b></p>
-          <p style="font-size:12px;">This step isn’t built yet — deadline configuration will be added separately.</p>
+        <div class="wiz-info" style="margin-top:0;">
+          <i class="fa-solid fa-circle-info"></i>
+          <div>These settings can always be changed later in the job settings.</div>
         </div>
+        <div style="font-size:13px; color:var(--text-2); line-height:1.65; margin:16px 0 4px;">Set the deadlines that govern this job. Each deadline can be a specific calendar date, or a rule calculated from another date in the job.</div>
+        <div class="ecom-warn" id="dl-order-warn" style="display:none; margin-top:12px;"></div>
+        <div id="wz-deadlines-mount"></div>
       </div>
 
       <div class="wiz-pane" id="wiz-4">
@@ -5566,6 +5584,22 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
       <div class="spacer"></div>
       <span style="font-size:12px; color:var(--text-3);" id="wiz-count">Step 1 of 4</span>
       <button class="btn btn-brand" id="wiz-next" onclick="wizNav(1)">Next <i class="fa-solid fa-arrow-right" style="font-size:11px;"></i></button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ DEADLINE DEPENDENCY WARNING (swaps in place of the wizard) ══════════ -->
+<div class="modal-overlay" id="modal-dl-warn">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <div><div class="modal-title" id="dl-warn-title"></div></div>
+      <button class="modal-close" onclick="closeModal('modal-dl-warn')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body" id="dl-warn-body" style="font-size:13px; color:var(--text-2); line-height:1.65;"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost-sm" onclick="closeModal('modal-dl-warn')">Cancel</button>
+      <div class="spacer"></div>
+      <button class="btn btn-brand" id="dl-warn-confirm" onclick="dlWarnConfirm()"></button>
     </div>
   </div>
 </div>
@@ -6209,6 +6243,11 @@ function closeModal(id) {
   if (id === 'modal-createorg' && coSource === 'wizard') {
     coSource = 'crm';
     openModal('modal-wizard');
+  }
+  if (id === 'modal-dl-warn') {
+    pendingDl = null;              /* plain close = cancel; confirm commits before closing */
+    openModal('modal-wizard');
+    renderDeadlines();
   }
 }
 
@@ -7873,6 +7912,7 @@ function openWizard() {
   csvHasHeaders = true; csvPreset = 'Matthews'; csvRoleConfig = 'same'; csvBulkRole = 'Client';
   resetImportState();
   resetEcomState();
+  resetDeadlinesState();
   resetRegFormState();
   resetDuringState();
   wizPaint();
@@ -7944,6 +7984,7 @@ function selectJobType(id) {
   selectedJobType = id;
   importPhase = 'upload'; importBusy = false; importResult = null;
   resetEcomState();
+  resetDeadlinesState();
   resetRegFormState();
   resetDuringState();
   renderJobTypes();
@@ -8335,6 +8376,244 @@ function onPreCheckChange() {
   prePackagesOnly = document.getElementById('wz-pre-pkgonly').checked;
 }
 
+/* ══════════ DEADLINES STEP (import flow) ══════════ */
+const DL_KEYS = ['preorder', 'upload', 'delivery'];
+const DL_DEFS = {
+  preorder: { title: 'Preorder deadline', desc: 'All preorders must be placed by this date. On this date, preorder turns off and is no longer available to customers.' },
+  upload: { title: 'Upload deadline', desc: 'All content for this job must be uploaded by this date. Contributing photographers are reminded that content is due.' },
+  delivery: { title: 'Delivery deadline', desc: 'The date galleries should be delivered to the client — a school, the parents, or another recipient.' }
+};
+
+function blankDl() { return { mode: 'specific', date: '', num: 3, rel: 'after', anchor: '' }; }
+let dlState = { preorder: blankDl(), upload: blankDl(), delivery: blankDl() };
+let pendingDl = null;
+
+function resetDeadlinesState() {
+  dlState = { preorder: blankDl(), upload: blankDl(), delivery: blankDl() };
+  pendingDl = null;
+}
+
+function preorderActive() { return !!(ecomPriceList && preorderOn); }
+
+function isoAddDays(iso, days) {
+  const p = iso.split('-').map(Number);
+  const d = new Date(p[0], p[1] - 1, p[2]);
+  d.setDate(d.getDate() + days);
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+
+function wizShootDatesISO() {
+  if (schedMode === 'later') return [];
+  const dates = [];
+  document.querySelectorAll('#wz-shoots .shoot-block .ws-date').forEach(inp => { if (inp.value) dates.push(inp.value); });
+  return dates.slice().sort();
+}
+
+/* resolve a deadline to an ISO date; errors: empty | noanchor | anchor-missing | loop | off */
+function dlResolve(key, visited) {
+  visited = visited || {};
+  if (visited[key]) return { err: 'loop' };
+  visited[key] = true;
+  if (key === 'preorder' && !preorderActive()) return { err: 'off' };
+  const s = dlState[key];
+  if (s.mode === 'specific') return s.date ? { iso: s.date } : { err: 'empty' };
+  if (!s.anchor) return { err: 'noanchor' };
+  let base = null;
+  if (s.anchor.indexOf('shoot:') === 0) {
+    const dates = wizShootDatesISO();
+    base = s.anchor === 'shoot:last' ? dates[dates.length - 1] : dates[parseInt(s.anchor.slice(6), 10)];
+    if (!base) return { err: 'anchor-missing' };
+  } else if (s.anchor.indexOf('dl:') === 0) {
+    const r = dlResolve(s.anchor.slice(3), visited);
+    if (r.err) return r.err === 'loop' ? r : { err: 'anchor-missing' };
+    base = r.iso;
+  } else return { err: 'noanchor' };
+  const n = s.rel === 'on' ? 0 : (parseInt(s.num, 10) || 0);
+  return { iso: isoAddDays(base, s.rel === 'before' ? -n : n) };
+}
+
+/* does deadline a depend on deadline b, directly or through a chain */
+function dlDependsOn(a, b, hops) {
+  hops = hops || 0;
+  if (hops > DL_KEYS.length) return false;
+  const s = dlState[a];
+  if (s.mode !== 'relative' || s.anchor.indexOf('dl:') !== 0) return false;
+  const parent = s.anchor.slice(3);
+  return parent === b || dlDependsOn(parent, b, hops + 1);
+}
+
+function dlDependents(key) { return DL_KEYS.filter(k => k !== key && dlDependsOn(k, key)); }
+
+function dlAnchorOptions(key) {
+  const opts = [];
+  const dates = wizShootDatesISO();
+  if (dates.length) {
+    opts.push({ v: 'shoot:last', label: (dates.length > 1 ? 'Last shoot' : 'Shoot date') + ' (' + fmtInputDate(dates[dates.length - 1]) + ')' });
+    for (let i = 0; i < dates.length - 1; i++) {
+      opts.push({ v: 'shoot:' + i, label: (i === 0 ? 'First shoot' : 'Shoot ' + (i + 1)) + ' (' + fmtInputDate(dates[i]) + ')' });
+    }
+  }
+  DL_KEYS.forEach(k => {
+    if (k === key) return;                       /* cannot anchor to itself */
+    if (dlDependsOn(k, key)) return;             /* would create a loop */
+    const r = dlResolve(k);
+    if (r.err) return;                           /* no value yet (or preorder off) */
+    opts.push({ v: 'dl:' + k, label: DL_DEFS[k].title + ' (' + fmtInputDate(r.iso) + ')' });
+  });
+  return opts;
+}
+
+function dlResolvedHTML(key) {
+  const s = dlState[key];
+  if (s.mode !== 'relative') return '';
+  const r = dlResolve(key);
+  if (!r.err) return '<div class="dl-resolved"><i class="fa-solid fa-arrow-turn-up" style="transform:rotate(90deg); font-size:10px; margin-right:5px; color:var(--text-3);"></i>Resolves to <b>' + fmtInputDate(r.iso) + '</b></div>';
+  if (r.err === 'loop') return '<div class="dl-resolved dl-error"><i class="fa-solid fa-triangle-exclamation" style="font-size:11px; margin-right:5px;"></i>Circular reference — these rules depend on each other. Adjust one of them.</div>';
+  if (r.err === 'anchor-missing') return '<div class="dl-resolved dl-unresolved">Can’t resolve yet — the anchor date has no value.</div>';
+  return '<div class="dl-resolved dl-unresolved">Select an anchor date to resolve this rule.</div>';
+}
+
+function renderDeadlines() {
+  const mount = document.getElementById('wz-deadlines-mount');
+  if (!mount) return;
+  mount.innerHTML = DL_KEYS.map(key => {
+    const s = dlState[key];
+    const disabled = key === 'preorder' && !preorderActive();
+    const anchors = dlAnchorOptions(key);
+    let controls;
+    if (s.mode === 'specific') {
+      controls = '<input type="date" class="f-input" style="width:auto;" value="' + s.date + '" onchange="dlDateChanged(\'' + key + '\', this)">';
+    } else {
+      const anchorOpts = anchors.length
+        ? anchors.map(o => '<option value="' + o.v + '"' + (o.v === s.anchor ? ' selected' : '') + '>' + o.label + '</option>').join('') +
+          (s.anchor && !anchors.some(o => o.v === s.anchor) ? '<option value="' + s.anchor + '" selected>Missing anchor date</option>' : '')
+        : '<option value="" selected disabled>No anchor dates available yet</option>';
+      controls =
+        '<div class="dl-rule">' +
+          '<span id="dl-numwrap-' + key + '" style="display:' + (s.rel === 'on' ? 'none' : 'inline-flex') + '; align-items:center; gap:8px;">' +
+            '<input type="number" class="f-input dl-num" min="0" max="365" value="' + s.num + '" onchange="dlNumChanged(\'' + key + '\', this)">' +
+            '<span class="dl-days">days</span>' +
+          '</span>' +
+          '<select class="f-input" onchange="dlRelChanged(\'' + key + '\', this)">' +
+            ['before', 'on', 'after'].map(r => '<option' + (r === s.rel ? ' selected' : '') + '>' + r + '</option>').join('') +
+          '</select>' +
+          '<select class="f-input" style="max-width:260px;" onchange="dlAnchorChanged(\'' + key + '\', this)">' + anchorOpts + '</select>' +
+        '</div>' +
+        dlResolvedHTML(key);
+    }
+    return '<div class="dl-block' + (disabled ? ' ecom-disabled' : '') + '">' +
+      '<div class="dl-title">' + DL_DEFS[key].title + '</div>' +
+      '<div class="dl-desc">' + DL_DEFS[key].desc + '</div>' +
+      (disabled ? '<div class="dl-helper" style="pointer-events:auto;">Enable preorder in the Ecommerce step for this deadline to apply.</div>' : '') +
+      '<div class="dl-modes">' +
+        '<label class="rdot-row" onclick="dlModeChanged(\'' + key + '\', \'specific\')"><span class="rdot' + (s.mode === 'specific' ? ' on' : '') + '"></span>Specific date</label>' +
+        '<label class="rdot-row" onclick="dlModeChanged(\'' + key + '\', \'relative\')"><span class="rdot' + (s.mode === 'relative' ? ' on' : '') + '"></span>Relative date</label>' +
+      '</div>' +
+      controls +
+    '</div>';
+  }).join('');
+  renderDlOrderWarn();
+}
+
+/* soft ordering warning: preorder ≤ upload ≤ delivery whenever pairs resolve */
+function renderDlOrderWarn() {
+  const el = document.getElementById('dl-order-warn');
+  if (!el) return;
+  const r = {};
+  DL_KEYS.forEach(k => { const x = dlResolve(k); r[k] = x.err ? null : x.iso; });
+  const issues = [];
+  if (r.preorder && r.upload && r.preorder > r.upload) issues.push('the Preorder deadline (' + fmtInputDate(r.preorder) + ') falls after the Upload deadline (' + fmtInputDate(r.upload) + ')');
+  if (r.upload && r.delivery && r.upload > r.delivery) issues.push('the Upload deadline (' + fmtInputDate(r.upload) + ') falls after the Delivery deadline (' + fmtInputDate(r.delivery) + ')');
+  if (r.preorder && r.delivery && !r.upload && r.preorder > r.delivery) issues.push('the Preorder deadline (' + fmtInputDate(r.preorder) + ') falls after the Delivery deadline (' + fmtInputDate(r.delivery) + ')');
+  el.style.display = issues.length ? 'flex' : 'none';
+  if (issues.length) el.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i><span>Check the order of these deadlines — ' + issues.join(', and ') + '.</span>';
+}
+
+/* ── change handling: commit directly, or interrupt with a dependency modal ── */
+function dlAttemptChange(key, newState) {
+  const oldR = dlResolve(key);
+  const saved = dlState[key];
+  dlState[key] = newState;
+  const newR = dlResolve(key);
+  dlState[key] = saved;
+  const deps = dlDependents(key);
+  const oldHas = !oldR.err, newHas = !newR.err;
+  const changed = (oldHas !== newHas) || (oldHas && newHas && oldR.iso !== newR.iso);
+  if (!deps.length || !changed) {
+    dlState[key] = newState;
+    renderDeadlines();
+    return;
+  }
+  pendingDl = { key: key, newState: newState, deps: deps, kind: newHas ? 'update' : 'clear' };
+  const names = deps.map(k => '<b>' + DL_DEFS[k].title + '</b>').join(' and ');
+  const title = DL_DEFS[key].title;
+  if (pendingDl.kind === 'clear') {
+    setText('dl-warn-title', 'Clear dependent deadlines?');
+    document.getElementById('dl-warn-body').innerHTML =
+      'Other deadlines are calculated from the <b>' + title + '</b>: ' + names + '.<br><br>' +
+      'Clearing the ' + title + ' will also clear ' + (deps.length === 1 ? 'that deadline' : 'those deadlines') + '. Do you want to proceed?';
+    document.getElementById('dl-warn-confirm').textContent = 'Clear Deadlines';
+  } else {
+    setText('dl-warn-title', 'Dependent deadlines will update');
+    document.getElementById('dl-warn-body').innerHTML =
+      'Other deadlines are calculated from the <b>' + title + '</b>: ' + names + '.<br><br>' +
+      'Changing the ' + title + ' will update ' + (deps.length === 1 ? 'its date' : 'their dates') + ' accordingly.';
+    document.getElementById('dl-warn-confirm').textContent = 'Update Deadlines';
+  }
+  document.getElementById('modal-wizard').classList.remove('open');
+  openModal('modal-dl-warn');
+}
+
+function dlWarnConfirm() {
+  const p = pendingDl;
+  if (p) {
+    dlState[p.key] = p.newState;
+    if (p.kind === 'clear') p.deps.forEach(k => { dlState[k] = blankDl(); });
+  }
+  pendingDl = null;
+  closeModal('modal-dl-warn');
+}
+
+function dlCloneState(key) { return Object.assign({}, dlState[key]); }
+
+function dlModeChanged(key, mode) {
+  if (dlState[key].mode === mode) return;
+  const s = dlCloneState(key);
+  s.mode = mode;
+  if (mode === 'relative' && !s.anchor) {
+    const opts = dlAnchorOptions(key);
+    s.anchor = opts.length ? opts[0].v : '';
+  }
+  dlAttemptChange(key, s);
+}
+
+function dlDateChanged(key, inp) {
+  const s = dlCloneState(key);
+  s.date = inp.value;
+  dlAttemptChange(key, s);
+}
+
+function dlNumChanged(key, inp) {
+  let n = parseInt(inp.value, 10);
+  if (isNaN(n) || n < 0) n = 0;
+  if (n > 365) n = 365;
+  const s = dlCloneState(key);
+  s.num = n;
+  dlAttemptChange(key, s);
+}
+
+function dlRelChanged(key, sel) {
+  const s = dlCloneState(key);
+  s.rel = sel.value;
+  dlAttemptChange(key, s);
+}
+
+function dlAnchorChanged(key, sel) {
+  const s = dlCloneState(key);
+  s.anchor = sel.value;
+  dlAttemptChange(key, s);
+}
+
 function renderCsvSetup() {
   document.getElementById('csv-hdr-yes').classList.toggle('on', csvHasHeaders === true);
   document.getElementById('csv-hdr-no').classList.toggle('on', csvHasHeaders === false);
@@ -8675,6 +8954,7 @@ function wizPaint() {
     else if (t) setText('wz-ph-type', JOB_TYPE_LOOKUP[t].title);
   }
   if (curPane === 'wiz-ecom') renderEcomStep();
+  if (curPane === 'wiz-deadlines') renderDeadlines();
   if (curPane === 'wiz-4') buildReview();
   updateWizNextState();
 }
@@ -8718,6 +8998,16 @@ function buildReview() {
               ? ' · Preorder on' + (preDiscount ? ' · ' + preDiscount + '% discount' : '') + (preNoShipFee ? ' · no shipping fee' : '') + (prePackagesOnly ? ' · packages only' : '')
               : ' · Preorder off')
           : '<span style="color:var(--text-3);">No price list — attach later from job settings</span>') + '</span></div>'
+      : '') +
+    (setupMode === 'now' && selectedJobType === 'import'
+      ? '<div class="review-row"><span class="review-key">Deadlines</span><span class="review-val">' + (function () {
+          const parts = [];
+          DL_KEYS.forEach(k => {
+            const r = dlResolve(k);
+            if (!r.err) parts.push(DL_DEFS[k].title.replace(' deadline', '') + ' ' + fmtInputDate(r.iso));
+          });
+          return parts.length ? parts.join(' · ') : '<span style="color:var(--text-3);">None set — add from job settings later</span>';
+        })() + '</span></div>'
       : '');
 }
 
@@ -8804,6 +9094,8 @@ function createJob() {
     J.cta = ['Download QR Codes', "toast('Downloading QR codes for " + importResult.galleries + " galleries…')"];
   }
   if (setupMode === 'now' && selectedJobType === 'import') {
+    const dlv = dlResolve('delivery');
+    if (!dlv.err) JOBS[key].deadline = fmtInputDate(dlv.iso);
     JOBS[key].po = {
       setup: !!(ecomPriceList && preorderOn),
       pricelist: ecomPriceList || 'Attach later',
