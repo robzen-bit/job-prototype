@@ -2279,6 +2279,14 @@ html, body {
 .dl-resolved b { color: var(--text); }
 .dl-resolved.dl-unresolved { color: var(--text-3); font-style: italic; }
 .dl-resolved.dl-error { color: #B4231F; font-style: normal; font-weight: 600; }
+.dl-auto-divider { border-top: 1px solid var(--line); margin: 14px 0 2px; }
+.dl-auto { padding-bottom: 4px; }
+.dl-auto + .dl-auto { border-top: 1px dashed var(--line); }
+.dl-auto-controls { padding: 2px 0 8px; transition: opacity 0.15s ease; }
+.dl-anchor-lock { margin-top: 7px; font-size: 11.5px; color: var(--text-3); }
+.dl-anchor-lock i { margin-right: 4px; }
+.dl-fire-note { font-size: 12.5px; color: var(--text-2); line-height: 1.55; background: #FAFAFC; border: 1px solid var(--line); border-radius: var(--r-sm); padding: 9px 11px; }
+.dl-fire-note i { color: var(--orange); margin-right: 5px; }
 
 /* Import Subject List — data matching table */
 .match-table { width: 100%; border-collapse: collapse; font-size: 13px; }
@@ -5550,13 +5558,14 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
         </div>
       </div>
 
-      <!-- ══ DEADLINES (import flow) ══ -->
+      <!-- ══ DEADLINES & AUTOMATION (import flow) ══ -->
       <div class="wiz-pane" id="wiz-deadlines">
         <div class="wiz-info" style="margin-top:0;">
           <i class="fa-solid fa-circle-info"></i>
           <div>These settings can always be changed later in the job settings.</div>
         </div>
-        <div style="font-size:13px; color:var(--text-2); line-height:1.65; margin:16px 0 4px;">Set the deadlines that govern this job. Each deadline can be a specific calendar date, or a rule calculated from another date in the job.</div>
+        <div style="font-size:13px; color:var(--text-2); line-height:1.65; margin:16px 0 2px;">Set the deadlines that govern this job and the automations that run on them. Each deadline can be a specific calendar date and time, or a rule calculated from another date in the job.</div>
+        <div style="font-size:12px; color:var(--text-3); margin:4px 0 4px;"><i class="fa-regular fa-clock" style="font-size:11px; margin-right:5px;"></i>Times shown in your timezone (<span id="dl-tz">local time</span>).</div>
         <div class="ecom-warn" id="dl-order-warn" style="display:none; margin-top:12px;"></div>
         <div id="wz-deadlines-mount"></div>
       </div>
@@ -8384,23 +8393,60 @@ const DL_DEFS = {
   delivery: { title: 'Delivery deadline', desc: 'The date galleries should be delivered to the client — a school, the parents, or another recipient.' }
 };
 
-function blankDl() { return { mode: 'specific', date: '', num: 3, rel: 'after', anchor: '' }; }
+function blankDl() { return { mode: 'specific', date: '', time: '17:00', num: 3, rel: 'after', anchor: '' }; }
+
+/* automations — reminders stored as lists so a series can slot in later without rework */
+function blankAutoReminder() { return { on: false, template: '', mode: 'relative', date: '', time: '09:00', num: 3, rel: 'before' }; }
+function blankAutos() {
+  return {
+    preorder: { reminders: [blankAutoReminder()] },
+    upload: { reminders: [blankAutoReminder()] },
+    share: { on: false, template: '' },
+    remind: { reminders: [{ on: false, num: 1, unit: 'days', chEmail: true, chSms: false }] }
+  };
+}
+const EMAIL_TEMPLATES = [
+  'Preorder Reminder — Standard',
+  'Preorder Last Call',
+  'Upload Deadline Reminder',
+  'Photographer Nudge — Friendly',
+  'Gallery Delivery Announcement',
+  'Delivery Day — School Format'
+];
+
 let dlState = { preorder: blankDl(), upload: blankDl(), delivery: blankDl() };
+let dlAutos = blankAutos();
 let pendingDl = null;
 
 function resetDeadlinesState() {
   dlState = { preorder: blankDl(), upload: blankDl(), delivery: blankDl() };
+  dlAutos = blankAutos();
   pendingDl = null;
 }
 
 function preorderActive() { return !!(ecomPriceList && preorderOn); }
 
+const pad2 = n => String(n).padStart(2, '0');
+
 function isoAddDays(iso, days) {
   const p = iso.split('-').map(Number);
   const d = new Date(p[0], p[1] - 1, p[2]);
   d.setDate(d.getDate() + days);
-  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
 }
+
+function nowLocalDT() {
+  const d = new Date();
+  return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()) + 'T' + pad2(d.getHours()) + ':' + pad2(d.getMinutes());
+}
+
+function dtMinusMinutes(dt, mins) {
+  const d = new Date(+dt.slice(0, 4), +dt.slice(5, 7) - 1, +dt.slice(8, 10), +dt.slice(11, 13), +dt.slice(14, 16));
+  d.setMinutes(d.getMinutes() - mins);
+  return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()) + 'T' + pad2(d.getHours()) + ':' + pad2(d.getMinutes());
+}
+
+function fmtDT(dt) { return fmtInputDate(dt.slice(0, 10)) + ' at ' + fmtTime(dt.slice(11, 16)); }
 
 function wizShootDatesISO() {
   if (schedMode === 'later') return [];
@@ -8409,14 +8455,14 @@ function wizShootDatesISO() {
   return dates.slice().sort();
 }
 
-/* resolve a deadline to an ISO date; errors: empty | noanchor | anchor-missing | loop | off */
+/* resolve a deadline to an ISO date + time; errors: empty | noanchor | anchor-missing | loop | off */
 function dlResolve(key, visited) {
   visited = visited || {};
   if (visited[key]) return { err: 'loop' };
   visited[key] = true;
   if (key === 'preorder' && !preorderActive()) return { err: 'off' };
   const s = dlState[key];
-  if (s.mode === 'specific') return s.date ? { iso: s.date } : { err: 'empty' };
+  if (s.mode === 'specific') return s.date ? { iso: s.date, time: s.time || '23:59' } : { err: 'empty' };
   if (!s.anchor) return { err: 'noanchor' };
   let base = null;
   if (s.anchor.indexOf('shoot:') === 0) {
@@ -8429,7 +8475,13 @@ function dlResolve(key, visited) {
     base = r.iso;
   } else return { err: 'noanchor' };
   const n = s.rel === 'on' ? 0 : (parseInt(s.num, 10) || 0);
-  return { iso: isoAddDays(base, s.rel === 'before' ? -n : n) };
+  return { iso: isoAddDays(base, s.rel === 'before' ? -n : n), time: s.time || '23:59' };
+}
+
+/* deadline as a comparable local datetime string, or null */
+function dlDT(key) {
+  const r = dlResolve(key);
+  return r.err ? null : r.iso + 'T' + r.time;
 }
 
 /* does deadline a depend on deadline b, directly or through a chain */
@@ -8467,22 +8519,133 @@ function dlResolvedHTML(key) {
   const s = dlState[key];
   if (s.mode !== 'relative') return '';
   const r = dlResolve(key);
-  if (!r.err) return '<div class="dl-resolved"><i class="fa-solid fa-arrow-turn-up" style="transform:rotate(90deg); font-size:10px; margin-right:5px; color:var(--text-3);"></i>Resolves to <b>' + fmtInputDate(r.iso) + '</b></div>';
+  if (!r.err) return '<div class="dl-resolved"><i class="fa-solid fa-arrow-turn-up" style="transform:rotate(90deg); font-size:10px; margin-right:5px; color:var(--text-3);"></i>Resolves to <b>' + fmtInputDate(r.iso) + ' at ' + fmtTime(r.time) + '</b></div>';
   if (r.err === 'loop') return '<div class="dl-resolved dl-error"><i class="fa-solid fa-triangle-exclamation" style="font-size:11px; margin-right:5px;"></i>Circular reference — these rules depend on each other. Adjust one of them.</div>';
   if (r.err === 'anchor-missing') return '<div class="dl-resolved dl-unresolved">Can’t resolve yet — the anchor date has no value.</div>';
   return '<div class="dl-resolved dl-unresolved">Select an anchor date to resolve this rule.</div>';
 }
 
+function templateOptionsHTML(selected) {
+  return '<option value=""' + (!selected ? ' selected' : '') + '>Select an email template</option>' +
+    EMAIL_TEMPLATES.map(t => '<option' + (t === selected ? ' selected' : '') + '>' + t + '</option>').join('') +
+    '<option value="__new">＋ Create new template…</option>';
+}
+
+/* automation sub-panel for the preorder/upload reminder automations */
+function autoReminderHTML(key, label, purpose) {
+  const a = dlAutos[key].reminders[0];
+  const parentDT = dlDT(key);
+  let timing;
+  if (a.mode === 'specific') {
+    const minDate = nowLocalDT().slice(0, 10);
+    const maxDate = parentDT ? parentDT.slice(0, 10) : '';
+    timing = '<div class="dl-rule">' +
+      '<input type="date" class="f-input" style="width:auto;" value="' + a.date + '" min="' + minDate + '"' + (maxDate ? ' max="' + maxDate + '"' : '') + ' onchange="autoFieldChanged(\'' + key + '\', \'date\', this.value)">' +
+      '<input type="time" class="f-input" style="width:auto;" value="' + a.time + '" onchange="autoFieldChanged(\'' + key + '\', \'time\', this.value)">' +
+    '</div>';
+  } else {
+    timing = '<div class="dl-rule">' +
+      '<span style="display:' + (a.rel === 'on' ? 'none' : 'inline-flex') + '; align-items:center; gap:8px;">' +
+        '<input type="number" class="f-input dl-num" min="0" max="365" value="' + a.num + '" onchange="autoFieldChanged(\'' + key + '\', \'num\', this.value)">' +
+        '<span class="dl-days">days</span>' +
+      '</span>' +
+      '<select class="f-input" onchange="autoFieldChanged(\'' + key + '\', \'rel\', this.value)">' +
+        ['before', 'on'].map(r => '<option' + (r === a.rel ? ' selected' : '') + '>' + r + '</option>').join('') +
+      '</select>' +
+      '<span class="dl-days">the ' + DL_DEFS[key].title.toLowerCase() + '</span>' +
+      '<span class="dl-days">at</span>' +
+      '<input type="time" class="f-input" style="width:auto;" value="' + a.time + '" onchange="autoFieldChanged(\'' + key + '\', \'time\', this.value)">' +
+    '</div>' +
+    '<div class="dl-anchor-lock"><i class="fa-solid fa-lock" style="font-size:10px;"></i> Anchored to the ' + DL_DEFS[key].title.toLowerCase() + '</div>';
+  }
+  const send = autoSendDT(key);
+  const problem = autoValidation(key);
+  const sendLine = a.on
+    ? (problem
+        ? '<div class="dl-resolved dl-error"><i class="fa-solid fa-triangle-exclamation" style="font-size:11px; margin-right:5px;"></i>' + problem + '</div>'
+        : (send ? '<div class="dl-resolved">Sends <b>' + fmtDT(send) + '</b></div>' : ''))
+    : '';
+  return '<div class="dl-auto">' +
+    '<div class="toggle-row" style="border-bottom:none; padding:10px 0 6px;">' +
+      '<div><div class="toggle-row-title">' + label + '</div><div class="toggle-row-desc">' + purpose + '</div></div>' +
+      '<button class="toggle' + (a.on ? ' on' : '') + '" onclick="autoToggle(\'' + key + '\')"></button>' +
+    '</div>' +
+    '<div class="dl-auto-controls' + (a.on ? '' : ' ecom-disabled') + '">' +
+      '<select class="f-input" style="margin-bottom:10px;" onchange="autoTemplateChanged(\'' + key + '\', this)">' + templateOptionsHTML(a.template) + '</select>' +
+      '<div class="dl-modes" style="margin:6px 0 8px;">' +
+        '<label class="rdot-row" onclick="autoFieldChanged(\'' + key + '\', \'mode\', \'specific\')"><span class="rdot' + (a.mode === 'specific' ? ' on' : '') + '"></span>Specific date &amp; time</label>' +
+        '<label class="rdot-row" onclick="autoFieldChanged(\'' + key + '\', \'mode\', \'relative\')"><span class="rdot' + (a.mode === 'relative' ? ' on' : '') + '"></span>Relative to this deadline</label>' +
+      '</div>' +
+      timing + sendLine +
+    '</div>' +
+  '</div>';
+}
+
+/* automation sub-panels for the delivery deadline (auto-share + remind me) */
+function deliveryAutosHTML() {
+  const sh = dlAutos.share;
+  const rm = dlAutos.remind.reminders[0];
+  const parentDT = dlDT('delivery');
+  const shareLine = parentDT
+    ? 'Galleries will be shared with all contacts on the delivery deadline — <b>' + fmtDT(parentDT) + '</b>.'
+    : 'Galleries will be shared with all contacts on the delivery deadline. <span style="color:var(--text-3);">Set the delivery deadline above to schedule this.</span>';
+  const shareHTML = '<div class="dl-auto">' +
+    '<div class="toggle-row" style="border-bottom:none; padding:10px 0 6px;">' +
+      '<div><div class="toggle-row-title">Automatically share galleries with all contacts</div><div class="toggle-row-desc">Shares every gallery in this job and sends the selected email when the delivery deadline arrives.</div></div>' +
+      '<button class="toggle' + (sh.on ? ' on' : '') + '" onclick="autoToggle(\'share\')"></button>' +
+    '</div>' +
+    '<div class="dl-auto-controls' + (sh.on ? '' : ' ecom-disabled') + '">' +
+      '<select class="f-input" style="margin-bottom:8px;" onchange="autoTemplateChanged(\'share\', this)">' + templateOptionsHTML(sh.template) + '</select>' +
+      '<div class="dl-fire-note"><i class="fa-solid fa-bolt" style="font-size:10px;"></i> ' + shareLine + '</div>' +
+    '</div>' +
+  '</div>';
+
+  const rmProblem = remindValidation();
+  const rmSend = remindSendDT();
+  const rmLine = rm.on
+    ? (rmProblem
+        ? '<div class="dl-resolved dl-error"><i class="fa-solid fa-triangle-exclamation" style="font-size:11px; margin-right:5px;"></i>' + rmProblem + '</div>'
+        : (rmSend ? '<div class="dl-resolved">Reminds you <b>' + fmtDT(rmSend) + '</b></div>' : ''))
+    : '';
+  const remindHTML = '<div class="dl-auto">' +
+    '<div class="toggle-row" style="border-bottom:none; padding:10px 0 6px;">' +
+      '<div><div class="toggle-row-title">Remind me</div><div class="toggle-row-desc">Advance notice to you — the account owner — that delivery is about to happen, so you can step in if content isn’t ready. Sent as a system notification, no template needed.</div></div>' +
+      '<button class="toggle' + (rm.on ? ' on' : '') + '" onclick="autoToggle(\'remind\')"></button>' +
+    '</div>' +
+    '<div class="dl-auto-controls' + (rm.on ? '' : ' ecom-disabled') + '">' +
+      '<div class="dl-rule">' +
+        '<input type="number" class="f-input dl-num" min="1" max="365" value="' + rm.num + '" onchange="remindFieldChanged(\'num\', this.value)">' +
+        '<select class="f-input" onchange="remindFieldChanged(\'unit\', this.value)">' +
+          ['minutes', 'hours', 'days'].map(u => '<option' + (u === rm.unit ? ' selected' : '') + '>' + u + '</option>').join('') +
+        '</select>' +
+        '<span class="dl-days">before the delivery deadline</span>' +
+      '</div>' +
+      '<div class="dl-rule" style="margin-top:8px; gap:18px;">' +
+        '<label class="ecom-check" style="border-top:none; padding:0;"><input type="checkbox"' + (rm.chEmail ? ' checked' : '') + ' onchange="remindFieldChanged(\'chEmail\', this.checked)"><span><b>Email</b></span></label>' +
+        '<label class="ecom-check" style="border-top:none; padding:0;"><input type="checkbox"' + (rm.chSms ? ' checked' : '') + ' onchange="remindFieldChanged(\'chSms\', this.checked)"><span><b>SMS</b><small>Uses the verified number on your account.</small></span></label>' +
+      '</div>' +
+      rmLine +
+    '</div>' +
+  '</div>';
+  return shareHTML + remindHTML;
+}
+
 function renderDeadlines() {
   const mount = document.getElementById('wz-deadlines-mount');
   if (!mount) return;
+  const tzEl = document.getElementById('dl-tz');
+  if (tzEl) { try { tzEl.textContent = Intl.DateTimeFormat().resolvedOptions().timeZone.replace(/_/g, ' '); } catch (e) { tzEl.textContent = 'local time'; } }
   mount.innerHTML = DL_KEYS.map(key => {
     const s = dlState[key];
     const disabled = key === 'preorder' && !preorderActive();
     const anchors = dlAnchorOptions(key);
     let controls;
     if (s.mode === 'specific') {
-      controls = '<input type="date" class="f-input" style="width:auto;" value="' + s.date + '" onchange="dlDateChanged(\'' + key + '\', this)">';
+      controls = '<div class="dl-rule">' +
+        '<input type="date" class="f-input" style="width:auto;" value="' + s.date + '" onchange="dlDateChanged(\'' + key + '\', this)">' +
+        '<span class="dl-days">at</span>' +
+        '<input type="time" class="f-input" style="width:auto;" value="' + s.time + '" onchange="dlTimeChanged(\'' + key + '\', this)">' +
+      '</div>';
     } else {
       const anchorOpts = anchors.length
         ? anchors.map(o => '<option value="' + o.v + '"' + (o.v === s.anchor ? ' selected' : '') + '>' + o.label + '</option>').join('') +
@@ -8497,34 +8660,42 @@ function renderDeadlines() {
           '<select class="f-input" onchange="dlRelChanged(\'' + key + '\', this)">' +
             ['before', 'on', 'after'].map(r => '<option' + (r === s.rel ? ' selected' : '') + '>' + r + '</option>').join('') +
           '</select>' +
-          '<select class="f-input" style="max-width:260px;" onchange="dlAnchorChanged(\'' + key + '\', this)">' + anchorOpts + '</select>' +
+          '<select class="f-input" style="max-width:240px;" onchange="dlAnchorChanged(\'' + key + '\', this)">' + anchorOpts + '</select>' +
+          '<span class="dl-days">at</span>' +
+          '<input type="time" class="f-input" style="width:auto;" value="' + s.time + '" onchange="dlTimeChanged(\'' + key + '\', this)">' +
         '</div>' +
         dlResolvedHTML(key);
     }
+    let autos = '';
+    if (key === 'preorder') autos = autoReminderHTML('preorder', 'Send reminder emails', 'Reminds customers that the preorder window is closing.');
+    else if (key === 'upload') autos = autoReminderHTML('upload', 'Remind contributing photographers', 'Emails the contributing photographers on this job that their upload deadline is approaching.');
+    else autos = deliveryAutosHTML();
     return '<div class="dl-block' + (disabled ? ' ecom-disabled' : '') + '">' +
       '<div class="dl-title">' + DL_DEFS[key].title + '</div>' +
       '<div class="dl-desc">' + DL_DEFS[key].desc + '</div>' +
-      (disabled ? '<div class="dl-helper" style="pointer-events:auto;">Enable preorder in the Ecommerce step for this deadline to apply.</div>' : '') +
+      (disabled ? '<div class="dl-helper" style="pointer-events:auto;">Enable preorder in the Ecommerce step for this deadline and its automation to apply.</div>' : '') +
       '<div class="dl-modes">' +
         '<label class="rdot-row" onclick="dlModeChanged(\'' + key + '\', \'specific\')"><span class="rdot' + (s.mode === 'specific' ? ' on' : '') + '"></span>Specific date</label>' +
         '<label class="rdot-row" onclick="dlModeChanged(\'' + key + '\', \'relative\')"><span class="rdot' + (s.mode === 'relative' ? ' on' : '') + '"></span>Relative date</label>' +
       '</div>' +
       controls +
+      '<div class="dl-auto-divider"></div>' +
+      autos +
     '</div>';
   }).join('');
   renderDlOrderWarn();
 }
 
-/* soft ordering warning: preorder ≤ upload ≤ delivery whenever pairs resolve */
+/* soft ordering warning: preorder ≤ upload ≤ delivery, compared on date + time */
 function renderDlOrderWarn() {
   const el = document.getElementById('dl-order-warn');
   if (!el) return;
   const r = {};
-  DL_KEYS.forEach(k => { const x = dlResolve(k); r[k] = x.err ? null : x.iso; });
+  DL_KEYS.forEach(k => { r[k] = dlDT(k); });
   const issues = [];
-  if (r.preorder && r.upload && r.preorder > r.upload) issues.push('the Preorder deadline (' + fmtInputDate(r.preorder) + ') falls after the Upload deadline (' + fmtInputDate(r.upload) + ')');
-  if (r.upload && r.delivery && r.upload > r.delivery) issues.push('the Upload deadline (' + fmtInputDate(r.upload) + ') falls after the Delivery deadline (' + fmtInputDate(r.delivery) + ')');
-  if (r.preorder && r.delivery && !r.upload && r.preorder > r.delivery) issues.push('the Preorder deadline (' + fmtInputDate(r.preorder) + ') falls after the Delivery deadline (' + fmtInputDate(r.delivery) + ')');
+  if (r.preorder && r.upload && r.preorder > r.upload) issues.push('the Preorder deadline (' + fmtDT(r.preorder) + ') falls after the Upload deadline (' + fmtDT(r.upload) + ')');
+  if (r.upload && r.delivery && r.upload > r.delivery) issues.push('the Upload deadline (' + fmtDT(r.upload) + ') falls after the Delivery deadline (' + fmtDT(r.delivery) + ')');
+  if (r.preorder && r.delivery && !r.upload && r.preorder > r.delivery) issues.push('the Preorder deadline (' + fmtDT(r.preorder) + ') falls after the Delivery deadline (' + fmtDT(r.delivery) + ')');
   el.style.display = issues.length ? 'flex' : 'none';
   if (issues.length) el.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i><span>Check the order of these deadlines — ' + issues.join(', and ') + '.</span>';
 }
@@ -8537,28 +8708,43 @@ function dlAttemptChange(key, newState) {
   const newR = dlResolve(key);
   dlState[key] = saved;
   const deps = dlDependents(key);
-  const oldHas = !oldR.err, newHas = !newR.err;
-  const changed = (oldHas !== newHas) || (oldHas && newHas && oldR.iso !== newR.iso);
-  if (!deps.length || !changed) {
+  const autos = dlAffectedAutos(key, deps);
+  const oldDT = oldR.err ? null : oldR.iso + 'T' + oldR.time;
+  const newDT = newR.err ? null : newR.iso + 'T' + newR.time;
+  const changed = oldDT !== newDT;
+  if ((!deps.length && !autos.length) || !changed) {
     dlState[key] = newState;
     renderDeadlines();
     return;
   }
-  pendingDl = { key: key, newState: newState, deps: deps, kind: newHas ? 'update' : 'clear' };
-  const names = deps.map(k => '<b>' + DL_DEFS[k].title + '</b>').join(' and ');
+  pendingDl = { key: key, newState: newState, deps: deps, autos: autos, kind: newDT ? 'update' : 'clear' };
   const title = DL_DEFS[key].title;
+  const depNames = deps.map(k => '<b>' + DL_DEFS[k].title + '</b>').join(' and ');
+  const autoNames = autos.map(a => '<b>' + a.label + '</b>').join(' and ');
+  const dependsLine =
+    (deps.length ? 'Deadlines calculated from it: ' + depNames + '.' : '') +
+    (deps.length && autos.length ? '<br>' : '') +
+    (autos.length ? 'Automations scheduled from it: ' + autoNames + '.' : '');
   if (pendingDl.kind === 'clear') {
-    setText('dl-warn-title', 'Clear dependent deadlines?');
+    setText('dl-warn-title', 'Clear dependent settings?');
     document.getElementById('dl-warn-body').innerHTML =
-      'Other deadlines are calculated from the <b>' + title + '</b>: ' + names + '.<br><br>' +
-      'Clearing the ' + title + ' will also clear ' + (deps.length === 1 ? 'that deadline' : 'those deadlines') + '. Do you want to proceed?';
-    document.getElementById('dl-warn-confirm').textContent = 'Clear Deadlines';
+      'Other settings depend on the <b>' + title + '</b>.<br><br>' + dependsLine + '<br><br>' +
+      'Clearing the ' + title + ' will also ' +
+      (deps.length ? 'clear ' + (deps.length === 1 ? 'that deadline' : 'those deadlines') : '') +
+      (deps.length && autos.length ? ' and ' : '') +
+      (autos.length ? 'turn off ' + (autos.length === 1 ? 'that automation' : 'those automations') : '') +
+      '. Do you want to proceed?';
+    document.getElementById('dl-warn-confirm').textContent = 'Clear Settings';
   } else {
-    setText('dl-warn-title', 'Dependent deadlines will update');
+    setText('dl-warn-title', 'Dependent settings will update');
     document.getElementById('dl-warn-body').innerHTML =
-      'Other deadlines are calculated from the <b>' + title + '</b>: ' + names + '.<br><br>' +
-      'Changing the ' + title + ' will update ' + (deps.length === 1 ? 'its date' : 'their dates') + ' accordingly.';
-    document.getElementById('dl-warn-confirm').textContent = 'Update Deadlines';
+      'Other settings depend on the <b>' + title + '</b>.<br><br>' + dependsLine + '<br><br>' +
+      'Changing the ' + title + ' will update ' +
+      (deps.length ? (deps.length === 1 ? 'that deadline' : 'those deadlines') : '') +
+      (deps.length && autos.length ? ' and ' : '') +
+      (autos.length ? 're-check ' + (autos.length === 1 ? 'that automation’s send timing' : 'those automations’ send timings') : '') +
+      ' accordingly.';
+    document.getElementById('dl-warn-confirm').textContent = 'Update Settings';
   }
   document.getElementById('modal-wizard').classList.remove('open');
   openModal('modal-dl-warn');
@@ -8568,7 +8754,13 @@ function dlWarnConfirm() {
   const p = pendingDl;
   if (p) {
     dlState[p.key] = p.newState;
-    if (p.kind === 'clear') p.deps.forEach(k => { dlState[k] = blankDl(); });
+    if (p.kind === 'clear') {
+      p.deps.forEach(k => { dlState[k] = blankDl(); });
+      p.autos.forEach(a => {
+        if (a.owner === 'share') dlAutos.share.on = false;
+        else dlAutos[a.owner].reminders[0].on = false;
+      });
+    }
   }
   pendingDl = null;
   closeModal('modal-dl-warn');
@@ -8612,6 +8804,102 @@ function dlAnchorChanged(key, sel) {
   const s = dlCloneState(key);
   s.anchor = sel.value;
   dlAttemptChange(key, s);
+}
+
+function dlTimeChanged(key, inp) {
+  const s = dlCloneState(key);
+  s.time = inp.value || '23:59';
+  dlAttemptChange(key, s);
+}
+
+/* ── automation send resolution + validation ── */
+function autoSendDT(key) {
+  const a = dlAutos[key].reminders[0];
+  if (a.mode === 'specific') return a.date ? a.date + 'T' + (a.time || '00:00') : null;
+  const parent = dlDT(key);
+  if (!parent) return null;
+  const n = a.rel === 'on' ? 0 : (parseInt(a.num, 10) || 0);
+  return isoAddDays(parent.slice(0, 10), -n) + 'T' + (a.time || '00:00');
+}
+
+function autoValidation(key) {
+  const a = dlAutos[key].reminders[0];
+  if (!a.on) return '';
+  const parent = dlDT(key);
+  if (!parent) return 'Waiting on the ' + DL_DEFS[key].title.toLowerCase() + ' — set it above to schedule this reminder.';
+  const send = autoSendDT(key);
+  if (!send) return 'Set a send date and time.';
+  if (send > parent) return 'This reminder would send after the ' + DL_DEFS[key].title.toLowerCase() + ' has passed — move it earlier.';
+  if (send <= nowLocalDT()) return 'This send time is already in the past — move it later.';
+  return '';
+}
+
+function remindSendDT() {
+  const r = dlAutos.remind.reminders[0];
+  const parent = dlDT('delivery');
+  if (!parent) return null;
+  const n = parseInt(r.num, 10) || 0;
+  const mins = r.unit === 'minutes' ? n : (r.unit === 'hours' ? n * 60 : n * 1440);
+  return dtMinusMinutes(parent, mins);
+}
+
+function remindValidation() {
+  const r = dlAutos.remind.reminders[0];
+  if (!r.on) return '';
+  if (!r.chEmail && !r.chSms) return 'Choose at least one channel — email or SMS.';
+  const parent = dlDT('delivery');
+  if (!parent) return 'Waiting on the delivery deadline — set it above to schedule this reminder.';
+  if (remindSendDT() <= nowLocalDT()) return 'This reminder time is already in the past — reduce the offset.';
+  return '';
+}
+
+/* ── automation control handlers ── */
+function autoToggle(id) {
+  if (id === 'share') dlAutos.share.on = !dlAutos.share.on;
+  else if (id === 'remind') dlAutos.remind.reminders[0].on = !dlAutos.remind.reminders[0].on;
+  else dlAutos[id].reminders[0].on = !dlAutos[id].reminders[0].on;
+  renderDeadlines();
+}
+
+function autoTemplateChanged(id, sel) {
+  if (sel.value === '__new') {
+    toast('Opens the email template builder');
+    sel.value = id === 'share' ? dlAutos.share.template : dlAutos[id].reminders[0].template;
+    return;
+  }
+  if (id === 'share') dlAutos.share.template = sel.value;
+  else dlAutos[id].reminders[0].template = sel.value;
+}
+
+function autoFieldChanged(key, field, value) {
+  const a = dlAutos[key].reminders[0];
+  if (field === 'mode' && a.mode === value) return;
+  if (field === 'num') { let n = parseInt(value, 10); if (isNaN(n) || n < 0) n = 0; if (n > 365) n = 365; value = n; }
+  a[field] = value;
+  renderDeadlines();
+}
+
+function remindFieldChanged(field, value) {
+  const r = dlAutos.remind.reminders[0];
+  if (field === 'num') { let n = parseInt(value, 10); if (isNaN(n) || n < 1) n = 1; if (n > 365) n = 365; value = n; }
+  r[field] = value;
+  renderDeadlines();
+}
+
+/* automations attached to a deadline (or its downstream deps) that are switched on */
+function dlAffectedAutos(key, deps) {
+  const keys = [key].concat(deps);
+  const out = [];
+  keys.forEach(k => {
+    if ((k === 'preorder' || k === 'upload') && dlAutos[k].reminders[0].on) {
+      out.push({ owner: k, label: k === 'preorder' ? 'Preorder reminder emails' : 'Photographer upload reminder' });
+    }
+    if (k === 'delivery') {
+      if (dlAutos.share.on) out.push({ owner: 'share', label: 'Automatic gallery sharing' });
+      if (dlAutos.remind.reminders[0].on) out.push({ owner: 'remind', label: 'Delivery “Remind me” notification' });
+    }
+  });
+  return out;
 }
 
 function renderCsvSetup() {
@@ -8864,7 +9152,7 @@ function paintDuringPhase() {
   if (duringPhase === 'form') renderRegFormBuilder('wz-ph-during-form-mount');
 }
 
-const WIZ_LABELS = { 'wiz-1': 'Details', 'wiz-sched': 'Schedule', 'wiz-setup': 'Setup', 'wiz-placeholder': 'Setup Details', 'wiz-ecom': 'Ecommerce', 'wiz-deadlines': 'Deadlines', 'wiz-4': 'Review' };
+const WIZ_LABELS = { 'wiz-1': 'Details', 'wiz-sched': 'Schedule', 'wiz-setup': 'Setup', 'wiz-placeholder': 'Setup Details', 'wiz-ecom': 'Ecommerce', 'wiz-deadlines': 'Deadlines & Automation', 'wiz-4': 'Review' };
 
 function wizFlow() {
   const flow = ['wiz-1', 'wiz-sched', 'wiz-setup'];
@@ -9003,10 +9291,13 @@ function buildReview() {
       ? '<div class="review-row"><span class="review-key">Deadlines</span><span class="review-val">' + (function () {
           const parts = [];
           DL_KEYS.forEach(k => {
-            const r = dlResolve(k);
-            if (!r.err) parts.push(DL_DEFS[k].title.replace(' deadline', '') + ' ' + fmtInputDate(r.iso));
+            const dt = dlDT(k);
+            if (dt) parts.push(DL_DEFS[k].title.replace(' deadline', '') + ' ' + fmtDT(dt));
           });
-          return parts.length ? parts.join(' · ') : '<span style="color:var(--text-3);">None set — add from job settings later</span>';
+          const autoCount = dlAffectedAutos('delivery', ['preorder', 'upload']).length;
+          let txt = parts.length ? parts.join(' · ') : '<span style="color:var(--text-3);">None set — add from job settings later</span>';
+          if (autoCount) txt += ' <span style="color:var(--text-3);">· ' + autoCount + ' automation' + (autoCount === 1 ? '' : 's') + ' on</span>';
+          return txt;
         })() + '</span></div>'
       : '');
 }
