@@ -2285,6 +2285,10 @@ html, body {
 .dl-block.collapsed { background: #FAFAFC; }
 .dl-gated .dl-title, .dl-gated .dl-desc { opacity: 0.55; }
 .dl-auto-divider { border-top: 1px solid var(--line); margin: 14px 0 2px; }
+.dl-auto-item { border: 1px solid var(--line); border-radius: var(--r-sm); padding: 10px 12px 12px; margin: 8px 0; background: var(--surface); }
+.dl-auto-item-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.dl-auto-item-label { font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-3); }
+.dl-auto-item .row-x { display: flex; }
 .dl-auto { padding-bottom: 4px; }
 .dl-auto + .dl-auto { border-top: 1px dashed var(--line); }
 .dl-auto-controls { padding: 2px 0 8px; transition: opacity 0.15s ease; }
@@ -8459,9 +8463,11 @@ function blankDl() { return { mode: 'specific', date: '', time: '17:00', num: 3,
 
 /* automations — reminders stored as lists so a series can slot in later without rework */
 function blankAutoReminder() { return { on: false, template: '', mode: 'relative', date: '', time: '09:00', num: 3, rel: 'before' }; }
+/* the preorder announcement — anchored to a shoot date of the photographer's choosing */
+function blankAnnounce() { return { template: '', mode: 'relative', date: '', time: '09:00', num: 3, rel: 'before', anchor: 'shoot:last' }; }
 function blankAutos() {
   return {
-    preorder: { reminders: [blankAutoReminder()] },
+    preorder: { announce: blankAnnounce(), reminders: [blankAutoReminder()] },
     upload: { reminders: [blankAutoReminder()] },
     share: { on: false, template: '' },
     remind: { reminders: [{ on: false, num: 1, unit: 'days', chEmail: true, chSms: false }] }
@@ -8586,7 +8592,7 @@ function dlDependsOn(a, b, hops) {
 
 function dlDependents(key) { return DL_KEYS.filter(k => k !== key && dlDependsOn(k, key)); }
 
-function dlAnchorOptions(key) {
+function shootAnchorOptions() {
   const opts = [];
   const dates = wizShootDatesISO();
   if (dates.length) {
@@ -8595,6 +8601,11 @@ function dlAnchorOptions(key) {
       opts.push({ v: 'shoot:' + i, label: (i === 0 ? 'First shoot' : 'Shoot ' + (i + 1)) + ' (' + fmtInputDate(dates[i]) + ')' });
     }
   }
+  return opts;
+}
+
+function dlAnchorOptions(key) {
+  const opts = shootAnchorOptions();
   DL_KEYS.forEach(k => {
     if (k === key) return;                       /* cannot anchor to itself */
     if (dlDependsOn(k, key)) return;             /* would create a loop */
@@ -8808,24 +8819,31 @@ function renderDeadlines() {
         '</div>' +
         dlResolvedHTML(key);
     }
-    let autos = '';
-    if (key === 'preorder') autos = autoReminderHTML('preorder', 'Send reminder emails', 'Reminds customers that the preorder window is closing.');
-    else if (key === 'upload') autos = autoReminderHTML('upload', 'Remind contributing photographers', 'Emails the contributing photographers on this job that their upload deadline is approaching.');
-    else autos = deliveryAutosHTML();
+    const fieldSection =
+      '<div class="f-label" style="margin-bottom:2px;">' + DL_DEFS[key].title + '</div>' +
+      '<div style="font-size:12px; color:var(--text-3); margin-bottom:8px;">' + DL_DEFS[key].desc + '</div>' +
+      '<div class="dl-modes">' +
+        '<label class="rdot-row" onclick="dlModeChanged(\'' + key + '\', \'specific\')"><span class="rdot' + (s.mode === 'specific' ? ' on' : '') + '"></span>Specific date</label>' +
+        '<label class="rdot-row" onclick="dlModeChanged(\'' + key + '\', \'relative\')"><span class="rdot' + (s.mode === 'relative' ? ' on' : '') + '"></span>Relative date</label>' +
+      '</div>' +
+      controls;
+    let bodyInner;
+    if (key === 'preorder') {
+      /* display order: announcement → reminders → deadline */
+      bodyInner = announceHTML() +
+        '<div class="dl-auto-divider"></div>' +
+        remindersListHTML('preorder', 'Reminder', 'Add another reminder', 'Reminds customers that the preorder window is closing. Configure as many as you need — e.g. three days out, then one day out.') +
+        '<div class="dl-auto-divider"></div>' +
+        fieldSection;
+    } else if (key === 'upload') {
+      bodyInner = fieldSection +
+        '<div class="dl-auto-divider"></div>' +
+        autoReminderHTML('upload', 'Remind contributing photographers', 'Emails the contributing photographers on this job that their upload deadline is approaching.');
+    } else {
+      bodyInner = fieldSection + '<div class="dl-auto-divider"></div>' + deliveryAutosHTML();
+    }
     const on = dlPanelOn[key] && !disabled;   /* a gated panel is always collapsed */
-    const body = on
-      ? '<div class="dl-panel-body">' +
-          '<div class="f-label" style="margin-bottom:2px;">' + DL_DEFS[key].title + '</div>' +
-          '<div style="font-size:12px; color:var(--text-3); margin-bottom:8px;">' + DL_DEFS[key].desc + '</div>' +
-          '<div class="dl-modes">' +
-            '<label class="rdot-row" onclick="dlModeChanged(\'' + key + '\', \'specific\')"><span class="rdot' + (s.mode === 'specific' ? ' on' : '') + '"></span>Specific date</label>' +
-            '<label class="rdot-row" onclick="dlModeChanged(\'' + key + '\', \'relative\')"><span class="rdot' + (s.mode === 'relative' ? ' on' : '') + '"></span>Relative date</label>' +
-          '</div>' +
-          controls +
-          '<div class="dl-auto-divider"></div>' +
-          autos +
-        '</div>'
-      : '';
+    const body = on ? '<div class="dl-panel-body">' + bodyInner + '</div>' : '';
     return '<div class="dl-block' + (on ? '' : ' collapsed') + (disabled ? ' dl-gated' : '') + '">' +
       '<div class="dl-panel-head">' +
         '<div style="min-width:0;">' +
@@ -8884,11 +8902,10 @@ function dlAttemptChange(key, newState) {
     setText('dl-warn-title', 'Clear dependent settings?');
     document.getElementById('dl-warn-body').innerHTML =
       'Other settings depend on the <b>' + title + '</b>.<br><br>' + dependsLine + '<br><br>' +
-      'Clearing the ' + title + ' will also ' +
-      (deps.length ? 'clear ' + (deps.length === 1 ? 'that deadline' : 'those deadlines') : '') +
-      (deps.length && autos.length ? ' and ' : '') +
-      (autos.length ? 'turn off ' + (autos.length === 1 ? 'that automation' : 'those automations') : '') +
-      '. Do you want to proceed?';
+      'Clearing the ' + title +
+      (deps.length ? ' will also clear ' + (deps.length === 1 ? 'that deadline' : 'those deadlines') + '.' : '.') +
+      (autos.length ? ' ' + (autos.length === 1 ? 'The automation keeps its configuration but can’t send' : 'The automations keep their configuration but can’t send') + ' until new dates are set.' : '') +
+      ' Do you want to proceed?';
     document.getElementById('dl-warn-confirm').textContent = 'Clear Settings';
   } else {
     setText('dl-warn-title', 'Dependent settings will update');
@@ -8913,10 +8930,8 @@ function dlWarnConfirm() {
     dlState[p.key] = p.newState;
     if (p.kind === 'clear') {
       p.deps.forEach(k => { dlState[k] = blankDl(); });
-      p.autos.forEach(a => {
-        if (a.owner === 'share') dlAutos.share.on = false;
-        else dlAutos[a.owner].reminders[0].on = false;
-      });
+      /* automations keep their configuration — their validation lines surface
+         "waiting on the … deadline" until new dates are set (persist pattern) */
     }
   }
   pendingDl = null;
@@ -9048,13 +9063,197 @@ function remindFieldChanged(field, value) {
   renderDeadlines();
 }
 
+/* ── per-item reminder machinery (index-aware; used by repeatable reminders/notifications) ── */
+function autoItem(key, idx) { return dlAutos[key].reminders[idx]; }
+
+function autoSendDTItem(key, idx) {
+  const a = autoItem(key, idx);
+  if (a.mode === 'specific') return a.date ? a.date + 'T' + (a.time || '00:00') : null;
+  const parent = dlDT(key);
+  if (!parent) return null;
+  const n = a.rel === 'on' ? 0 : (parseInt(a.num, 10) || 0);
+  return isoAddDays(parent.slice(0, 10), -n) + 'T' + (a.time || '00:00');
+}
+
+function autoValidationItem(key, idx) {
+  const parent = dlDT(key);
+  if (!parent) return 'Waiting on the ' + DL_DEFS[key].title.toLowerCase() + ' — set it below to schedule this.';
+  const send = autoSendDTItem(key, idx);
+  if (!send) return 'Set a send date and time.';
+  if (send > parent) return 'This would send after the ' + DL_DEFS[key].title.toLowerCase() + ' has passed — move it earlier.';
+  if (send <= nowLocalDT()) return 'This send time is already in the past — move it later.';
+  return '';
+}
+
+function autoItemFieldChanged(key, idx, field, value) {
+  const a = autoItem(key, idx);
+  if (field === 'mode' && a.mode === value) return;
+  if (field === 'num') { let n = parseInt(value, 10); if (isNaN(n) || n < 0) n = 0; if (n > 365) n = 365; value = n; }
+  a[field] = value;
+  renderDeadlines();
+}
+
+function autoItemTemplateChanged(key, idx, sel) {
+  const a = autoItem(key, idx);
+  if (sel.value === '__new') { toast('Opens the email template builder'); sel.value = a.template; return; }
+  a.template = sel.value;
+}
+
+function autoAddReminder(key) {
+  dlAutos[key].reminders.push(blankAutoReminder());
+  renderDeadlines();
+}
+
+function autoRemoveReminder(key, idx) {
+  dlAutos[key].reminders.splice(idx, 1);
+  renderDeadlines();
+}
+
+/* one repeatable reminder/notification row (anchor locked to its parent deadline) */
+function autoItemHTML(key, idx, noun) {
+  const a = autoItem(key, idx);
+  const parentDT = dlDT(key);
+  let timing;
+  if (a.mode === 'specific') {
+    const minDate = nowLocalDT().slice(0, 10);
+    const maxDate = parentDT ? parentDT.slice(0, 10) : '';
+    timing = '<div class="dl-rule">' +
+      '<input type="date" class="f-input" style="width:auto;" value="' + a.date + '" min="' + minDate + '"' + (maxDate ? ' max="' + maxDate + '"' : '') + ' onchange="autoItemFieldChanged(\'' + key + '\', ' + idx + ', \'date\', this.value)">' +
+      '<input type="time" class="f-input" style="width:auto;" value="' + a.time + '" onchange="autoItemFieldChanged(\'' + key + '\', ' + idx + ', \'time\', this.value)">' +
+    '</div>';
+  } else {
+    timing = '<div class="dl-rule">' +
+      '<span style="display:' + (a.rel === 'on' ? 'none' : 'inline-flex') + '; align-items:center; gap:8px;">' +
+        '<input type="number" class="f-input dl-num" min="0" max="365" value="' + a.num + '" onchange="autoItemFieldChanged(\'' + key + '\', ' + idx + ', \'num\', this.value)">' +
+        '<span class="dl-days">days</span>' +
+      '</span>' +
+      '<select class="f-input" onchange="autoItemFieldChanged(\'' + key + '\', ' + idx + ', \'rel\', this.value)">' +
+        ['before', 'on'].map(r => '<option' + (r === a.rel ? ' selected' : '') + '>' + r + '</option>').join('') +
+      '</select>' +
+      '<span class="dl-days">the ' + DL_DEFS[key].title.toLowerCase() + '</span>' +
+      '<span class="dl-days">at</span>' +
+      '<input type="time" class="f-input" style="width:auto;" value="' + a.time + '" onchange="autoItemFieldChanged(\'' + key + '\', ' + idx + ', \'time\', this.value)">' +
+    '</div>' +
+    '<div class="dl-anchor-lock"><i class="fa-solid fa-lock" style="font-size:10px;"></i> Anchored to the ' + DL_DEFS[key].title.toLowerCase() + '</div>';
+  }
+  const problem = autoValidationItem(key, idx);
+  const send = autoSendDTItem(key, idx);
+  const sendLine = problem
+    ? '<div class="dl-resolved dl-error"><i class="fa-solid fa-triangle-exclamation" style="font-size:11px; margin-right:5px;"></i>' + problem + '</div>'
+    : (send ? '<div class="dl-resolved">Sends <b>' + fmtDT(send) + '</b></div>' : '');
+  return '<div class="dl-auto-item">' +
+    '<div class="dl-auto-item-head">' +
+      '<span class="dl-auto-item-label">' + noun + ' ' + (idx + 1) + '</span>' +
+      '<button type="button" class="row-x" onclick="autoRemoveReminder(\'' + key + '\', ' + idx + ')" title="Remove"><i class="fa-solid fa-xmark"></i></button>' +
+    '</div>' +
+    '<select class="f-input" style="margin-bottom:8px;" onchange="autoItemTemplateChanged(\'' + key + '\', ' + idx + ', this)">' + templateOptionsHTML(a.template) + '</select>' +
+    '<div class="dl-modes" style="margin:4px 0 8px;">' +
+      '<label class="rdot-row" onclick="autoItemFieldChanged(\'' + key + '\', ' + idx + ', \'mode\', \'specific\')"><span class="rdot' + (a.mode === 'specific' ? ' on' : '') + '"></span>Specific date &amp; time</label>' +
+      '<label class="rdot-row" onclick="autoItemFieldChanged(\'' + key + '\', ' + idx + ', \'mode\', \'relative\')"><span class="rdot' + (a.mode === 'relative' ? ' on' : '') + '"></span>Relative to the deadline</label>' +
+    '</div>' +
+    timing + sendLine +
+  '</div>';
+}
+
+/* ── preorder announcement (sends first — nothing to remind about until it has gone out) ── */
+function announceSendDT() {
+  const a = dlAutos.preorder.announce;
+  if (a.mode === 'specific') return a.date ? a.date + 'T' + (a.time || '00:00') : null;
+  const dates = wizShootDatesISO();
+  const base = a.anchor === 'shoot:last' ? dates[dates.length - 1] : dates[parseInt(String(a.anchor).slice(6), 10)];
+  if (!base) return null;
+  const n = a.rel === 'on' ? 0 : (parseInt(a.num, 10) || 0);
+  return isoAddDays(base, a.rel === 'before' ? -n : n) + 'T' + (a.time || '00:00');
+}
+
+function announceValidation() {
+  const a = dlAutos.preorder.announce;
+  const send = announceSendDT();
+  if (!send) return a.mode === 'specific' ? 'Set a send date and time.' : 'Can’t resolve yet — the job has no shoot dates scheduled.';
+  if (send <= nowLocalDT()) return 'This send time is already in the past — move it later.';
+  const pre = dlDT('preorder');
+  if (pre && send > pre) return 'The announcement would send after the preorder deadline — move it earlier.';
+  return '';
+}
+
+function announceFieldChanged(field, value) {
+  const a = dlAutos.preorder.announce;
+  if (field === 'mode' && a.mode === value) return;
+  if (field === 'num') { let n = parseInt(value, 10); if (isNaN(n) || n < 0) n = 0; if (n > 365) n = 365; value = n; }
+  a[field] = value;
+  renderDeadlines();
+}
+
+function announceTemplateChanged(sel) {
+  const a = dlAutos.preorder.announce;
+  if (sel.value === '__new') { toast('Opens the email template builder'); sel.value = a.template; return; }
+  a.template = sel.value;
+}
+
+function announceHTML() {
+  const a = dlAutos.preorder.announce;
+  let timing;
+  if (a.mode === 'specific') {
+    timing = '<div class="dl-rule">' +
+      '<input type="date" class="f-input" style="width:auto;" value="' + a.date + '" min="' + nowLocalDT().slice(0, 10) + '" onchange="announceFieldChanged(\'date\', this.value)">' +
+      '<input type="time" class="f-input" style="width:auto;" value="' + a.time + '" onchange="announceFieldChanged(\'time\', this.value)">' +
+    '</div>';
+  } else {
+    const shootOpts = shootAnchorOptions();
+    const anchorOpts = shootOpts.length
+      ? shootOpts.map(o => '<option value="' + o.v + '"' + (o.v === a.anchor ? ' selected' : '') + '>' + o.label + '</option>').join('')
+      : '<option value="" selected disabled>No shoot dates scheduled yet</option>';
+    timing = '<div class="dl-rule">' +
+      '<span style="display:' + (a.rel === 'on' ? 'none' : 'inline-flex') + '; align-items:center; gap:8px;">' +
+        '<input type="number" class="f-input dl-num" min="0" max="365" value="' + a.num + '" onchange="announceFieldChanged(\'num\', this.value)">' +
+        '<span class="dl-days">days</span>' +
+      '</span>' +
+      '<select class="f-input" onchange="announceFieldChanged(\'rel\', this.value)">' +
+        ['before', 'on', 'after'].map(r => '<option' + (r === a.rel ? ' selected' : '') + '>' + r + '</option>').join('') +
+      '</select>' +
+      '<select class="f-input" style="max-width:240px;" onchange="announceFieldChanged(\'anchor\', this.value)">' + anchorOpts + '</select>' +
+      '<span class="dl-days">at</span>' +
+      '<input type="time" class="f-input" style="width:auto;" value="' + a.time + '" onchange="announceFieldChanged(\'time\', this.value)">' +
+    '</div>';
+  }
+  const problem = announceValidation();
+  const send = announceSendDT();
+  const sendLine = problem
+    ? '<div class="dl-resolved dl-error"><i class="fa-solid fa-triangle-exclamation" style="font-size:11px; margin-right:5px;"></i>' + problem + '</div>'
+    : (send ? '<div class="dl-resolved">Sends <b>' + fmtDT(send) + '</b></div>' : '');
+  return '<div class="dl-auto">' +
+    '<div class="toggle-row-title" style="padding-top:8px;">Preorder announcement</div>' +
+    '<div class="toggle-row-desc" style="margin-bottom:8px;">Tells your clients preordering is open and gives them a link to place an order. Sends before any reminder.</div>' +
+    '<select class="f-input" style="margin-bottom:8px;" onchange="announceTemplateChanged(this)">' + templateOptionsHTML(a.template) + '</select>' +
+    '<div class="dl-modes" style="margin:4px 0 8px;">' +
+      '<label class="rdot-row" onclick="announceFieldChanged(\'mode\', \'specific\')"><span class="rdot' + (a.mode === 'specific' ? ' on' : '') + '"></span>Specific date &amp; time</label>' +
+      '<label class="rdot-row" onclick="announceFieldChanged(\'mode\', \'relative\')"><span class="rdot' + (a.mode === 'relative' ? ' on' : '') + '"></span>Relative to a shoot date</label>' +
+    '</div>' +
+    timing + sendLine +
+  '</div>';
+}
+
+function remindersListHTML(key, noun, addLabel, desc) {
+  const items = dlAutos[key].reminders;
+  return '<div class="dl-auto">' +
+    '<div class="toggle-row-title" style="padding-top:8px;">' + noun + 's</div>' +
+    '<div class="toggle-row-desc" style="margin-bottom:4px;">' + desc + '</div>' +
+    (items.length ? items.map((r, i) => autoItemHTML(key, i, noun)).join('')
+      : '<div style="font-size:12.5px; color:var(--text-3); padding:6px 0;">None configured.</div>') +
+    '<button type="button" class="add-inline-btn" onclick="autoAddReminder(\'' + key + '\')"><i class="fa-solid fa-plus"></i> ' + addLabel + '</button>' +
+  '</div>';
+}
+
 /* automations attached to a deadline (or its downstream deps) that are switched on */
 function dlAffectedAutos(key, deps) {
   const keys = [key].concat(deps);
   const out = [];
   keys.forEach(k => {
-    if ((k === 'preorder' || k === 'upload') && dlPanelOn[k] && dlAutos[k].reminders[0].on) {
-      out.push({ owner: k, label: k === 'preorder' ? 'Preorder reminder emails' : 'Photographer upload reminder' });
+    if (k === 'preorder' && dlPanelOn.preorder) {
+      out.push({ owner: 'preorder', label: 'Preorder Automation (announcement & reminders)' });
+    }
+    if (k === 'upload' && dlPanelOn.upload && dlAutos.upload.reminders[0] && dlAutos.upload.reminders[0].on) {
+      out.push({ owner: 'upload', label: 'Photographer upload reminder' });
     }
     if (k === 'delivery' && dlPanelOn.delivery) {
       if (dlAutos.share.on) out.push({ owner: 'share', label: 'Automatic gallery sharing' });

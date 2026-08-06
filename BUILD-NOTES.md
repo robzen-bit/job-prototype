@@ -58,3 +58,34 @@ ambiguity resolution, and deviation, tagged by phase.
 - **Verification (static):** head renders `DL_PANELS` title/desc for all three
   keys; every `DL_DEFS.title` usage in anchors/modals/validation unchanged and
   still refers to the deadline field. `node --check` clean.
+
+### Phase 3 — Preorder Automation ✅
+
+- Panel body now renders in the brief's order: **announcement → reminders →
+  preorder deadline**.
+- **3.1 Announcement (new):** template selector + specific/relative send
+  timing. Relative mode anchors to a **shoot date with a picker** (Last shoot /
+  First shoot / Shoot N), before/on/after + time. Validates: unresolvable
+  without shoot dates, past sends blocked, and (extra, logged) warns if the
+  announcement would land after the preorder deadline.
+- **3.2 Reminders now repeatable:** stored as a list (structure was already a
+  list from the earlier "structured for more" decision). Each reminder has its
+  own template + timing (specific, or relative locked before/on the preorder
+  deadline), its own remove ×, plus an "Add another reminder" control. The
+  3-days-out + 1-day-out example is buildable.
+- **Assumption logged (per brief):** reminder relative anchor stays locked to
+  the **preorder deadline**, NOT the shoot — the walkthrough example conflicted
+  with the earlier spec. FLAGGED FOR REVIEW.
+- **Decision:** per-reminder on/off toggles removed — the panel master toggle
+  governs the automation; a reminder exists or it doesn't (add/remove).
+  Reminders can be removed down to zero (announcement + deadline remain).
+- **Decision (deviation from pre-restructure behavior):** the Case-1
+  "clear dependent settings" modal no longer silently turns automations off —
+  automations always keep their configuration and surface "waiting on the …
+  deadline" validation until dates resolve again (consistent persist pattern).
+  Modal copy updated to say exactly that.
+- **Verification (static):** body assembly for preorder = announceHTML +
+  remindersListHTML + fieldSection in that order; add/remove handlers splice
+  the list and re-render; announcement anchor select is populated from
+  `shootAnchorOptions()` only. `node --check` clean; all 16 new functions
+  defined exactly once.
