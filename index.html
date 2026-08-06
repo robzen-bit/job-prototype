@@ -8441,6 +8441,7 @@ function paintEcomEnablement() {
   tgl.classList.toggle('ecom-disabled', !hasPL);
   document.getElementById('wz-preorder-hint').style.display = hasPL ? 'none' : 'block';
   document.getElementById('wz-preorder-settings').classList.toggle('ecom-disabled', !(hasPL && preorderOn));
+  if (uiCtx === 'settings') persistJobSettings();
 }
 
 function onEcomPriceListChange() {
@@ -8840,6 +8841,7 @@ function renderDeadlines() {
     '</div>';
   }).join('');
   renderDlOrderWarn();
+  if (uiCtx === 'settings') persistJobSettings();
 }
 
 /* soft ordering warning: preorder ≤ upload ≤ delivery, compared on date + time */
@@ -9470,6 +9472,7 @@ function renderCsvSetup() {
   roleSel.innerHTML =
     '<optgroup label="System Roles">' + SYSTEM_ROLE_NAMES.map(r => '<option' + (r === csvBulkRole ? ' selected' : '') + '>' + r + '</option>').join('') + '</optgroup>' +
     (presetRoles.length ? '<optgroup label="Gallery Preset Roles">' + presetRoles.map(r => '<option' + (r === csvBulkRole ? ' selected' : '') + '>' + r + '</option>').join('') + '</optgroup>' : '');
+  if (uiCtx === 'settings') persistJobSettings();
 }
 
 function setCsvHeaders(v) {
@@ -9676,6 +9679,7 @@ function renderRegFormBuilder(mountId) {
   });
   const target = document.getElementById(mountId);
   if (target) target.innerHTML = regFormBuilderHTML();
+  if (uiCtx === 'settings') persistJobSettings();
 }
 
 function toggleRegField(id) { if (!CORE_FIELDS_REG.find(f => f.id === id).canDisable) return; regFieldEnabled[id] = !regFieldEnabled[id]; renderRegFormBuilder(REGFORM_MOUNT); }
@@ -9718,6 +9722,7 @@ function renderBulkSetup() {
     rows += '<tr><td class="count-cell">' + (i + 1) + '</td><td style="font-weight:600; color:var(--text);">' + (bulkNamingConvention || 'Gallery') + ' ' + num + '</td><td class="type-cell">Password Protected</td></tr>';
   }
   document.getElementById('bulk-preview-tbody').innerHTML = rows;
+  if (uiCtx === 'settings') persistJobSettings();
 }
 
 function duringAdvancePhase(dir) {

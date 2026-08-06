@@ -343,3 +343,52 @@ wanted later, `persistJobSettings()` is the single choke point to gate.)
   resolver); the warning-modal open/close paths skip the wizard-modal swap when
   uiCtx==='settings'. `node --check` clean; single instance of every settings
   mount id.
+
+### Phase 15 — Cross-tab consistency ✅
+
+- Dependencies hold structurally because every tab edits the SAME shared state
+  the wizard uses, loaded per job and persisted at every exit point (pane
+  switch, job-tab switch, job open, wizard open). Added immediate-persist hooks
+  at the interaction choke points (deadlines render, ecom enablement paint,
+  reg-builder render, csv config render, bulk render) so "enforced immediately
+  on save" holds even without a pane switch.
+- Walked end to end (statically):
+  1. Preorder OFF in Ecommerce tab → Deadlines tab renders the Preorder
+     Automation panel collapsed/disabled with the Phase-9 helper; config kept;
+     turning preorder back on re-enables with config intact.
+  2. Shoot-date edit in Schedule tab → Phase-11 modal names affected deadlines
+     + automations; confirm recalculates (dlResolve reads the settings
+     builder's DOM) and persists; cancel reverts.
+  3. Invalidated send timings surface twice: named in the modal at edit time,
+     and as red validation lines whenever the Deadlines tab renders.
+- **Logged (unanticipated dependency):** changing the job's ORGANIZATION from
+  Job Details does not refresh the saved-location dropdowns of loc cards
+  already rendered in the Schedule tab until that tab next re-renders — minor,
+  demo-only surface, noted for review.
+
+## Final self-check
+
+1. All fifteen phases complete — no blockers recorded.
+2. Every brief-mandated assumption logged with its phase (1, 3, 4, 5, 10, 12,
+   15; plus flagged-for-review items in 3, 4, 12).
+3. All three step-3 paths traced end to end: import (upload → matching → ecom →
+   deadlines → review), before (form → ecom → deadlines → review), during
+   (bulk → form → ecom → deadlines → review). No dead ends; Save & Exit still
+   works from every step.
+4. All three deadline panels collapse, expand, and gate correctly (static
+   trace, Phases 1/9).
+5. All four new settings tabs render real configuration; zero "coming soon"
+   placeholders remain in Settings.
+6. Settings tabs reuse the wizard components (mount-swapped shared renderers;
+   extracted fragments for ecom pane, deadlines header, CSV config, bulk
+   config; shared reg-form builder and schedule builder).
+7. Cross-tab dependencies walked (Phase 15).
+8. No hardcoded preset names, price lists, templates, or dates in logic —
+   defaults derive from the data tables (`VOLUME_PRESET_ROLES`, `PRICE_LISTS`,
+   `PRESET_PRICE_LISTS`, `EMAIL_TEMPLATES`); demo "today" remains the
+   prototype-wide `PROTO_TODAY_LABEL` convention.
+9. Ambiguities + choices: see per-phase Decision/Assumption entries.
+10. Whole-file checks: `node --check` clean; no duplicate function
+    declarations; no duplicate live DOM ids (the one flagged id pair is two
+    mutually exclusive innerHTML branches); 1419/1419 div balance; every
+    on* handler referenced in HTML/generated HTML has a definition.
