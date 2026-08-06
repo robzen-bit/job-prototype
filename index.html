@@ -2970,10 +2970,12 @@ html, body {
 .shoot-block.collapsed .shoot-block-head .collapse-btn i { transform: rotate(-90deg); }
 
 .shoot-block.collapsed .ws-locsel-head { display: none; }
-#wz-shoots .ws-locs .loc-card:first-child .locsel-row { display: none; }
+#wz-shoots .ws-locs .loc-card:first-child .locsel-row,
+#set-sched-shoots .ws-locs .loc-card:first-child .locsel-row { display: none; }
 
 /* required minimums: first shoot date + first location have no remove control */
-#wz-shoots .shoot-block:first-child > .shoot-block-head .row-x { display: none; }
+#wz-shoots .shoot-block:first-child > .shoot-block-head .row-x,
+#set-sched-shoots .shoot-block:first-child > .shoot-block-head .row-x { display: none; }
 .ws-locs .loc-card:first-child .row-x { display: none; }
 #sh-locs .loc-card:first-child .row-x { display: none; }
 
@@ -5509,54 +5511,11 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
       <!-- STEP 4 : REVIEW -->
       <!-- ══ ECOMMERCE (import flow) ══ -->
       <div class="wiz-pane" id="wiz-ecom">
-        <div class="wiz-info" style="margin-top:0;">
+        <div class="wiz-info" style="margin-top:0; margin-bottom:16px;">
           <i class="fa-solid fa-circle-info"></i>
           <div>These settings can always be changed later in the job settings.</div>
         </div>
-
-        <div id="wz-ecom-headline" style="font-size:13px; color:var(--text-2); line-height:1.65; margin:16px 0 12px;"></div>
-
-        <div class="f-label" style="margin-bottom:6px;">Price List</div>
-        <select class="f-input" id="wz-ecom-pricelist" onchange="onEcomPriceListChange()"></select>
-
-        <div style="border:1px solid var(--line); border-radius:var(--r-sm); padding:0 14px; margin-top:18px;">
-          <div class="toggle-row">
-            <div>
-              <div class="toggle-row-title">Preorder</div>
-              <div class="toggle-row-desc">Preorder allows your customers to place orders before their galleries have content. You can offer discounts and other incentives to drive early sales.</div>
-              <div class="toggle-row-desc" id="wz-preorder-hint" style="color:var(--orange); display:none;">Select a price list above to enable preorder.</div>
-            </div>
-            <button class="toggle" id="wz-preorder-toggle" onclick="togglePreorder()"></button>
-          </div>
-        </div>
-
-        <div class="ecom-nest" id="wz-preorder-settings">
-          <div class="f-label" style="margin-bottom:2px;">Preorder Settings</div>
-
-          <div class="ecom-set-row">
-            <div>
-              <div class="toggle-row-title">Blanket discount</div>
-              <div class="toggle-row-desc">Apply a percentage discount across the entire price list during preorder.</div>
-            </div>
-            <div class="pct-wrap">
-              <input type="number" class="f-input" id="wz-pre-discount" min="1" max="100" placeholder="0" oninput="onPreDiscountInput(this)" onchange="onPreDiscountCommit(this)">
-              <span>%</span>
-            </div>
-          </div>
-          <div class="ecom-warn" id="wz-pre-discount-warn" style="display:none;">
-            <i class="fa-solid fa-triangle-exclamation"></i>
-            <span>That’s a steep discount — make sure your price list is priced to support a discount this high.</span>
-          </div>
-
-          <label class="ecom-check">
-            <input type="checkbox" id="wz-pre-noship" onchange="onPreCheckChange()">
-            <span><b>No shipping fee</b><small>Waive shipping charges on all preorder purchases.</small></span>
-          </label>
-          <label class="ecom-check">
-            <input type="checkbox" id="wz-pre-pkgonly" onchange="onPreCheckChange()">
-            <span><b>Packages only</b><small>Limit preorder purchases to packages — individual products become available after galleries are delivered.</small></span>
-          </label>
-        </div>
+        <div id="wiz-ecom-mount"></div>
       </div>
 
       <!-- ══ DEADLINES & AUTOMATION (import flow) ══ -->
@@ -5565,9 +5524,7 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
           <i class="fa-solid fa-circle-info"></i>
           <div>These settings can always be changed later in the job settings.</div>
         </div>
-        <div style="font-size:13px; color:var(--text-2); line-height:1.65; margin:16px 0 2px;">Set the deadlines that govern this job and the automations that run on them. Each deadline can be a specific calendar date and time, or a rule calculated from another date in the job.</div>
-        <div style="font-size:12px; color:var(--text-3); margin:4px 0 4px;"><i class="fa-regular fa-clock" style="font-size:11px; margin-right:5px;"></i>Times shown in your timezone (<span id="dl-tz">local time</span>).</div>
-        <div class="ecom-warn" id="dl-order-warn" style="display:none; margin-top:12px;"></div>
+        <div style="font-size:13px; color:var(--text-2); line-height:1.65; margin:16px 0 6px;">Set the deadlines that govern this job and the automations that run on them. Each deadline can be a specific calendar date and time, or a rule calculated from another date in the job.</div>
         <div id="wz-deadlines-mount"></div>
       </div>
 
@@ -6193,6 +6150,11 @@ function showView(id) {
 }
 
 function switchJobTab(el, panelId) {
+  persistJobSettings();
+  if (panelId === 'tab-settings') {
+    const active = document.querySelector('#tab-settings .settings-pane.active');
+    if (active) renderSettingsPane(active.id);
+  }
   document.querySelectorAll('.job-tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   el.classList.add('active');
@@ -6248,10 +6210,12 @@ function switchReport(el, paneId) {
 }
 
 function switchSettings(el, paneId) {
+  persistJobSettings();
   document.querySelectorAll('#tab-settings .settings-nav-item').forEach(t => t.classList.remove('active'));
   el.classList.add('active');
   document.querySelectorAll('#tab-settings .settings-pane').forEach(p => p.classList.remove('active'));
   document.getElementById(paneId).classList.add('active');
+  renderSettingsPane(paneId);
 }
 
 /* ══════════ SMALL UI HELPERS ══════════ */
@@ -6753,6 +6717,7 @@ function generateOrders(j) {
 function openJob(key) {
   const j = JOBS[key];
   if (!j) return;
+  persistJobSettings();          /* commit any settings edits belonging to the previously loaded job */
   currentJob = j;
   ORDERS = generateOrders(j);
 
@@ -6792,6 +6757,7 @@ function openJob(key) {
 
   /* settings */
   refreshJobDetailsSettings();
+  loadJobSettings(j);
 
   navSetActive('Jobs');
   /* reset to overview tab + overview report subtab */
@@ -7727,7 +7693,7 @@ function updateSaveDefaultCheckbox() {
 }
 
 function activeOrgLocs(el) {
-  if (el && el.closest('#sh-locs')) {
+  if (el && (el.closest('#sh-locs') || el.closest('#set-sched-shoots'))) {
     const o = ORGS.find(x => currentJob && x.name === currentJob.org2);
     return (o && o.locs) || [];
   }
@@ -7742,8 +7708,8 @@ function locOptionsHTML(locs, selVal) {
 }
 
 function refreshLocSelects() {
-  document.querySelectorAll('#wz-shoots .shoot-block').forEach(syncHeadLocSel);
-  document.querySelectorAll('#wz-shoots .ws-locsel').forEach(sel => {
+  document.querySelectorAll('#' + shootsMountId() + ' .shoot-block').forEach(syncHeadLocSel);
+  document.querySelectorAll('#' + shootsMountId() + ' .ws-locsel').forEach(sel => {
     const lc = sel.closest('.loc-card');
     const locs = activeOrgLocs(sel);
     const venue = lc.querySelector('.ws-venue').value;
@@ -7858,8 +7824,12 @@ function isoPlusOneDay(iso) {
   return d.getFullYear() + '-' + mm + '-' + dd;
 }
 
+/* the schedule builder serves the wizard and job settings — resolve its container per context */
+function shootsMountId() { return uiCtx === 'settings' ? 'set-sched-shoots' : 'wz-shoots'; }
+function shootsMountEl() { return document.getElementById(shootsMountId()); }
+
 function createShootBlock(dateVal, locVals) {
-  const cont = document.getElementById('wz-shoots');
+  const cont = shootsMountEl();
   const div = document.createElement('div');
   div.className = 'shoot-block';
   div.innerHTML =
@@ -7896,7 +7866,7 @@ function duplicateShootBlock(btn) {
 }
 
 function removeShootBlock(btn) {
-  const cont = document.getElementById('wz-shoots');
+  const cont = shootsMountEl();
   if (cont.querySelectorAll('.shoot-block').length > 1) {
     btn.closest('.shoot-block').remove();
     renumberShoots();
@@ -7904,7 +7874,7 @@ function removeShootBlock(btn) {
 }
 
 function renumberShoots() {
-  const nums = document.querySelectorAll('#wz-shoots .shoot-block .shoot-block-num');
+  const nums = document.querySelectorAll('#' + shootsMountId() + ' .shoot-block .shoot-block-num');
   nums.forEach((n, i) => {
     n.textContent = nums.length > 1 ? 'Day ' + (i + 1) : 'Shoot Date';
   });
@@ -7912,7 +7882,7 @@ function renumberShoots() {
 }
 
 function sortShoots() {
-  const cont = document.getElementById('wz-shoots');
+  const cont = shootsMountEl();
   const blocks = Array.prototype.slice.call(cont.querySelectorAll('.shoot-block'));
   blocks.sort((a, b) => {
     const da = a.querySelector('.ws-date').value || '9999-99-99';
@@ -7923,9 +7893,9 @@ function sortShoots() {
   renumberShoots();
 }
 
-function parseShoots() {
+function parseShoots(containerId) {
   const out = [];
-  document.querySelectorAll('#wz-shoots .shoot-block').forEach(b => {
+  document.querySelectorAll('#' + (containerId || shootsMountId()) + ' .shoot-block').forEach(b => {
     const raw = b.querySelector('.ws-date').value;
     const date = fmtInputDate(raw) || 'Date TBD';
     const locs = [];
@@ -7939,6 +7909,9 @@ function parseShoots() {
 }
 
 function openWizard() {
+  persistJobSettings();
+  loadedJobKey = null;
+  uiCtx = 'wizard';
   setFullscreen('modal-wizard', true);
   wizStep = 1;
   selectedOrgIdx = null;
@@ -8377,7 +8350,56 @@ function resetEcomState() {
 
 function presetPriceList() { return PRESET_PRICE_LISTS[wizActivePreset()] || ''; }
 
+/* the ecommerce pane body — shared by the wizard step and the settings tab */
+function ecomPaneHTML() {
+  return '<div id="wz-ecom-headline" style="font-size:13px; color:var(--text-2); line-height:1.65; margin:0 0 12px;"></div>' +
+    '<div class="f-label" style="margin-bottom:6px;">Price List</div>' +
+    '<select class="f-input" id="wz-ecom-pricelist" onchange="onEcomPriceListChange()"></select>' +
+    '<div style="border:1px solid var(--line); border-radius:var(--r-sm); padding:0 14px; margin-top:18px;">' +
+      '<div class="toggle-row">' +
+        '<div>' +
+          '<div class="toggle-row-title">Preorder</div>' +
+          '<div class="toggle-row-desc">Preorder allows your customers to place orders before their galleries have content. You can offer discounts and other incentives to drive early sales.</div>' +
+          '<div class="toggle-row-desc" id="wz-preorder-hint" style="color:var(--orange); display:none;">Select a price list above to enable preorder.</div>' +
+        '</div>' +
+        '<button class="toggle" id="wz-preorder-toggle" onclick="togglePreorder()"></button>' +
+      '</div>' +
+    '</div>' +
+    '<div class="ecom-nest" id="wz-preorder-settings">' +
+      '<div class="f-label" style="margin-bottom:2px;">Preorder Settings</div>' +
+      '<div class="ecom-set-row">' +
+        '<div>' +
+          '<div class="toggle-row-title">Blanket discount</div>' +
+          '<div class="toggle-row-desc">Apply a percentage discount across the entire price list during preorder.</div>' +
+        '</div>' +
+        '<div class="pct-wrap">' +
+          '<input type="number" class="f-input" id="wz-pre-discount" min="1" max="100" placeholder="0" oninput="onPreDiscountInput(this)" onchange="onPreDiscountCommit(this)">' +
+          '<span>%</span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="ecom-warn" id="wz-pre-discount-warn" style="display:none;">' +
+        '<i class="fa-solid fa-triangle-exclamation"></i>' +
+        '<span>That’s a steep discount — make sure your price list is priced to support a discount this high.</span>' +
+      '</div>' +
+      '<label class="ecom-check">' +
+        '<input type="checkbox" id="wz-pre-noship" onchange="onPreCheckChange()">' +
+        '<span><b>No shipping fee</b><small>Waive shipping charges on all preorder purchases.</small></span>' +
+      '</label>' +
+      '<label class="ecom-check">' +
+        '<input type="checkbox" id="wz-pre-pkgonly" onchange="onPreCheckChange()">' +
+        '<span><b>Packages only</b><small>Limit preorder purchases to packages — individual products become available after galleries are delivered.</small></span>' +
+      '</label>' +
+    '</div>';
+}
+
+function ecomMountId() { return uiCtx === 'settings' ? 'set-ecom-mount' : 'wiz-ecom-mount'; }
+
 function renderEcomStep() {
+  const mount = document.getElementById(ecomMountId());
+  if (!mount) return;
+  const other = document.getElementById(uiCtx === 'settings' ? 'wiz-ecom-mount' : 'set-ecom-mount');
+  if (other) other.innerHTML = '';
+  mount.innerHTML = ecomPaneHTML();
   /* follow the preset until the user makes their own pick */
   if (!ecomPLTouched) ecomPriceList = presetPriceList();
   const fromPreset = presetPriceList();
@@ -8544,9 +8566,9 @@ function dtMinusMinutes(dt, mins) {
 function fmtDT(dt) { return fmtInputDate(dt.slice(0, 10)) + ' at ' + fmtTime(dt.slice(11, 16)); }
 
 function wizShootDatesISO() {
-  if (schedMode === 'later') return [];
+  if (uiCtx === 'wizard' && schedMode === 'later') return [];
   const dates = [];
-  document.querySelectorAll('#wz-shoots .shoot-block .ws-date').forEach(inp => { if (inp.value) dates.push(inp.value); });
+  document.querySelectorAll('#' + shootsMountId() + ' .shoot-block .ws-date').forEach(inp => { if (inp.value) dates.push(inp.value); });
   return dates.slice().sort();
 }
 
@@ -8683,15 +8705,22 @@ function deliveryAutosHTML() {
   return shareHTML + remindHTML;
 }
 
+function dlMountId() { return uiCtx === 'settings' ? 'set-dl-mount' : 'wz-deadlines-mount'; }
+
 function renderDeadlines() {
-  const mount = document.getElementById('wz-deadlines-mount');
+  const mount = document.getElementById(dlMountId());
   if (!mount) return;
-  const tzEl = document.getElementById('dl-tz');
-  if (tzEl) { try { tzEl.textContent = Intl.DateTimeFormat().resolvedOptions().timeZone.replace(/_/g, ' '); } catch (e) { tzEl.textContent = 'local time'; } }
+  const other = document.getElementById(uiCtx === 'settings' ? 'wz-deadlines-mount' : 'set-dl-mount');
+  if (other) other.innerHTML = '';
+  let tz = 'local time';
+  try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone.replace(/_/g, ' '); } catch (e) {}
+  const header =
+    '<div style="font-size:12px; color:var(--text-3); margin:0 0 4px;"><i class="fa-regular fa-clock" style="font-size:11px; margin-right:5px;"></i>Times shown in your timezone (' + tz + ').</div>' +
+    '<div class="ecom-warn" id="dl-order-warn" style="display:none; margin-top:8px;"></div>';
   /* locked anchors: upload follows the shoot schedule, delivery follows the upload deadline */
   if (dlState.upload.mode === 'relative') { dlState.upload.anchor = 'shoot:last'; dlState.upload.rel = 'after'; }
   if (dlState.delivery.mode === 'relative') { dlState.delivery.anchor = 'dl:upload'; dlState.delivery.rel = 'after'; }
-  mount.innerHTML = DL_KEYS.map(key => {
+  mount.innerHTML = header + DL_KEYS.map(key => {
     const s = dlState[key];
     const disabled = key === 'preorder' && !preorderActive();
     let controls;
@@ -9176,6 +9205,139 @@ function dlAffectedAutos(key, deps) {
     }
   });
   return out;
+}
+
+/* ══════════ JOB SETTINGS ⟷ WIZARD SHARED CONFIG ══════════ */
+let loadedJobKey = null;   /* which job the shared settings globals currently belong to */
+
+function snapshotRegState() {
+  return {
+    title: regFormTitle, custom: useCustomFormTitle, desc: regFormDesc,
+    en: Object.assign({}, regFieldEnabled), req: Object.assign({}, regFieldRequired),
+    submitLabel: regSubmitLabel, submitBehavior: regSubmitBehavior, redirectUrl: regRedirectUrl, submitMessage: regSubmitMessage,
+    assignment: regAssignmentOption, titleOption: regGalleryTitleOption,
+    existingRole: existingGalleryRole, newRole: newGalleryRole,
+    exType: existingSelectionType, exName: existingSelectedName,
+    preset: regPreset
+  };
+}
+
+function applyRegState(r) {
+  if (!r) { resetRegFormState(); return; }
+  regFormTitle = r.title; useCustomFormTitle = r.custom; regFormDesc = r.desc;
+  regFieldEnabled = Object.assign({}, r.en); regFieldRequired = Object.assign({}, r.req);
+  regSubmitLabel = r.submitLabel; regSubmitBehavior = r.submitBehavior; regRedirectUrl = r.redirectUrl; regSubmitMessage = r.submitMessage;
+  regAssignmentOption = r.assignment; regGalleryTitleOption = r.titleOption;
+  existingGalleryRole = r.existingRole; newGalleryRole = r.newRole;
+  existingSelectionType = r.exType; existingSelectedName = r.exName; existingPickerOpen = false;
+  regPreset = r.preset || Object.keys(VOLUME_PRESET_ROLES)[0];
+}
+
+function snapshotSchedFrom(containerId) {
+  const out = [];
+  document.querySelectorAll('#' + containerId + ' .shoot-block').forEach(b => {
+    out.push({ date: b.querySelector('.ws-date').value, locs: collectLocVals(b) });
+  });
+  return out;
+}
+
+function seedSchedBuilder(sched) {
+  const cont = document.getElementById('set-sched-shoots');
+  if (!cont) return;
+  cont.innerHTML = '';
+  (sched && sched.length ? sched : [{ date: '', locs: [] }]).forEach(s => createShootBlock(s.date, s.locs));
+  sortShoots();
+}
+
+function snapshotEcom() {
+  return { priceList: ecomPriceList, plTouched: ecomPLTouched, preorderOn: preorderOn, discount: preDiscount, noShip: preNoShipFee, pkgOnly: prePackagesOnly };
+}
+
+function snapshotDeadlines() {
+  return { state: JSON.parse(JSON.stringify(dlState)), autos: JSON.parse(JSON.stringify(dlAutos)), panelOn: Object.assign({}, dlPanelOn) };
+}
+
+function snapshotWizardConfig() {
+  return {
+    path: setupMode === 'now' ? selectedJobType : null,
+    csv: { preset: csvPreset, roleConfig: csvRoleConfig, bulkRole: csvBulkRole },
+    reg: snapshotRegState(),
+    bulk: { count: bulkCount, naming: bulkNamingConvention, preset: bulkPreset },
+    ecom: snapshotEcom(),
+    deadlines: snapshotDeadlines(),
+    sched: schedMode === 'later' ? [] : snapshotSchedFrom('wz-shoots')
+  };
+}
+
+function parseDisplayDateISO(txt) {
+  const m = /^([A-Za-z]+) (\d{1,2}), (\d{4})/.exec(txt || '');
+  if (!m) return '';
+  const mi = MONTHS.indexOf(m[1]);
+  if (mi < 0) return '';
+  return m[3] + '-' + pad2(mi + 1) + '-' + pad2(parseInt(m[2], 10));
+}
+
+/* premade demo jobs carry no config — synthesize a default on first open */
+function ensureJobConfig(j) {
+  if (j.config) return j.config;
+  const sched = (j.shoots || []).map(s => ({
+    date: parseDisplayDateISO(s.date),
+    locs: (s.locs || []).map(L => ({ v: L.v || '', street: '', city: '', state: '', zip: '', start: '', end: '', p: (L.p || []).slice() }))
+  })).filter(s => s.date || s.locs.length);
+  j.config = {
+    path: 'import',
+    csv: { preset: Object.keys(VOLUME_PRESET_ROLES)[0], roleConfig: 'same', bulkRole: 'Client' },
+    reg: null,
+    bulk: { count: 100, naming: 'ATC', preset: Object.keys(VOLUME_PRESET_ROLES)[0] },
+    ecom: { priceList: '', plTouched: false, preorderOn: false, discount: '', noShip: false, pkgOnly: false },
+    deadlines: { state: { preorder: blankDl(), upload: blankDl(), delivery: blankDl() }, autos: blankAutos(), panelOn: { preorder: false, upload: false, delivery: false } },
+    sched: sched
+  };
+  return j.config;
+}
+
+function loadJobSettings(j) {
+  const c = ensureJobConfig(j);
+  uiCtx = 'settings';
+  loadedJobKey = j.key;
+  selectedJobType = c.path;
+  csvPreset = c.csv.preset; csvRoleConfig = c.csv.roleConfig; csvBulkRole = c.csv.bulkRole;
+  applyRegState(c.reg);
+  bulkCount = c.bulk.count; bulkNamingConvention = c.bulk.naming; bulkPreset = c.bulk.preset;
+  ecomPriceList = c.ecom.priceList; ecomPLTouched = c.ecom.plTouched; preorderOn = c.ecom.preorderOn;
+  preDiscount = c.ecom.discount; preNoShipFee = c.ecom.noShip; prePackagesOnly = c.ecom.pkgOnly;
+  dlState = JSON.parse(JSON.stringify(c.deadlines.state));
+  dlAutos = JSON.parse(JSON.stringify(c.deadlines.autos));
+  dlPanelOn = Object.assign({}, c.deadlines.panelOn);
+  pendingDl = null;
+  seedSchedBuilder(c.sched);
+}
+
+/* immediate-commit save model (Job Details precedent): globals are the live
+   state; write them back to the owning job at every pane/tab/view exit */
+function persistJobSettings() {
+  const j = loadedJobKey ? JOBS[loadedJobKey] : null;
+  if (!j || !j.config) return;
+  const c = j.config;
+  c.csv = { preset: csvPreset, roleConfig: csvRoleConfig, bulkRole: csvBulkRole };
+  c.reg = snapshotRegState();
+  c.bulk = { count: bulkCount, naming: bulkNamingConvention, preset: bulkPreset };
+  c.ecom = snapshotEcom();
+  c.deadlines = snapshotDeadlines();
+  const cont = document.getElementById('set-sched-shoots');
+  if (cont && cont.querySelector('.shoot-block')) {
+    c.sched = snapshotSchedFrom('set-sched-shoots');
+    const shoots = parseShoots('set-sched-shoots');
+    if (shoots.length) j.shoots = shoots;
+  }
+  const dlv = dlDT('delivery');
+  if (dlv) j.deadline = fmtInputDate(dlv.slice(0, 10));
+}
+
+function renderSettingsPane(paneId) {
+  if (paneId === 'set-ecom') renderEcomStep();
+  else if (paneId === 'set-deadlines') renderDeadlines();
+  else if (paneId === 'set-setup' && typeof renderSetupTab === 'function') renderSetupTab();
 }
 
 function renderCsvSetup() {
@@ -9681,6 +9843,8 @@ function createJob(opts) {
     po: { setup: false, pricelist: 'Attach later', link: 'zenfol.io/r/' + slug },
     docs: []
   };
+
+  JOBS[key].config = snapshotWizardConfig();
 
   let galCount = 0;
   if (setupMode === 'now' && selectedJobType === 'import' && importResult) {
@@ -11297,7 +11461,7 @@ document.querySelectorAll('.smart input').forEach(inp => inp.addEventListener('c
 function navJobs() { navSetActive('Jobs'); showView('view-jobs-list'); }
 
 function orgLocContextActive(lc) {
-  if (lc.closest('#sh-locs')) return !!(currentJob && ORGS.find(x => x.name === currentJob.org2));
+  if (lc.closest('#sh-locs') || lc.closest('#set-sched-shoots')) return !!(currentJob && ORGS.find(x => x.name === currentJob.org2));
   return selectedOrgIdx !== null;
 }
 
