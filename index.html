@@ -8375,15 +8375,15 @@ function resetEcomState() {
   preDiscount = ''; preNoShipFee = false; prePackagesOnly = false;
 }
 
-function presetPriceList() { return PRESET_PRICE_LISTS[csvPreset] || ''; }
+function presetPriceList() { return PRESET_PRICE_LISTS[wizActivePreset()] || ''; }
 
 function renderEcomStep() {
   /* follow the preset until the user makes their own pick */
   if (!ecomPLTouched) ecomPriceList = presetPriceList();
   const fromPreset = presetPriceList();
   document.getElementById('wz-ecom-headline').innerHTML = fromPreset
-    ? 'You chose to use the <b>' + escHtml(csvPreset) + '</b> preset. This preset included the price list shown below. However, if you’d like to use a different price list, you can select a different price list in the dropdown below.'
-    : 'You chose to use the <b>' + escHtml(csvPreset) + '</b> preset. This preset did not include a price list. Would you like to add a price list for this job? If so, please select one from the dropdown below.';
+    ? 'You chose to use the <b>' + escHtml(wizActivePreset()) + '</b> preset. This preset included the price list shown below. However, if you’d like to use a different price list, you can select a different price list in the dropdown below.'
+    : 'You chose to use the <b>' + escHtml(wizActivePreset()) + '</b> preset. This preset did not include a price list. Would you like to add a price list for this job? If so, please select one from the dropdown below.';
   document.getElementById('wz-ecom-pricelist').innerHTML =
     '<option value=""' + (!ecomPriceList ? ' selected' : '') + '>Please select a price list</option>' +
     PRICE_LISTS.map(pl => '<option' + (pl === ecomPriceList ? ' selected' : '') + '>' + pl + '</option>').join('');
@@ -9446,10 +9446,18 @@ function paintDuringPhase() {
 
 const WIZ_LABELS = { 'wiz-1': 'Details', 'wiz-sched': 'Schedule', 'wiz-setup': 'Setup', 'wiz-placeholder': 'Setup Details', 'wiz-ecom': 'Ecommerce', 'wiz-deadlines': 'Deadlines & Automation', 'wiz-4': 'Review' };
 
+function wizEcomPath() { return setupMode === 'now' && ['import', 'prereg', 'duringreg'].indexOf(selectedJobType) >= 0; }
+
+function wizActivePreset() {
+  if (selectedJobType === 'duringreg') return bulkPreset;
+  if (selectedJobType === 'prereg') return regPreset;
+  return csvPreset;
+}
+
 function wizFlow() {
   const flow = ['wiz-1', 'wiz-sched', 'wiz-setup'];
   if (setupMode === 'now' && selectedJobType) flow.push('wiz-placeholder');
-  if (setupMode === 'now' && selectedJobType === 'import') flow.push('wiz-ecom', 'wiz-deadlines');
+  if (wizEcomPath()) flow.push('wiz-ecom', 'wiz-deadlines');
   flow.push('wiz-4');
   return flow;
 }
@@ -9575,14 +9583,14 @@ function buildReview() {
     (setupMode === 'now' && selectedJobType === 'import' && importResult
       ? '<div class="review-row"><span class="review-key">Subjects</span><span class="review-val">' + importResult.contacts.length + ' contact' + (importResult.contacts.length === 1 ? '' : 's') + ' imported · ' + importResult.galleries + ' galler' + (importResult.galleries === 1 ? 'y' : 'ies') + ' will be created</span></div>'
       : '') +
-    (setupMode === 'now' && selectedJobType === 'import'
+    (wizEcomPath()
       ? '<div class="review-row"><span class="review-key">Ecommerce</span><span class="review-val">' + (ecomPriceList
           ? escHtml(ecomPriceList) + (preorderOn
               ? ' · Preorder on' + (preDiscount ? ' · ' + preDiscount + '% discount' : '') + (preNoShipFee ? ' · no shipping fee' : '') + (prePackagesOnly ? ' · packages only' : '')
               : ' · Preorder off')
           : '<span style="color:var(--text-3);">No price list — attach later from job settings</span>') + '</span></div>'
       : '') +
-    (setupMode === 'now' && selectedJobType === 'import'
+    (wizEcomPath()
       ? '<div class="review-row"><span class="review-key">Deadlines</span><span class="review-val">' + (function () {
           const parts = [];
           DL_KEYS.forEach(k => {
@@ -9687,7 +9695,7 @@ function createJob(opts) {
     J.steps[0].d = importResult.galleries + ' galleries generated from the subject list';
     J.cta = ['Download QR Codes', "toast('Downloading QR codes for " + importResult.galleries + " galleries…')"];
   }
-  if (setupMode === 'now' && selectedJobType === 'import') {
+  if (wizEcomPath()) {
     const dlv = dlResolve('delivery');
     if (!dlv.err) JOBS[key].deadline = fmtInputDate(dlv.iso);
     JOBS[key].po = {

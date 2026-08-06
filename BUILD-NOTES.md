@@ -175,3 +175,19 @@ ambiguity resolution, and deviation, tagged by phase.
   pane before step advance; paintDuringPhase toggles wz-during-bulk /
   wz-during-form-wrap; bulk preset select populated from VOLUME_PRESET_ROLES;
   the form phase mounts the shared builder into wz-ph-during-form-mount.
+
+### Phase 8 — Ecommerce + Deadlines attached to both new flows ✅
+
+- `wizFlow()` now appends wiz-ecom + wiz-deadlines for all three step-3 paths
+  via new `wizEcomPath()` (import / prereg / duringreg, Setup=Now). Review rows
+  and createJob's price-list/preorder/deadline wiring follow the same predicate.
+- **Preset source per path** via new `wizActivePreset()`: import → CSV step
+  preset; during → Gallery Bulk Setup preset; before → the form builder's
+  "Apply Preset" select (`regPreset`, made real in Phase 6). The Ecommerce
+  headline and preset→price-list default both use it; identical components and
+  behavior across paths — no duplication.
+- Blank Job intentionally excluded (out of scope per brief).
+- **Verification (static):** flow arrays for prereg/duringreg include both new
+  steps; during's internal form phase falls through to the ecom step on Next;
+  ecom re-derives its default price list per path because selectJobType resets
+  `ecomPLTouched`. `node --check` clean.
