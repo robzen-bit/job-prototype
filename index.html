@@ -2279,6 +2279,11 @@ html, body {
 .dl-resolved b { color: var(--text); }
 .dl-resolved.dl-unresolved { color: var(--text-3); font-style: italic; }
 .dl-resolved.dl-error { color: #B4231F; font-style: normal; font-weight: 600; }
+.dl-panel-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.dl-panel-head .toggle { flex-shrink: 0; margin-top: 2px; }
+.dl-panel-body { margin-top: 12px; }
+.dl-block.collapsed { background: #FAFAFC; }
+.dl-gated .dl-title, .dl-gated .dl-desc { opacity: 0.55; }
 .dl-auto-divider { border-top: 1px solid var(--line); margin: 14px 0 2px; }
 .dl-auto { padding-bottom: 4px; }
 .dl-auto + .dl-auto { border-top: 1px dashed var(--line); }
@@ -6284,7 +6289,7 @@ function closeModal(id) {
   }
   if (id === 'modal-dl-warn') {
     pendingDl = null;              /* plain close = cancel; confirm commits before closing */
-    openModal('modal-wizard');
+    if (uiCtx === 'wizard') openModal('modal-wizard');
     renderDeadlines();
   }
   if (id === 'modal-folder' && locMode === 'jobmove') {
@@ -8439,6 +8444,9 @@ const DL_DEFS = {
   delivery: { title: 'Delivery deadline', desc: 'The date galleries should be delivered to the client — a school, the parents, or another recipient.' }
 };
 
+/* which surface the shared deadline/ecom components are currently rendering into */
+let uiCtx = 'wizard';
+
 function blankDl() { return { mode: 'specific', date: '', time: '17:00', num: 3, rel: 'after', anchor: '' }; }
 
 /* automations — reminders stored as lists so a series can slot in later without rework */
@@ -8462,12 +8470,39 @@ const EMAIL_TEMPLATES = [
 
 let dlState = { preorder: blankDl(), upload: blankDl(), delivery: blankDl() };
 let dlAutos = blankAutos();
+/* panel-level master switches — every panel starts collapsed/off */
+let dlPanelOn = { preorder: false, upload: false, delivery: false };
 let pendingDl = null;
 
 function resetDeadlinesState() {
   dlState = { preorder: blankDl(), upload: blankDl(), delivery: blankDl() };
   dlAutos = blankAutos();
+  dlPanelOn = { preorder: false, upload: false, delivery: false };
   pendingDl = null;
+}
+
+function dlPanelToggle(key) {
+  if (key === 'preorder' && !preorderActive()) return;   /* gated by the Ecommerce step */
+  if (dlPanelOn[key]) {
+    /* turning OFF: other enabled panels may resolve through this deadline — warn first */
+    const deps = dlDependents(key).filter(k => dlPanelOn[k]);
+    if (deps.length) {
+      pendingDl = { panelOff: key, deps: deps };
+      setText('dl-warn-title', 'Other settings depend on this');
+      document.getElementById('dl-warn-body').innerHTML =
+        deps.map(k => '<b>' + DL_DEFS[k].title + '</b>').join(' and ') +
+        (deps.length === 1 ? ' is' : ' are') + ' scheduled from the <b>' + DL_DEFS[key].title + '</b>.<br><br>' +
+        'Turning this off leaves ' + (deps.length === 1 ? 'it' : 'them') + ' unable to resolve until this is turned back on. Your configuration here is kept.';
+      document.getElementById('dl-warn-confirm').textContent = 'Turn Off';
+      if (uiCtx === 'wizard') document.getElementById('modal-wizard').classList.remove('open');
+      openModal('modal-dl-warn');
+      return;
+    }
+    dlPanelOn[key] = false;
+  } else {
+    dlPanelOn[key] = true;
+  }
+  renderDeadlines();
 }
 
 function preorderActive() { return !!(ecomPriceList && preorderOn); }
@@ -8506,6 +8541,7 @@ function dlResolve(key, visited) {
   visited = visited || {};
   if (visited[key]) return { err: 'loop' };
   visited[key] = true;
+  if (!dlPanelOn[key]) return { err: 'off' };
   if (key === 'preorder' && !preorderActive()) return { err: 'off' };
   const s = dlState[key];
   if (s.mode === 'specific') return s.date ? { iso: s.date, time: s.time || '23:59' } : { err: 'empty' };
@@ -8768,17 +8804,28 @@ function renderDeadlines() {
     if (key === 'preorder') autos = autoReminderHTML('preorder', 'Send reminder emails', 'Reminds customers that the preorder window is closing.');
     else if (key === 'upload') autos = autoReminderHTML('upload', 'Remind contributing photographers', 'Emails the contributing photographers on this job that their upload deadline is approaching.');
     else autos = deliveryAutosHTML();
-    return '<div class="dl-block' + (disabled ? ' ecom-disabled' : '') + '">' +
-      '<div class="dl-title">' + DL_DEFS[key].title + '</div>' +
-      '<div class="dl-desc">' + DL_DEFS[key].desc + '</div>' +
-      (disabled ? '<div class="dl-helper" style="pointer-events:auto;">Enable preorder in the Ecommerce step for this deadline and its automation to apply.</div>' : '') +
-      '<div class="dl-modes">' +
-        '<label class="rdot-row" onclick="dlModeChanged(\'' + key + '\', \'specific\')"><span class="rdot' + (s.mode === 'specific' ? ' on' : '') + '"></span>Specific date</label>' +
-        '<label class="rdot-row" onclick="dlModeChanged(\'' + key + '\', \'relative\')"><span class="rdot' + (s.mode === 'relative' ? ' on' : '') + '"></span>Relative date</label>' +
+    const on = dlPanelOn[key] && !disabled;   /* a gated panel is always collapsed */
+    const body = on
+      ? '<div class="dl-panel-body">' +
+          '<div class="dl-modes">' +
+            '<label class="rdot-row" onclick="dlModeChanged(\'' + key + '\', \'specific\')"><span class="rdot' + (s.mode === 'specific' ? ' on' : '') + '"></span>Specific date</label>' +
+            '<label class="rdot-row" onclick="dlModeChanged(\'' + key + '\', \'relative\')"><span class="rdot' + (s.mode === 'relative' ? ' on' : '') + '"></span>Relative date</label>' +
+          '</div>' +
+          controls +
+          '<div class="dl-auto-divider"></div>' +
+          autos +
+        '</div>'
+      : '';
+    return '<div class="dl-block' + (on ? '' : ' collapsed') + (disabled ? ' dl-gated' : '') + '">' +
+      '<div class="dl-panel-head">' +
+        '<div style="min-width:0;">' +
+          '<div class="dl-title">' + DL_DEFS[key].title + '</div>' +
+          '<div class="dl-desc">' + DL_DEFS[key].desc + '</div>' +
+          (disabled ? '<div class="dl-helper">Enable preorder in the Ecommerce step for this deadline and its automation to apply.</div>' : '') +
+        '</div>' +
+        '<button class="toggle' + (on && !disabled ? ' on' : '') + (disabled ? ' ecom-disabled' : '') + '" onclick="dlPanelToggle(\'' + key + '\')"></button>' +
       '</div>' +
-      controls +
-      '<div class="dl-auto-divider"></div>' +
-      autos +
+      body +
     '</div>';
   }).join('');
   renderDlOrderWarn();
@@ -8844,13 +8891,15 @@ function dlAttemptChange(key, newState) {
       ' accordingly.';
     document.getElementById('dl-warn-confirm').textContent = 'Update Settings';
   }
-  document.getElementById('modal-wizard').classList.remove('open');
+  if (uiCtx === 'wizard') document.getElementById('modal-wizard').classList.remove('open');
   openModal('modal-dl-warn');
 }
 
 function dlWarnConfirm() {
   const p = pendingDl;
-  if (p) {
+  if (p && p.panelOff) {
+    dlPanelOn[p.panelOff] = false;   /* config is kept; dependents surface as unresolved */
+  } else if (p) {
     dlState[p.key] = p.newState;
     if (p.kind === 'clear') {
       p.deps.forEach(k => { dlState[k] = blankDl(); });
@@ -8994,10 +9043,10 @@ function dlAffectedAutos(key, deps) {
   const keys = [key].concat(deps);
   const out = [];
   keys.forEach(k => {
-    if ((k === 'preorder' || k === 'upload') && dlAutos[k].reminders[0].on) {
+    if ((k === 'preorder' || k === 'upload') && dlPanelOn[k] && dlAutos[k].reminders[0].on) {
       out.push({ owner: k, label: k === 'preorder' ? 'Preorder reminder emails' : 'Photographer upload reminder' });
     }
-    if (k === 'delivery') {
+    if (k === 'delivery' && dlPanelOn.delivery) {
       if (dlAutos.share.on) out.push({ owner: 'share', label: 'Automatic gallery sharing' });
       if (dlAutos.remind.reminders[0].on) out.push({ owner: 'remind', label: 'Delivery “Remind me” notification' });
     }
