@@ -7973,7 +7973,7 @@ function openWizard() {
   document.getElementById('wz-setup-later-note').style.display = 'none';
   document.getElementById('wz-setup-helper').style.display = 'block';
   renderJobTypes();
-  csvHasHeaders = true; csvPreset = 'Matthews'; csvRoleConfig = 'same'; csvBulkRole = 'Client';
+  csvHasHeaders = true; csvPreset = Object.keys(VOLUME_PRESET_ROLES)[0]; csvRoleConfig = 'same'; csvBulkRole = 'Client';
   resetImportState();
   resetEcomState();
   resetDeadlinesState();
@@ -8082,7 +8082,7 @@ const VOLUME_PRESET_ROLES = {
 };
 const SYSTEM_ROLE_NAMES = ['Default', 'Guest', 'Client'];
 
-let csvHasHeaders = true, csvPreset = 'Matthews', csvRoleConfig = 'same', csvBulkRole = 'Client';
+let csvHasHeaders = true, csvPreset = Object.keys(VOLUME_PRESET_ROLES)[0], csvRoleConfig = 'same', csvBulkRole = 'Client';
 
 /* CSV file + matching state */
 let csvFileName = '', csvRawRows = [], csvHeaders = [], csvRows = [], csvColCount = 0;
@@ -9230,6 +9230,7 @@ let regSubmitLabel = 'Submit', regSubmitBehavior = 'message', regRedirectUrl = '
 let regAssignmentOption = 'new_gallery', regGalleryTitleOption = 'name';
 let existingGalleryRole = 'Default', newGalleryRole = 'Default';
 let existingSelectionType = 'folder', existingSelectedName = 'test', existingPickerOpen = false;
+let regPreset = Object.keys(VOLUME_PRESET_ROLES)[0];
 let REGFORM_MOUNT = null;
 
 function resetRegFormState() {
@@ -9240,7 +9241,19 @@ function resetRegFormState() {
   regAssignmentOption = 'new_gallery'; regGalleryTitleOption = 'name';
   existingGalleryRole = 'Default'; newGalleryRole = 'Default';
   existingSelectionType = 'folder'; existingSelectedName = 'test'; existingPickerOpen = false;
+  regPreset = Object.keys(VOLUME_PRESET_ROLES)[0];
 }
+
+/* the reg builder serves both the wizard and job settings — resolve job facts per context */
+function regJobName() {
+  if (uiCtx === 'settings' && currentJob) return currentJob.name;
+  return fval('wz-name').trim();
+}
+function regJobFolder() {
+  if (uiCtx === 'settings' && currentJob) return currentJob.path || '';
+  return wzParent;
+}
+function onRegPresetChange(sel) { regPreset = sel.value; renderRegFormBuilder(REGFORM_MOUNT); }
 
 function roleSelectHTML(id, value) {
   return '<select class="f-input" style="width:auto; height:30px; font-size:12.5px;" id="' + id + '" onchange="onRoleSelectChange(\'' + id + '\', this.value)">' +
@@ -9256,7 +9269,7 @@ function onRoleSelectChange(id, val) {
 }
 
 function regFormBuilderHTML() {
-  const jobName = fval('wz-name').trim();
+  const jobName = regJobName();
   const displayTitle = (useCustomFormTitle && regFormTitle.trim()) ? regFormTitle.trim() : (jobName || 'Gallery Name');
 
   const fieldsRows = CORE_FIELDS_REG.map((f, i) => {
@@ -9302,7 +9315,10 @@ function regFormBuilderHTML() {
 
   const newGalleryBody = regAssignmentOption !== 'new_gallery' ? '' :
     '<div style="margin-left:26px; margin-top:8px;">' +
-      '<div style="font-size:13px; color:var(--text-2); margin-bottom:10px;">Apply Preset: <b style="color:var(--text);">Matthews</b> <a class="gallery-name-link" onclick="toast(\'Preset picker opens in the product\')">(Change Preset)</a></div>' +
+      '<div style="font-size:13px; color:var(--text-2); margin-bottom:10px; display:flex; align-items:center; gap:8px;">Apply Preset:' +
+        '<select class="f-input" style="width:auto; height:30px; font-size:12.5px;" onchange="onRegPresetChange(this)">' +
+          Object.keys(VOLUME_PRESET_ROLES).map(p => '<option' + (p === regPreset ? ' selected' : '') + '>' + p + '</option>').join('') +
+        '</select></div>' +
       '<label style="display:flex; align-items:center; gap:10px; cursor:pointer; margin-bottom:2px;" onclick="setGalleryTitleOption(\'email\')"><span class="rdot' + (regGalleryTitleOption === 'email' ? ' on' : '') + '"></span><span style="font-size:13px; color:var(--text);">Use <b>Registrant Email Address</b> for Gallery Title</span></label>' +
       (regGalleryTitleOption === 'email' ? '<div style="margin-left:28px; margin-bottom:10px; display:flex; align-items:center; gap:8px;"><span style="font-size:13px; font-weight:600; color:var(--text);">Role</span>' + roleSelectHTML('newGalleryRole', newGalleryRole) + '</div>' : '') +
       '<label style="display:flex; align-items:center; gap:10px; cursor:pointer;" onclick="setGalleryTitleOption(\'name\')"><span class="rdot' + (regGalleryTitleOption === 'name' ? ' on' : '') + '"></span><span style="font-size:13px; color:var(--text);">Use <b>Registrant First and Last Name</b> for Gallery Title</span></label>' +
@@ -9352,7 +9368,7 @@ function regFormBuilderHTML() {
 
       '<div class="f-field">' +
         '<label class="f-label">Registrants Assignment Options</label>' +
-        '<label style="display:flex; align-items:flex-start; gap:10px; cursor:pointer; margin-bottom:8px;" onclick="setAssignmentOption(\'this_folder\')"><span class="rdot' + (regAssignmentOption === 'this_folder' ? ' on' : '') + '" style="margin-top:1px;"></span><span style="font-size:13px; color:var(--text);">Add registrants to <b>this folder</b>.</span></label>' +
+        '<label style="display:flex; align-items:flex-start; gap:10px; cursor:pointer; margin-bottom:8px;" onclick="setAssignmentOption(\'this_folder\')"><span class="rdot' + (regAssignmentOption === 'this_folder' ? ' on' : '') + '" style="margin-top:1px;"></span><span style="font-size:13px; color:var(--text);">Add registrants to <b>this job’s folder</b>' + (regJobFolder() ? ' <span style="color:var(--text-3);">(' + shortFolderPath(regJobFolder()) + ')</span>' : '') + '.</span></label>' +
         (regAssignmentOption === 'this_folder' ? '<div style="margin-left:28px; margin-bottom:8px; font-size:12px; color:var(--text-3);">Note: Registrants will be added to the folder as a General Contact.</div>' : '') +
         '<label style="display:flex; align-items:flex-start; gap:10px; cursor:pointer; margin-bottom:8px;" onclick="setAssignmentOption(\'existing\')"><span class="rdot' + (regAssignmentOption === 'existing' ? ' on' : '') + '" style="margin-top:1px;"></span><span style="font-size:13px; color:var(--text);">Add registrants to an <b>existing gallery or folder</b>.</span></label>' +
         existingBody +
@@ -9389,9 +9405,9 @@ function pickExisting(type, name) { existingSelectionType = type; existingSelect
 
 /* ── During the Shoot: Gallery Bulk Setup (step before the form builder) ── */
 let duringPhase = 'bulk';
-let bulkCount = 100, bulkNamingConvention = 'ATC', bulkPreset = 'Mystic Falls School Portraits';
+let bulkCount = 100, bulkNamingConvention = 'ATC', bulkPreset = Object.keys(VOLUME_PRESET_ROLES)[0];
 
-function resetDuringState() { duringPhase = 'bulk'; bulkCount = 100; bulkNamingConvention = 'ATC'; bulkPreset = 'Mystic Falls School Portraits'; }
+function resetDuringState() { duringPhase = 'bulk'; bulkCount = 100; bulkNamingConvention = 'ATC'; bulkPreset = Object.keys(VOLUME_PRESET_ROLES)[0]; }
 
 function onBulkFieldChange() {
   bulkCount = Math.min(5000, Math.max(1, parseInt(fval('bulk-count'), 10) || 1));

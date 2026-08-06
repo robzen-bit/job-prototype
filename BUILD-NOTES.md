@@ -135,3 +135,27 @@ ambiguity resolution, and deviation, tagged by phase.
   (locked row + lock note); dlAffectedAutos counts "Automatic gallery sharing"
   whenever the Delivery Automation panel is on; remind copy contains the pause
   sentence (grep = 1 hit). `node --check` clean.
+
+### Phase 6 — Collect registration before the shoot ✅ (pre-existing, verified + fixed)
+
+- **Deviation from brief's framing:** this flow was NOT built from scratch — it
+  was already ported from the gallery settings prototype (nz-settings-redesign
+  "Volume Wizard") in an earlier session, with the choose-location-and-title
+  step already skipped per the same requirement this brief states. This phase
+  therefore verified it end to end and fixed compliance gaps:
+  - **Fixed:** hardcoded preset name "Matthews" in the new-gallery assignment
+    option → replaced with a real, working preset `<select>` bound to new
+    `regPreset` state (also feeds Phase 8's Ecommerce step).
+  - **Fixed:** two more hardcoded preset defaults (`csvPreset = 'Matthews'`,
+    `bulkPreset = 'Mystic Falls School Portraits'`) → derived from
+    `Object.keys(VOLUME_PRESET_ROLES)[0]` (final self-check #8).
+  - **Fixed:** builder read the job name from the wizard's DOM field only —
+    added `regJobName()` / `regJobFolder()` context helpers (wizard vs job
+    settings) so the component is reusable in Part Three.
+  - **Improved (location carried forward):** the "Add registrants to this
+    folder" option now names the actual job destination folder inline, making
+    the carried-forward location visible.
+- **Verification (static):** selectJobType('prereg') → placeholder pane shows
+  wz-ph-before → renderRegFormBuilder mount; no location/title prompt exists in
+  the ported flow; folder label sources from wzParent (wizard) / job path
+  (settings). `node --check` clean.
