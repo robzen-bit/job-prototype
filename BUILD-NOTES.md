@@ -213,3 +213,51 @@ ambiguity resolution, and deviation, tagged by phase.
   toggle guard, dlResolve gate, render-disabled flag, plus ecom's own
   enablement painter); helper renders inside the collapsed head, not the body.
   `node --check` clean.
+
+### Phase 10 — Job settings shared approach (documented BEFORE building tabs)
+
+**Component reuse — shared components, shared state, context-switched mounts.**
+The wizard's configuration components (schedule builder, ecommerce pane,
+deadlines panels, registration form builder, CSV preset/role config) already
+operate on module-global state and render into a mount element. Rather than
+building settings-only copies, the settings tabs reuse the exact same renderers:
+
+- A global `uiCtx` ('wizard' | 'settings') selects the active mount per
+  component (e.g. deadlines render into `wz-deadlines-mount` in the wizard and
+  `set-dl-mount` in settings). Rendering into one context clears the other
+  container, so element ids stay unique. Static fragments the renderers depend
+  on (ecommerce pane body, deadlines timezone/order-warning header) are
+  extracted into the renderers so both surfaces get them.
+- The schedule builder keeps its DOM-as-state design; its container is resolved
+  through `shootsMountId()` instead of a hardcoded `#wz-shoots`, and the
+  settings surface gets a parallel container seeded from the job.
+- Per-job configuration lives on the job record as `j.config` (path, csv/reg/
+  bulk setup, ecom, deadlines, schedule). `loadJobSettings(j)` copies config →
+  the shared globals when a job is opened; `persistJobSettings()` copies
+  globals → config when leaving a settings pane/tab/view. New jobs snapshot the
+  wizard state at creation; premade demo jobs synthesize a default config on
+  first open (logged below).
+
+**Wizard chrome stripped.** Settings panes contain none of the wizard's Next
+buttons, step chips, or the "can always be changed later in job settings" line
+— the reassurance line lives in the wizard pane outside the shared mounts, so
+it cannot leak into settings.
+
+**Save model — follow Job Details.** Job Details' established pattern is
+immediate commit (notes commit on Enter; org/contact changes commit through
+their confirm modals). The other tabs therefore also commit immediately: every
+control writes to the shared state on change, and the state is persisted to the
+job record on tab/pane/view exit. There are no Save buttons and no unsaved
+state, so no unsaved-changes warning is needed. (If a true staged-save model is
+wanted later, `persistJobSettings()` is the single choke point to gate.)
+
+**Assumptions logged:**
+- Tabs are **editable**, not read-only, following the Job Details precedent.
+- Premade demo jobs have no stored config; a default is synthesized on first
+  open (path=import subject list, no price list, preorder off, all deadline
+  panels off, schedule seeded from the job's shoot dates with venue +
+  photographers carried over; street/city/state detail is not reconstructed
+  from the demo display strings).
+- Job-card/overview summary strings refresh from the edited schedule via
+  `parseShoots()` on persist; deeper derived demo data (report charts, order
+  history) intentionally does not re-derive.
