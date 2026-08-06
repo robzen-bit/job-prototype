@@ -261,3 +261,29 @@ wanted later, `persistJobSettings()` is the single choke point to gate.)
 - Job-card/overview summary strings refresh from the edited schedule via
   `parseShoots()` on persist; deeper derived demo data (report charts, order
   history) intentionally does not re-derive.
+
+### Phase 11 — Schedule tab ✅
+
+- The Schedule pane hosts the SAME shoot-schedule builder the wizard uses
+  (`createShootBlock`/`addLocCard`/photographer chips/duplicate/sort), rendered
+  into `#set-sched-shoots` via the Phase-10 mount helper and seeded from
+  `j.config.sched` on job open. Org saved-location dropdowns and the
+  save-location-to-organization checkbox work here too (context resolves the
+  job's organization).
+- **Dependency modals reused, not rebuilt:** in settings context, shoot-date
+  edits route through `wsDateChanged` → the existing `modal-dl-warn` machinery.
+  Changing a date fires the informational variant naming every deadline whose
+  relative rule resolves through the shoot schedule (plus transitive dependents
+  and affected automations, including the shoot-anchored preorder
+  announcement); clearing a date or removing a dated shoot block fires the
+  destructive variant ("Remove Date"). Confirm commits + recalculates +
+  persists; cancel reverts the input. Duplicating a shoot also warns, since a
+  new latest date moves "last shoot" anchors.
+- **Decision:** in the WIZARD the same edits stay silent (deadlines re-resolve
+  on step entry) per the earlier auto-recalc decision — the modal interception
+  is settings-only, matching this brief's Phase 11 scope.
+- **Verification (static):** wsDateChanged/removeShootBlock/duplicateShootBlock
+  branch on uiCtx; shootDependents() collects direct shoot-anchored deadlines +
+  transitive dependents; confirm path = pendingShoot.commit → sortShoots →
+  persist → renderDeadlines; cancel path (button, ×, overlay click) restores
+  the previous date via dataset.prev. `node --check` clean.

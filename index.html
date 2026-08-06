@@ -4637,14 +4637,13 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
 
                   </div>
 
-                  <!-- SCHEDULE (placeholder) -->
+                  <!-- SCHEDULE -->
                   <div class="settings-pane" id="set-schedule">
                     <div class="detail-card">
                       <div class="settings-section-title">Schedule</div>
-                      <div class="coming-soon" style="min-height:200px;">
-                        <i class="fa-solid fa-hammer"></i>
-                        <p style="font-size:12px;">This tab isn’t built yet — shoot dates and locations will be editable here.</p>
-                      </div>
+                      <div style="font-size:12.5px; color:var(--text-3); margin:-8px 0 14px; line-height:1.55;">Shoot dates, locations, and photographers for this job. Deadlines and automations calculated from the shoot schedule recalculate when dates change here.</div>
+                      <div id="set-sched-shoots"></div>
+                      <button type="button" class="add-inline-btn" onclick="wizAddShoot()"><i class="fa-solid fa-plus"></i> Add another shoot date</button>
                     </div>
                   </div>
 
@@ -6256,6 +6255,7 @@ function closeModal(id) {
     openModal('modal-wizard');
   }
   if (id === 'modal-dl-warn') {
+    if (pendingShoot) { if (pendingShoot.revert) pendingShoot.revert(); pendingShoot = null; }
     pendingDl = null;              /* plain close = cancel; confirm commits before closing */
     if (uiCtx === 'wizard') openModal('modal-wizard');
     renderDeadlines();
@@ -7836,7 +7836,7 @@ function createShootBlock(dateVal, locVals) {
     '<div class="shoot-block-head">' +
     '<button type="button" class="collapse-btn" onclick="toggleShoot(this)" title="Collapse / expand"><i class="fa-solid fa-chevron-down"></i></button>' +
     '<span class="shoot-block-num"></span>' +
-    '<input class="f-input ws-date" type="date" onchange="sortShoots()" value="' + (dateVal || '') + '">' +
+    '<input class="f-input ws-date" type="date" onchange="wsDateChanged(this)" value="' + (dateVal || '') + '" data-prev="' + (dateVal || '') + '">' +
     '<select class="f-input ws-locsel-head" onchange="headLocChanged(this)" style="flex:1; min-width:0;">' + locOptionsHTML(activeOrgLocs(cont), '') + '</select>' +
     '<button type="button" class="add-inline-btn" style="flex-shrink:0;" onclick="duplicateShootBlock(this)">Duplicate</button>' +
     '<button type="button" class="row-x" onclick="removeShootBlock(this)" title="Remove this date"><i class="fa-solid fa-xmark"></i></button></div>' +
@@ -7857,20 +7857,85 @@ function wizAddShoot() {
 
 function duplicateShootBlock(btn) {
   const block = btn.closest('.shoot-block');
-  const nextDate = isoPlusOneDay(block.querySelector('.ws-date').value);
-  const locVals = collectLocVals(block);
-  const div = createShootBlock(nextDate, locVals);
-  sortShoots();
-  toast('Duplicated — new date set to the next day, all locations and photographers carried over');
-  return div;
+  const doIt = () => {
+    const nextDate = isoPlusOneDay(block.querySelector('.ws-date').value);
+    const locVals = collectLocVals(block);
+    createShootBlock(nextDate, locVals);
+    sortShoots();
+    toast('Duplicated — new date set to the next day, all locations and photographers carried over');
+    if (uiCtx === 'settings') { persistJobSettings(); renderDeadlines(); }
+  };
+  if (uiCtx !== 'settings') { doIt(); return; }
+  openShootWarnModal('update', doIt, null);   /* a new latest date can move "last shoot" anchors */
 }
 
 function removeShootBlock(btn) {
   const cont = shootsMountEl();
-  if (cont.querySelectorAll('.shoot-block').length > 1) {
-    btn.closest('.shoot-block').remove();
+  if (cont.querySelectorAll('.shoot-block').length <= 1) return;
+  const block = btn.closest('.shoot-block');
+  const hasDate = !!block.querySelector('.ws-date').value;
+  const doIt = () => {
+    block.remove();
     renumberShoots();
+    if (uiCtx === 'settings') { persistJobSettings(); renderDeadlines(); }
+  };
+  if (uiCtx !== 'settings' || !hasDate) { doIt(); return; }
+  openShootWarnModal('clear', doIt, null);
+}
+
+/* date edits: silent in the wizard (deadlines re-resolve on step entry); in job
+   settings they interrupt with the existing dependency-warning modal */
+function wsDateChanged(inp) {
+  const prev = inp.dataset.prev || '';
+  const next = inp.value;
+  const finish = () => {
+    inp.dataset.prev = inp.value;
+    sortShoots();
+    if (uiCtx === 'settings') { persistJobSettings(); renderDeadlines(); }
+  };
+  if (uiCtx !== 'settings' || prev === next) { finish(); return; }
+  openShootWarnModal(next ? 'update' : 'clear', finish, () => { inp.value = prev; sortShoots(); });
+}
+
+/* deadlines whose relative rules resolve through the shoot schedule, plus their dependents */
+function shootDependents() {
+  const direct = DL_KEYS.filter(k => dlPanelOn[k] && dlState[k].mode === 'relative' && String(dlState[k].anchor).indexOf('shoot:') === 0);
+  const all = direct.slice();
+  DL_KEYS.forEach(k => { if (all.indexOf(k) < 0 && dlPanelOn[k] && direct.some(d => dlDependsOn(k, d))) all.push(k); });
+  return all;
+}
+
+function shootAffectedAutosList() {
+  const out = [];
+  if (dlPanelOn.preorder && preorderActive() && dlAutos.preorder.announce.mode === 'relative') out.push('Preorder announcement');
+  shootDependents().forEach(k => {
+    dlAffectedAutos(k, []).forEach(a => { if (out.indexOf(a.label) < 0) out.push(a.label); });
+  });
+  return out;
+}
+
+let pendingShoot = null;
+
+function openShootWarnModal(kind, commitFn, revertFn) {
+  const deps = shootDependents();
+  const autos = shootAffectedAutosList();
+  if (!deps.length && !autos.length) { commitFn(); return; }
+  pendingShoot = { commit: commitFn, revert: revertFn };
+  const names = deps.map(k => '<b>' + DL_DEFS[k].title + '</b>').concat(autos.map(a => '<b>' + a + '</b>')).join(' and ');
+  if (kind === 'clear') {
+    setText('dl-warn-title', 'Other settings depend on this date');
+    document.getElementById('dl-warn-body').innerHTML =
+      'These are calculated from the shoot schedule: ' + names + '.<br><br>' +
+      'Removing this date can leave them resolving to a different date — or unable to resolve at all — until the schedule or the deadlines are updated. Do you want to proceed?';
+    document.getElementById('dl-warn-confirm').textContent = 'Remove Date';
+  } else {
+    setText('dl-warn-title', 'Dependent settings will update');
+    document.getElementById('dl-warn-body').innerHTML =
+      'These are calculated from the shoot schedule: ' + names + '.<br><br>' +
+      'Changing the shoot schedule will update their resolved dates accordingly.';
+    document.getElementById('dl-warn-confirm').textContent = 'Update Settings';
   }
+  openModal('modal-dl-warn');
 }
 
 function renumberShoots() {
@@ -8888,6 +8953,13 @@ function dlAttemptChange(key, newState) {
 }
 
 function dlWarnConfirm() {
+  if (pendingShoot) {
+    const ps = pendingShoot;
+    pendingShoot = null;
+    ps.commit();
+    closeModal('modal-dl-warn');
+    return;
+  }
   const p = pendingDl;
   if (p && p.panelOff) {
     dlPanelOn[p.panelOff] = false;   /* config is kept; dependents surface as unresolved */
