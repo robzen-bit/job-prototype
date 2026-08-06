@@ -8438,10 +8438,18 @@ function onPreCheckChange() {
 
 /* ══════════ DEADLINES STEP (import flow) ══════════ */
 const DL_KEYS = ['preorder', 'upload', 'delivery'];
+/* deadline FIELD names — used in anchor labels, validation copy, and dependency modals */
 const DL_DEFS = {
   preorder: { title: 'Preorder deadline', desc: 'All preorders must be placed by this date. On this date, preorder turns off and is no longer available to customers.' },
-  upload: { title: 'Upload deadline', desc: 'All content for this job must be uploaded by this date. Contributing photographers are reminded that content is due.' },
+  upload: { title: 'Upload deadline', desc: 'All content for this job must be uploaded by this date.' },
   delivery: { title: 'Delivery deadline', desc: 'The date galleries should be delivered to the client — a school, the parents, or another recipient.' }
+};
+/* PANEL names + collapsed-state descriptions — each states whether the system acts on its own
+   (automation) or only tells a person something (notification) */
+const DL_PANELS = {
+  preorder: { title: 'Preorder Automation', desc: 'The system acts for you — it emails your customers automatically, announcing preorder, reminding them before it closes, and turning preorder off at the deadline.' },
+  upload: { title: 'Upload Deadline Notification', desc: 'Notification only — the system reminds the photographers working on this job that content is due. It takes no action itself; the photographers do the uploading.' },
+  delivery: { title: 'Delivery Automation', desc: 'The system acts for you — it automatically shares this job’s galleries with all contacts and sends the delivery email at the delivery deadline.' }
 };
 
 /* which surface the shared deadline/ecom components are currently rendering into */
@@ -8490,7 +8498,7 @@ function dlPanelToggle(key) {
       pendingDl = { panelOff: key, deps: deps };
       setText('dl-warn-title', 'Other settings depend on this');
       document.getElementById('dl-warn-body').innerHTML =
-        deps.map(k => '<b>' + DL_DEFS[k].title + '</b>').join(' and ') +
+        deps.map(k => '<b>' + DL_PANELS[k].title + '</b>').join(' and ') +
         (deps.length === 1 ? ' is' : ' are') + ' scheduled from the <b>' + DL_DEFS[key].title + '</b>.<br><br>' +
         'Turning this off leaves ' + (deps.length === 1 ? 'it' : 'them') + ' unable to resolve until this is turned back on. Your configuration here is kept.';
       document.getElementById('dl-warn-confirm').textContent = 'Turn Off';
@@ -8807,6 +8815,8 @@ function renderDeadlines() {
     const on = dlPanelOn[key] && !disabled;   /* a gated panel is always collapsed */
     const body = on
       ? '<div class="dl-panel-body">' +
+          '<div class="f-label" style="margin-bottom:2px;">' + DL_DEFS[key].title + '</div>' +
+          '<div style="font-size:12px; color:var(--text-3); margin-bottom:8px;">' + DL_DEFS[key].desc + '</div>' +
           '<div class="dl-modes">' +
             '<label class="rdot-row" onclick="dlModeChanged(\'' + key + '\', \'specific\')"><span class="rdot' + (s.mode === 'specific' ? ' on' : '') + '"></span>Specific date</label>' +
             '<label class="rdot-row" onclick="dlModeChanged(\'' + key + '\', \'relative\')"><span class="rdot' + (s.mode === 'relative' ? ' on' : '') + '"></span>Relative date</label>' +
@@ -8819,8 +8829,8 @@ function renderDeadlines() {
     return '<div class="dl-block' + (on ? '' : ' collapsed') + (disabled ? ' dl-gated' : '') + '">' +
       '<div class="dl-panel-head">' +
         '<div style="min-width:0;">' +
-          '<div class="dl-title">' + DL_DEFS[key].title + '</div>' +
-          '<div class="dl-desc">' + DL_DEFS[key].desc + '</div>' +
+          '<div class="dl-title">' + DL_PANELS[key].title + '</div>' +
+          '<div class="dl-desc">' + DL_PANELS[key].desc + '</div>' +
           (disabled ? '<div class="dl-helper">Enable preorder in the Ecommerce step for this deadline and its automation to apply.</div>' : '') +
         '</div>' +
         '<button class="toggle' + (on && !disabled ? ' on' : '') + (disabled ? ' ecom-disabled' : '') + '" onclick="dlPanelToggle(\'' + key + '\')"></button>' +

@@ -39,3 +39,22 @@ ambiguity resolution, and deviation, tagged by phase.
   `dlPanelOn[key] && !gated`; toggle handler flips only its own key; the
   gated preorder panel is forced collapsed regardless of stored state.
   `node --check` clean.
+
+### Phase 2 — Automation vs notification classification ✅
+
+- Added `DL_PANELS` (panel titles + collapsed-state descriptions) as a separate
+  map from `DL_DEFS` (deadline FIELD names). Rationale: the field names
+  ("Upload deadline") are load-bearing in anchor labels, validation copy, and
+  dependency modals — renaming them to panel names would corrupt phrases like
+  "sends after the upload deadline has passed."
+- Panels renamed: **Preorder Automation** / **Upload Deadline Notification** /
+  **Delivery Automation**. Each collapsed description states explicitly whether
+  the system acts on its own ("The system acts for you — …") or only notifies
+  ("Notification only — … It takes no action itself").
+- Expanded body now carries the deadline field's own sub-heading so the
+  panel/field distinction stays legible after the rename.
+- No grouping/sections added — distinction expressed purely through naming and
+  copy, per brief.
+- **Verification (static):** head renders `DL_PANELS` title/desc for all three
+  keys; every `DL_DEFS.title` usage in anchors/modals/validation unchanged and
+  still refers to the deadline field. `node --check` clean.
