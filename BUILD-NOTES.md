@@ -89,3 +89,26 @@ ambiguity resolution, and deviation, tagged by phase.
   the list and re-render; announcement anchor select is populated from
   `shootAnchorOptions()` only. `node --check` clean; all 16 new functions
   defined exactly once.
+
+### Phase 4 — Upload Deadline Notification ✅
+
+- **4.1 Audience widened:** every reference to "contributing photographers" is
+  gone (grep sweep = zero hits). Copy now says "the photographers working on
+  this job" in the panel description and the notifications-list description.
+- **4.2 Multiple notifications:** upload migrated onto the same repeatable
+  per-item machinery as preorder reminders — starts with one configured (as
+  today), "Add another notification" control, each removable. Items are
+  **locked** per the earlier revision: relative-only, before-only, anchored to
+  the upload deadline; only days, time-of-day, and template are editable.
+- **Assumption logged (per brief):** built multiple upload *notifications*
+  only. OPEN QUESTION FLAGGED: whether the upload **deadline itself** should be
+  repeatable on multi-shoot-date jobs (Phase 5's "anchors to the last upload
+  deadline" implies it might). This build keeps a single upload deadline; the
+  delivery anchor therefore trivially resolves to "the last" (= only) one.
+- Cleanup: the pre-restructure single-item functions (`autoReminderHTML`,
+  `autoSendDT`, `autoValidation`, `autoFieldChanged`) removed; `autoToggle` /
+  `autoTemplateChanged` now serve only the delivery sub-features (share/remind).
+- **Verification (static):** upload body = fieldSection + notifications list
+  (locked=true); add/remove handlers shared with preorder; no leftover
+  references to removed functions; "contributing photographer" appears nowhere
+  in the file. `node --check` clean.

@@ -8637,68 +8637,6 @@ function templateOptionsHTML(selected) {
     '<option value="__new">＋ Create new template…</option>';
 }
 
-/* automation sub-panel for the preorder/upload reminder automations */
-function autoReminderHTML(key, label, purpose) {
-  const a = dlAutos[key].reminders[0];
-  const parentDT = dlDT(key);
-  /* the photographer reminder is relative-only: locked to [n] days BEFORE the upload deadline */
-  if (key === 'upload') { a.mode = 'relative'; a.rel = 'before'; }
-  const locked = key === 'upload';
-  let timing;
-  if (locked) {
-    timing = '<div class="dl-rule">' +
-      '<input type="number" class="f-input dl-num" min="0" max="365" value="' + a.num + '" onchange="autoFieldChanged(\'' + key + '\', \'num\', this.value)">' +
-      '<span class="dl-days">days before the upload deadline</span>' +
-      '<span class="dl-days">at</span>' +
-      '<input type="time" class="f-input" style="width:auto;" value="' + a.time + '" onchange="autoFieldChanged(\'' + key + '\', \'time\', this.value)">' +
-    '</div>' +
-    '<div class="dl-anchor-lock"><i class="fa-solid fa-lock" style="font-size:10px;"></i> Always sends relative to the upload deadline</div>';
-  } else if (a.mode === 'specific') {
-    const minDate = nowLocalDT().slice(0, 10);
-    const maxDate = parentDT ? parentDT.slice(0, 10) : '';
-    timing = '<div class="dl-rule">' +
-      '<input type="date" class="f-input" style="width:auto;" value="' + a.date + '" min="' + minDate + '"' + (maxDate ? ' max="' + maxDate + '"' : '') + ' onchange="autoFieldChanged(\'' + key + '\', \'date\', this.value)">' +
-      '<input type="time" class="f-input" style="width:auto;" value="' + a.time + '" onchange="autoFieldChanged(\'' + key + '\', \'time\', this.value)">' +
-    '</div>';
-  } else {
-    timing = '<div class="dl-rule">' +
-      '<span style="display:' + (a.rel === 'on' ? 'none' : 'inline-flex') + '; align-items:center; gap:8px;">' +
-        '<input type="number" class="f-input dl-num" min="0" max="365" value="' + a.num + '" onchange="autoFieldChanged(\'' + key + '\', \'num\', this.value)">' +
-        '<span class="dl-days">days</span>' +
-      '</span>' +
-      '<select class="f-input" onchange="autoFieldChanged(\'' + key + '\', \'rel\', this.value)">' +
-        ['before', 'on'].map(r => '<option' + (r === a.rel ? ' selected' : '') + '>' + r + '</option>').join('') +
-      '</select>' +
-      '<span class="dl-days">the ' + DL_DEFS[key].title.toLowerCase() + '</span>' +
-      '<span class="dl-days">at</span>' +
-      '<input type="time" class="f-input" style="width:auto;" value="' + a.time + '" onchange="autoFieldChanged(\'' + key + '\', \'time\', this.value)">' +
-    '</div>' +
-    '<div class="dl-anchor-lock"><i class="fa-solid fa-lock" style="font-size:10px;"></i> Anchored to the ' + DL_DEFS[key].title.toLowerCase() + '</div>';
-  }
-  const send = autoSendDT(key);
-  const problem = autoValidation(key);
-  const sendLine = a.on
-    ? (problem
-        ? '<div class="dl-resolved dl-error"><i class="fa-solid fa-triangle-exclamation" style="font-size:11px; margin-right:5px;"></i>' + problem + '</div>'
-        : (send ? '<div class="dl-resolved">Sends <b>' + fmtDT(send) + '</b></div>' : ''))
-    : '';
-  return '<div class="dl-auto">' +
-    '<div class="toggle-row" style="border-bottom:none; padding:10px 0 6px;">' +
-      '<div><div class="toggle-row-title">' + label + '</div><div class="toggle-row-desc">' + purpose + '</div></div>' +
-      '<button class="toggle' + (a.on ? ' on' : '') + '" onclick="autoToggle(\'' + key + '\')"></button>' +
-    '</div>' +
-    '<div class="dl-auto-controls' + (a.on ? '' : ' ecom-disabled') + '">' +
-      '<select class="f-input" style="margin-bottom:10px;" onchange="autoTemplateChanged(\'' + key + '\', this)">' + templateOptionsHTML(a.template) + '</select>' +
-      (locked ? '' :
-        '<div class="dl-modes" style="margin:6px 0 8px;">' +
-          '<label class="rdot-row" onclick="autoFieldChanged(\'' + key + '\', \'mode\', \'specific\')"><span class="rdot' + (a.mode === 'specific' ? ' on' : '') + '"></span>Specific date &amp; time</label>' +
-          '<label class="rdot-row" onclick="autoFieldChanged(\'' + key + '\', \'mode\', \'relative\')"><span class="rdot' + (a.mode === 'relative' ? ' on' : '') + '"></span>Relative to this deadline</label>' +
-        '</div>') +
-      timing + sendLine +
-    '</div>' +
-  '</div>';
-}
-
 /* automation sub-panels for the delivery deadline (auto-share + remind me) */
 function deliveryAutosHTML() {
   const sh = dlAutos.share;
@@ -8838,7 +8776,8 @@ function renderDeadlines() {
     } else if (key === 'upload') {
       bodyInner = fieldSection +
         '<div class="dl-auto-divider"></div>' +
-        autoReminderHTML('upload', 'Remind contributing photographers', 'Emails the contributing photographers on this job that their upload deadline is approaching.');
+        remindersListHTML('upload', 'Notification', 'Add another notification',
+          'Emails the photographers working on this job that content is due. On a multi-day job, add one per shoot night so people upload as they go.', true);
     } else {
       bodyInner = fieldSection + '<div class="dl-auto-divider"></div>' + deliveryAutosHTML();
     }
@@ -8990,27 +8929,6 @@ function dlTimeChanged(key, inp) {
 }
 
 /* ── automation send resolution + validation ── */
-function autoSendDT(key) {
-  const a = dlAutos[key].reminders[0];
-  if (a.mode === 'specific') return a.date ? a.date + 'T' + (a.time || '00:00') : null;
-  const parent = dlDT(key);
-  if (!parent) return null;
-  const n = a.rel === 'on' ? 0 : (parseInt(a.num, 10) || 0);
-  return isoAddDays(parent.slice(0, 10), -n) + 'T' + (a.time || '00:00');
-}
-
-function autoValidation(key) {
-  const a = dlAutos[key].reminders[0];
-  if (!a.on) return '';
-  const parent = dlDT(key);
-  if (!parent) return 'Waiting on the ' + DL_DEFS[key].title.toLowerCase() + ' — set it above to schedule this reminder.';
-  const send = autoSendDT(key);
-  if (!send) return 'Set a send date and time.';
-  if (send > parent) return 'This reminder would send after the ' + DL_DEFS[key].title.toLowerCase() + ' has passed — move it earlier.';
-  if (send <= nowLocalDT()) return 'This send time is already in the past — move it later.';
-  return '';
-}
-
 function remindSendDT() {
   const r = dlAutos.remind.reminders[0];
   const parent = dlDT('delivery');
@@ -9030,30 +8948,20 @@ function remindValidation() {
   return '';
 }
 
-/* ── automation control handlers ── */
+/* ── automation control handlers (delivery sub-features) ── */
 function autoToggle(id) {
   if (id === 'share') dlAutos.share.on = !dlAutos.share.on;
   else if (id === 'remind') dlAutos.remind.reminders[0].on = !dlAutos.remind.reminders[0].on;
-  else dlAutos[id].reminders[0].on = !dlAutos[id].reminders[0].on;
   renderDeadlines();
 }
 
 function autoTemplateChanged(id, sel) {
   if (sel.value === '__new') {
     toast('Opens the email template builder');
-    sel.value = id === 'share' ? dlAutos.share.template : dlAutos[id].reminders[0].template;
+    sel.value = dlAutos.share.template;
     return;
   }
-  if (id === 'share') dlAutos.share.template = sel.value;
-  else dlAutos[id].reminders[0].template = sel.value;
-}
-
-function autoFieldChanged(key, field, value) {
-  const a = dlAutos[key].reminders[0];
-  if (field === 'mode' && a.mode === value) return;
-  if (field === 'num') { let n = parseInt(value, 10); if (isNaN(n) || n < 0) n = 0; if (n > 365) n = 365; value = n; }
-  a[field] = value;
-  renderDeadlines();
+  dlAutos.share.template = sel.value;
 }
 
 function remindFieldChanged(field, value) {
@@ -9109,12 +9017,22 @@ function autoRemoveReminder(key, idx) {
   renderDeadlines();
 }
 
-/* one repeatable reminder/notification row (anchor locked to its parent deadline) */
-function autoItemHTML(key, idx, noun) {
+/* one repeatable reminder/notification row (anchor locked to its parent deadline);
+   locked=true pins the item to relative/before — only days, time, and template stay editable */
+function autoItemHTML(key, idx, noun, locked) {
   const a = autoItem(key, idx);
   const parentDT = dlDT(key);
+  if (locked) { a.mode = 'relative'; a.rel = 'before'; }
   let timing;
-  if (a.mode === 'specific') {
+  if (locked) {
+    timing = '<div class="dl-rule">' +
+      '<input type="number" class="f-input dl-num" min="0" max="365" value="' + a.num + '" onchange="autoItemFieldChanged(\'' + key + '\', ' + idx + ', \'num\', this.value)">' +
+      '<span class="dl-days">days before the ' + DL_DEFS[key].title.toLowerCase() + '</span>' +
+      '<span class="dl-days">at</span>' +
+      '<input type="time" class="f-input" style="width:auto;" value="' + a.time + '" onchange="autoItemFieldChanged(\'' + key + '\', ' + idx + ', \'time\', this.value)">' +
+    '</div>' +
+    '<div class="dl-anchor-lock"><i class="fa-solid fa-lock" style="font-size:10px;"></i> Always sends relative to the ' + DL_DEFS[key].title.toLowerCase() + '</div>';
+  } else if (a.mode === 'specific') {
     const minDate = nowLocalDT().slice(0, 10);
     const maxDate = parentDT ? parentDT.slice(0, 10) : '';
     timing = '<div class="dl-rule">' +
@@ -9147,10 +9065,11 @@ function autoItemHTML(key, idx, noun) {
       '<button type="button" class="row-x" onclick="autoRemoveReminder(\'' + key + '\', ' + idx + ')" title="Remove"><i class="fa-solid fa-xmark"></i></button>' +
     '</div>' +
     '<select class="f-input" style="margin-bottom:8px;" onchange="autoItemTemplateChanged(\'' + key + '\', ' + idx + ', this)">' + templateOptionsHTML(a.template) + '</select>' +
-    '<div class="dl-modes" style="margin:4px 0 8px;">' +
-      '<label class="rdot-row" onclick="autoItemFieldChanged(\'' + key + '\', ' + idx + ', \'mode\', \'specific\')"><span class="rdot' + (a.mode === 'specific' ? ' on' : '') + '"></span>Specific date &amp; time</label>' +
-      '<label class="rdot-row" onclick="autoItemFieldChanged(\'' + key + '\', ' + idx + ', \'mode\', \'relative\')"><span class="rdot' + (a.mode === 'relative' ? ' on' : '') + '"></span>Relative to the deadline</label>' +
-    '</div>' +
+    (locked ? '' :
+      '<div class="dl-modes" style="margin:4px 0 8px;">' +
+        '<label class="rdot-row" onclick="autoItemFieldChanged(\'' + key + '\', ' + idx + ', \'mode\', \'specific\')"><span class="rdot' + (a.mode === 'specific' ? ' on' : '') + '"></span>Specific date &amp; time</label>' +
+        '<label class="rdot-row" onclick="autoItemFieldChanged(\'' + key + '\', ' + idx + ', \'mode\', \'relative\')"><span class="rdot' + (a.mode === 'relative' ? ' on' : '') + '"></span>Relative to the deadline</label>' +
+      '</div>') +
     timing + sendLine +
   '</div>';
 }
@@ -9233,12 +9152,12 @@ function announceHTML() {
   '</div>';
 }
 
-function remindersListHTML(key, noun, addLabel, desc) {
+function remindersListHTML(key, noun, addLabel, desc, locked) {
   const items = dlAutos[key].reminders;
   return '<div class="dl-auto">' +
     '<div class="toggle-row-title" style="padding-top:8px;">' + noun + 's</div>' +
     '<div class="toggle-row-desc" style="margin-bottom:4px;">' + desc + '</div>' +
-    (items.length ? items.map((r, i) => autoItemHTML(key, i, noun)).join('')
+    (items.length ? items.map((r, i) => autoItemHTML(key, i, noun, locked)).join('')
       : '<div style="font-size:12.5px; color:var(--text-3); padding:6px 0;">None configured.</div>') +
     '<button type="button" class="add-inline-btn" onclick="autoAddReminder(\'' + key + '\')"><i class="fa-solid fa-plus"></i> ' + addLabel + '</button>' +
   '</div>';
@@ -9252,8 +9171,8 @@ function dlAffectedAutos(key, deps) {
     if (k === 'preorder' && dlPanelOn.preorder) {
       out.push({ owner: 'preorder', label: 'Preorder Automation (announcement & reminders)' });
     }
-    if (k === 'upload' && dlPanelOn.upload && dlAutos.upload.reminders[0] && dlAutos.upload.reminders[0].on) {
-      out.push({ owner: 'upload', label: 'Photographer upload reminder' });
+    if (k === 'upload' && dlPanelOn.upload && dlAutos.upload.reminders.length) {
+      out.push({ owner: 'upload', label: 'Upload deadline notifications' });
     }
     if (k === 'delivery' && dlPanelOn.delivery) {
       if (dlAutos.share.on) out.push({ owner: 'share', label: 'Automatic gallery sharing' });
