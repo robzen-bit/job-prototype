@@ -310,3 +310,18 @@ wanted later, `persistJobSettings()` is the single choke point to gate.)
   the no-path case; fragments render exactly once per surface (mount-swap
   clears the other side); reg builder's mount clear-list includes the settings
   mount with null guards. `node --check` clean; settings block div-balanced.
+
+### Phase 13 — Ecommerce tab ✅
+
+- The pane hosts `set-ecom-mount`; `renderEcomStep()` (mount-aware since
+  Phase 10) renders the identical ecommerce pane body there: dynamic preset
+  headline (State A/B via `wizActivePreset()` + the job's loaded path), price
+  list dropdown with correct defaulting (`ecomPLTouched` persisted per job),
+  and the full preorder enablement chain (no price list → toggle disabled;
+  toggle off → settings visible but disabled; values persist).
+- No wizard chrome: the reassurance line lives outside the shared mount in the
+  wizard pane only.
+- **Verification (static):** renderSettingsPane('set-ecom') → renderEcomStep →
+  mount targets settings container in settings ctx and clears the wizard's;
+  paintEcomEnablement operates on ids that exist exactly once. `node --check`
+  clean.
