@@ -112,3 +112,26 @@ ambiguity resolution, and deviation, tagged by phase.
   (locked=true); add/remove handlers shared with preorder; no leftover
   references to removed functions; "contributing photographer" appears nowhere
   in the file. `node --check` clean.
+
+### Phase 5 — Delivery Automation ✅
+
+- Specific + relative modes kept; relative anchor remains **locked to the
+  upload deadline** with no anchor selection (existing behavior verified).
+- Multiple-upload-deadline anchoring: the upload deadline is single in this
+  build (Phase 4 assumption), so "anchors to the last upload deadline" resolves
+  trivially — no code change needed; flagged alongside the Phase 4 question.
+- **Decision:** the panel master toggle now IS the share automation — the
+  redundant inner "Automatically share galleries" sub-toggle was removed. The
+  delivery-email template selector and the fire note ("Galleries will be shared
+  with all contacts on the delivery deadline — <date>") render directly in the
+  expanded panel. `dlAutos.share.on` is no longer consulted anywhere.
+- **New copy (per brief):** the "Remind me" description now states the reminder
+  itself will include an option to **pause the automatic delivery** before
+  galleries go out.
+- **Assumption logged (per brief):** the pause mechanism does NOT exist in this
+  prototype and was NOT built — only the copy promising it was added, matching
+  the earlier scoping of pause/hold as a later job-settings feature.
+- **Verification (static):** delivery relative branch renders no anchor select
+  (locked row + lock note); dlAffectedAutos counts "Automatic gallery sharing"
+  whenever the Delivery Automation panel is on; remind copy contains the pause
+  sentence (grep = 1 hit). `node --check` clean.

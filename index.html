@@ -8637,7 +8637,8 @@ function templateOptionsHTML(selected) {
     '<option value="__new">＋ Create new template…</option>';
 }
 
-/* automation sub-panels for the delivery deadline (auto-share + remind me) */
+/* delivery panel content — the panel toggle IS the automation, so the share email
+   and fire note render directly; "Remind me" stays an optional sub-feature */
 function deliveryAutosHTML() {
   const sh = dlAutos.share;
   const rm = dlAutos.remind.reminders[0];
@@ -8646,14 +8647,10 @@ function deliveryAutosHTML() {
     ? 'Galleries will be shared with all contacts on the delivery deadline — <b>' + fmtDT(parentDT) + '</b>.'
     : 'Galleries will be shared with all contacts on the delivery deadline. <span style="color:var(--text-3);">Set the delivery deadline above to schedule this.</span>';
   const shareHTML = '<div class="dl-auto">' +
-    '<div class="toggle-row" style="border-bottom:none; padding:10px 0 6px;">' +
-      '<div><div class="toggle-row-title">Automatically share galleries with all contacts</div><div class="toggle-row-desc">Shares every gallery in this job and sends the selected email when the delivery deadline arrives.</div></div>' +
-      '<button class="toggle' + (sh.on ? ' on' : '') + '" onclick="autoToggle(\'share\')"></button>' +
-    '</div>' +
-    '<div class="dl-auto-controls' + (sh.on ? '' : ' ecom-disabled') + '">' +
-      '<select class="f-input" style="margin-bottom:8px;" onchange="autoTemplateChanged(\'share\', this)">' + templateOptionsHTML(sh.template) + '</select>' +
-      '<div class="dl-fire-note"><i class="fa-solid fa-bolt" style="font-size:10px;"></i> ' + shareLine + '</div>' +
-    '</div>' +
+    '<div class="toggle-row-title" style="padding-top:8px;">Delivery email</div>' +
+    '<div class="toggle-row-desc" style="margin-bottom:8px;">Sent to every contact when their galleries are shared.</div>' +
+    '<select class="f-input" style="margin-bottom:8px;" onchange="autoTemplateChanged(\'share\', this)">' + templateOptionsHTML(sh.template) + '</select>' +
+    '<div class="dl-fire-note"><i class="fa-solid fa-bolt" style="font-size:10px;"></i> ' + shareLine + '</div>' +
   '</div>';
 
   const rmProblem = remindValidation();
@@ -8665,7 +8662,7 @@ function deliveryAutosHTML() {
     : '';
   const remindHTML = '<div class="dl-auto">' +
     '<div class="toggle-row" style="border-bottom:none; padding:10px 0 6px;">' +
-      '<div><div class="toggle-row-title">Remind me</div><div class="toggle-row-desc">Advance notice to you — the account owner — that delivery is about to happen, so you can step in if content isn’t ready. Sent as a system notification, no template needed.</div></div>' +
+      '<div><div class="toggle-row-title">Remind me</div><div class="toggle-row-desc">Advance notice to you — the account owner — that delivery is about to happen. The reminder itself will include an option to pause the automatic delivery, so you get a chance to check or fix anything before galleries go out. Sent as a system notification, no template needed.</div></div>' +
       '<button class="toggle' + (rm.on ? ' on' : '') + '" onclick="autoToggle(\'remind\')"></button>' +
     '</div>' +
     '<div class="dl-auto-controls' + (rm.on ? '' : ' ecom-disabled') + '">' +
@@ -8950,8 +8947,7 @@ function remindValidation() {
 
 /* ── automation control handlers (delivery sub-features) ── */
 function autoToggle(id) {
-  if (id === 'share') dlAutos.share.on = !dlAutos.share.on;
-  else if (id === 'remind') dlAutos.remind.reminders[0].on = !dlAutos.remind.reminders[0].on;
+  if (id === 'remind') dlAutos.remind.reminders[0].on = !dlAutos.remind.reminders[0].on;
   renderDeadlines();
 }
 
@@ -9175,7 +9171,7 @@ function dlAffectedAutos(key, deps) {
       out.push({ owner: 'upload', label: 'Upload deadline notifications' });
     }
     if (k === 'delivery' && dlPanelOn.delivery) {
-      if (dlAutos.share.on) out.push({ owner: 'share', label: 'Automatic gallery sharing' });
+      out.push({ owner: 'share', label: 'Automatic gallery sharing' });
       if (dlAutos.remind.reminders[0].on) out.push({ owner: 'remind', label: 'Delivery “Remind me” notification' });
     }
   });
