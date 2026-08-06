@@ -159,3 +159,19 @@ ambiguity resolution, and deviation, tagged by phase.
   wz-ph-before → renderRegFormBuilder mount; no location/title prompt exists in
   the ported flow; folder label sources from wzParent (wizard) / job path
   (settings). `node --check` clean.
+
+### Phase 7 — Collect registration during the shoot ✅ (pre-existing, verified)
+
+- Also pre-existing from the earlier port (see Phase 6 note). Verified rather
+  than rebuilt: Gallery Bulk Setup (count / naming convention / preset with
+  live 10-row preview) → internal Next → the SAME form builder component the
+  before-flow uses, navigated by `duringAdvancePhase()` intercepting the
+  wizard's own Back/Next; no location/title prompt exists.
+- Relevant fix landed earlier this session: the placeholder pane checked
+  `selectedJobType === 'during'`/`'before'` while the actual ids are
+  `'duringreg'`/`'prereg'` — the flows were unreachable until that was fixed.
+- `bulkPreset` hardcoded default removed in the Phase 6 sweep.
+- **Verification (static):** wizNav intercepts duringreg on the placeholder
+  pane before step advance; paintDuringPhase toggles wz-during-bulk /
+  wz-during-form-wrap; bulk preset select populated from VOLUME_PRESET_ROLES;
+  the form phase mounts the shared builder into wz-ph-during-form-mount.
