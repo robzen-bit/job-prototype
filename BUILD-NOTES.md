@@ -325,3 +325,21 @@ wanted later, `persistJobSettings()` is the single choke point to gate.)
   mount targets settings container in settings ctx and clears the wizard's;
   paintEcomEnablement operates on ids that exist exactly once. `node --check`
   clean.
+
+### Phase 14 — Deadlines & Automation tab ✅
+
+- The pane hosts `set-dl-mount`; `renderDeadlines()` renders the full Part One
+  restructure there — collapse pattern, all three renamed panels, preorder
+  announcement + repeatable reminders, repeatable upload notifications,
+  delivery share + Remind-me (with pause copy), timezone line, ordering
+  warning, all validation, and the dependency modals (which no longer swap the
+  wizard in settings context thanks to the Phase-1 `uiCtx` guard).
+- Shoot anchors resolve from the settings schedule builder's DOM (seeded at job
+  load), so "3 days after last shoot" reflects the Schedule tab's current
+  state.
+- **Verification (static):** renderSettingsPane('set-deadlines') →
+  renderDeadlines targets the settings mount; panel add/remove/validation
+  handlers are surface-agnostic (they re-render through the same mount
+  resolver); the warning-modal open/close paths skip the wizard-modal swap when
+  uiCtx==='settings'. `node --check` clean; single instance of every settings
+  mount id.
