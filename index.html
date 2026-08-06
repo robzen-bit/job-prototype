@@ -8785,7 +8785,7 @@ function renderDeadlines() {
         '<div style="min-width:0;">' +
           '<div class="dl-title">' + DL_PANELS[key].title + '</div>' +
           '<div class="dl-desc">' + DL_PANELS[key].desc + '</div>' +
-          (disabled ? '<div class="dl-helper">Enable preorder in the Ecommerce step for this deadline and its automation to apply.</div>' : '') +
+          (disabled ? '<div class="dl-helper"><i class="fa-solid fa-lock" style="font-size:10px; margin-right:4px;"></i>Disabled — preorder isn’t turned on for this job. Enable preorder in the Ecommerce step to use this automation.' + (dlPanelOn[key] ? ' Your configuration here is kept and comes back when preorder is re-enabled.' : '') + '</div>' : '') +
         '</div>' +
         '<button class="toggle' + (on && !disabled ? ' on' : '') + (disabled ? ' ecom-disabled' : '') + '" onclick="dlPanelToggle(\'' + key + '\')"></button>' +
       '</div>' +

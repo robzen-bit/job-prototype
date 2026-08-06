@@ -191,3 +191,25 @@ ambiguity resolution, and deviation, tagged by phase.
   steps; during's internal form phase falls through to the ecom step on Next;
   ecom re-derives its default price list per path because selectJobType resets
   `ecomPLTouched`. `node --check` clean.
+
+### Phase 9 — Preorder gating logic ✅
+
+- Gating chain (mostly established in Phases 1–8, verified here): preorder off
+  at Ecommerce (`preorderActive()` = price list + preorder toggle) →
+  Preorder Automation panel renders **visible, collapsed, toggle disabled**
+  (pointer-events off, faded), forced collapsed even if its master toggle was
+  previously on; `dlPanelToggle('preorder')` refuses while gated; the deadline
+  resolves as unresolved so nothing downstream consumes it.
+- **Collapsed-state helper text (per brief)** upgraded: explains the panel is
+  disabled because preorder isn't on for this job, points to the Ecommerce
+  step, and — when configuration already exists — states it is kept and comes
+  back when preorder is re-enabled.
+- **Reacts to later changes:** the deadlines surface re-renders on every entry
+  (wizard step paint; settings tab entry in Part Three), and `disabled` is
+  computed from live ecom state each render — turning preorder off after
+  configuring collapses + disables the panel and preserves its configuration
+  (persist pattern, logged in Phase 1/3).
+- **Verification (static):** four `preorderActive()` consumers traced (panel
+  toggle guard, dlResolve gate, render-disabled flag, plus ecom's own
+  enablement painter); helper renders inside the collapsed head, not the body.
+  `node --check` clean.
