@@ -4647,15 +4647,13 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
                     </div>
                   </div>
 
-                  <!-- SETUP (placeholder) -->
+                  <!-- SETUP -->
                   <div class="settings-pane" id="set-setup">
                     <div class="detail-card">
                       <div class="settings-section-title">Setup</div>
-                      <div class="coming-soon" style="min-height:200px;">
-                        <i class="fa-solid fa-hammer"></i>
-                        <p style="font-size:12px;">This tab isn’t built yet — job type and workflow setup will be editable here.</p>
-                      </div>
+                      <div id="set-setup-path"></div>
                     </div>
+                    <div id="set-setup-body"></div>
                   </div>
 
                   <!-- ECOMMERCE (placeholder) -->
@@ -5425,21 +5423,7 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
                 <label class="rdot-row" onclick="setCsvHeaders(false)"><span class="rdot" id="csv-hdr-no"></span>My CSV file does not include headers</label>
               </div>
 
-              <div class="f-label" style="margin-bottom:5px;">Gallery Preset &amp; Role Configuration</div>
-              <div style="font-size:12.5px; color:var(--text-3); margin-bottom:12px;">Select a preset to apply to all galleries, then choose how to assign roles to imported contacts.</div>
-              <select class="f-input" id="csv-preset" style="margin-bottom:16px;" onchange="onCsvPresetChange()"></select>
-
-              <div class="rdot-list">
-                <label class="rdot-row" onclick="setCsvRoleConfig('same')" style="flex-wrap:wrap;">
-                  <span class="rdot" id="csv-role-same"></span>
-                  <span>All contacts should be assigned to the same role.</span>
-                  <select class="f-input" id="csv-bulk-role" style="width:auto; height:30px; font-size:12.5px; margin-left:6px;" onclick="event.stopPropagation()" onchange="setCsvRoleConfig('same')"></select>
-                </label>
-                <label class="rdot-row" onclick="setCsvRoleConfig('perColumn')" style="align-items:flex-start;">
-                  <span class="rdot" id="csv-role-percol" style="margin-top:1px;"></span>
-                  <span>I would like to assign contacts to roles during the matching phase.</span>
-                </label>
-              </div>
+              <div id="csv-config-mount"></div>
             </div>
           </div>
 
@@ -5471,33 +5455,7 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
               <i class="fa-solid fa-circle-info"></i>
               <div>Configure bulk gallery creation settings and preview the result. <a class="gallery-name-link" onclick="toast('Opens the Volume Wizard help article')">Click here</a> for more info.</div>
             </div>
-            <div style="display:flex; gap:16px; margin-top:16px; align-items:flex-start;">
-              <div class="detail-card" style="flex:1; min-width:0;">
-                <div class="detail-card-header">Gallery Bulk Setup</div>
-                <div class="f-field">
-                  <label class="f-label">How many Galleries?</label>
-                  <input class="f-input" type="number" min="1" max="5000" id="bulk-count" value="100" oninput="onBulkFieldChange()">
-                  <div style="font-size:11px; color:var(--text-3);">Maximum 5,000</div>
-                </div>
-                <div class="f-field">
-                  <label class="f-label">Gallery Naming Convention</label>
-                  <input class="f-input" id="bulk-naming" placeholder="e.g. ATC" value="ATC" oninput="onBulkFieldChange()">
-                </div>
-                <div class="f-field">
-                  <label class="f-label">Select a Gallery Preset</label>
-                  <select class="f-input" id="bulk-preset" onchange="onBulkFieldChange()"></select>
-                </div>
-                <button type="button" class="btn btn-ghost-sm" onclick="toast('Preview updated')">Preview</button>
-              </div>
-              <div class="detail-card" style="flex:1; min-width:0;">
-                <div class="detail-card-header" id="bulk-preview-title" style="margin-bottom:2px;"></div>
-                <div style="font-size:11.5px; color:var(--text-3); margin-bottom:10px;" id="bulk-preview-sub"></div>
-                <table class="gallery-table">
-                  <thead><tr><th style="width:44px;">No.</th><th>Gallery Name</th><th>Access</th></tr></thead>
-                  <tbody id="bulk-preview-tbody"></tbody>
-                </table>
-              </div>
-            </div>
+            <div id="bulk-config-mount"></div>
           </div>
 
           <div id="wz-during-form-wrap" style="display:none;">
@@ -9409,10 +9367,101 @@ function persistJobSettings() {
 function renderSettingsPane(paneId) {
   if (paneId === 'set-ecom') renderEcomStep();
   else if (paneId === 'set-deadlines') renderDeadlines();
-  else if (paneId === 'set-setup' && typeof renderSetupTab === 'function') renderSetupTab();
+  else if (paneId === 'set-setup') renderSetupTab();
 }
 
+/* ── Setup tab: path is read-only; the configuration within it stays editable ── */
+function renderSetupTab() {
+  const pathEl = document.getElementById('set-setup-path');
+  const bodyEl = document.getElementById('set-setup-body');
+  if (!pathEl || !bodyEl) return;
+  const t = selectedJobType;
+  const jt = t && JOB_TYPE_LOOKUP[t];
+  if (!jt) {
+    pathEl.innerHTML = '<div style="font-size:13px; color:var(--text-2); line-height:1.6;">No setup path was chosen when this job was created' +
+      (currentJob && currentJob.needsSetup ? ' — it was saved before setup was finished' : '') + '.</div>';
+    bodyEl.innerHTML = '';
+    return;
+  }
+  pathEl.innerHTML =
+    '<div style="display:flex; align-items:center; gap:10px;">' +
+      '<span class="chip chip-dark">' + jt.title + '</span>' +
+      '<span style="font-size:12px; color:var(--text-3);"><i class="fa-solid fa-lock" style="font-size:10px; margin-right:4px;"></i>The setup path is fixed once a job exists — its configuration below stays editable.</span>' +
+    '</div>';
+  if (t === 'import') {
+    bodyEl.innerHTML = '<div class="detail-card"><div id="set-csv-config-mount"></div></div>';
+    renderCsvSetup();
+  } else if (t === 'prereg') {
+    bodyEl.innerHTML = '<div class="detail-card"><div class="detail-card-header" style="margin-bottom:10px;">Registration Form</div><div id="set-setup-reg-mount"></div></div>';
+    renderRegFormBuilder('set-setup-reg-mount');
+  } else if (t === 'duringreg') {
+    bodyEl.innerHTML =
+      '<div class="detail-card"><div id="set-bulk-config-mount"></div></div>' +
+      '<div class="detail-card"><div class="detail-card-header" style="margin-bottom:10px;">Registration Form</div><div id="set-setup-reg-mount"></div></div>';
+    renderBulkSetup();
+    renderRegFormBuilder('set-setup-reg-mount');
+  } else {
+    bodyEl.innerHTML = '<div class="detail-card"><div style="font-size:13px; color:var(--text-3);">This setup path has no editable configuration in the prototype.</div></div>';
+  }
+}
+
+/* shared fragments: CSV preset/role config + gallery bulk setup — reused by the Setup settings tab */
+function csvConfigHTML() {
+  return '<div class="f-label" style="margin-bottom:5px;">Gallery Preset &amp; Role Configuration</div>' +
+    '<div style="font-size:12.5px; color:var(--text-3); margin-bottom:12px;">Select a preset to apply to all galleries, then choose how to assign roles to imported contacts.</div>' +
+    '<select class="f-input" id="csv-preset" style="margin-bottom:16px;" onchange="onCsvPresetChange()"></select>' +
+    '<div class="rdot-list">' +
+      '<label class="rdot-row" onclick="setCsvRoleConfig(\'same\')" style="flex-wrap:wrap;">' +
+        '<span class="rdot" id="csv-role-same"></span>' +
+        '<span>All contacts should be assigned to the same role.</span>' +
+        '<select class="f-input" id="csv-bulk-role" style="width:auto; height:30px; font-size:12.5px; margin-left:6px;" onclick="event.stopPropagation()" onchange="setCsvRoleConfig(\'same\')"></select>' +
+      '</label>' +
+      '<label class="rdot-row" onclick="setCsvRoleConfig(\'perColumn\')" style="align-items:flex-start;">' +
+        '<span class="rdot" id="csv-role-percol" style="margin-top:1px;"></span>' +
+        '<span>I would like to assign contacts to roles during the matching phase.</span>' +
+      '</label>' +
+    '</div>';
+}
+function csvConfigMountId() { return uiCtx === 'settings' ? 'set-csv-config-mount' : 'csv-config-mount'; }
+
+function bulkConfigHTML() {
+  return '<div style="display:flex; gap:16px; align-items:flex-start;">' +
+    '<div class="detail-card" style="flex:1; min-width:0;">' +
+      '<div class="detail-card-header">Gallery Bulk Setup</div>' +
+      '<div class="f-field">' +
+        '<label class="f-label">How many Galleries?</label>' +
+        '<input class="f-input" type="number" min="1" max="5000" id="bulk-count" value="100" oninput="onBulkFieldChange()">' +
+        '<div style="font-size:11px; color:var(--text-3);">Maximum 5,000</div>' +
+      '</div>' +
+      '<div class="f-field">' +
+        '<label class="f-label">Gallery Naming Convention</label>' +
+        '<input class="f-input" id="bulk-naming" placeholder="e.g. ATC" value="ATC" oninput="onBulkFieldChange()">' +
+      '</div>' +
+      '<div class="f-field">' +
+        '<label class="f-label">Select a Gallery Preset</label>' +
+        '<select class="f-input" id="bulk-preset" onchange="onBulkFieldChange()"></select>' +
+      '</div>' +
+      '<button type="button" class="btn btn-ghost-sm" onclick="toast(\'Preview updated\')">Preview</button>' +
+    '</div>' +
+    '<div class="detail-card" style="flex:1; min-width:0;">' +
+      '<div class="detail-card-header" id="bulk-preview-title" style="margin-bottom:2px;"></div>' +
+      '<div style="font-size:11.5px; color:var(--text-3); margin-bottom:10px;" id="bulk-preview-sub"></div>' +
+      '<table class="gallery-table">' +
+        '<thead><tr><th style="width:44px;">No.</th><th>Gallery Name</th><th>Access</th></tr></thead>' +
+        '<tbody id="bulk-preview-tbody"></tbody>' +
+      '</table>' +
+    '</div>' +
+  '</div>';
+}
+function bulkConfigMountId() { return uiCtx === 'settings' ? 'set-bulk-config-mount' : 'bulk-config-mount'; }
+
 function renderCsvSetup() {
+  const mount = document.getElementById(csvConfigMountId());
+  if (mount) {
+    const other = document.getElementById(uiCtx === 'settings' ? 'csv-config-mount' : 'set-csv-config-mount');
+    if (other) other.innerHTML = '';
+    mount.innerHTML = csvConfigHTML();
+  }
   document.getElementById('csv-hdr-yes').classList.toggle('on', csvHasHeaders === true);
   document.getElementById('csv-hdr-no').classList.toggle('on', csvHasHeaders === false);
   document.getElementById('csv-role-same').classList.toggle('on', csvRoleConfig === 'same');
@@ -9626,8 +9675,12 @@ function regFormBuilderHTML() {
 
 function renderRegFormBuilder(mountId) {
   REGFORM_MOUNT = mountId;
-  ['wz-ph-before-mount', 'wz-ph-during-form-mount'].forEach(id => { if (id !== mountId) document.getElementById(id).innerHTML = ''; });
-  document.getElementById(mountId).innerHTML = regFormBuilderHTML();
+  ['wz-ph-before-mount', 'wz-ph-during-form-mount', 'set-setup-reg-mount'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el && id !== mountId) el.innerHTML = '';
+  });
+  const target = document.getElementById(mountId);
+  if (target) target.innerHTML = regFormBuilderHTML();
 }
 
 function toggleRegField(id) { if (!CORE_FIELDS_REG.find(f => f.id === id).canDisable) return; regFieldEnabled[id] = !regFieldEnabled[id]; renderRegFormBuilder(REGFORM_MOUNT); }
@@ -9651,6 +9704,12 @@ function onBulkFieldChange() {
 }
 
 function renderBulkSetup() {
+  const mount = document.getElementById(bulkConfigMountId());
+  if (mount) {
+    const other = document.getElementById(uiCtx === 'settings' ? 'bulk-config-mount' : 'set-bulk-config-mount');
+    if (other) other.innerHTML = '';
+    mount.innerHTML = bulkConfigHTML();
+  }
   const presetSel = document.getElementById('bulk-preset');
   presetSel.innerHTML = Object.keys(VOLUME_PRESET_ROLES).map(p => '<option' + (p === bulkPreset ? ' selected' : '') + '>' + p + '</option>').join('');
   document.getElementById('bulk-count').value = bulkCount;

@@ -287,3 +287,26 @@ wanted later, `persistJobSettings()` is the single choke point to gate.)
   transitive dependents; confirm path = pendingShoot.commit → sortShoots →
   persist → renderDeadlines; cancel path (button, ×, overlay click) restores
   the previous date via dataset.prev. `node --check` clean.
+
+### Phase 12 — Setup tab ✅
+
+- Shows the job's step-3 path as a **read-only** chip with a lock note; the
+  configuration inside the path is editable via the SAME components the wizard
+  uses:
+  - import → the extracted CSV preset & role-configuration fragment
+    (`csvConfigHTML`, mount-swapped like the ecom pane; the wizard's static
+    copy was replaced by a mount so the fragment exists once).
+  - before → the shared registration form builder mounted into the tab.
+  - during → the extracted Gallery Bulk Setup fragment (`bulkConfigHTML`,
+    same mount-swap treatment) plus the shared registration form builder.
+  - no path (job saved early via Save & Exit) → explanatory line, no config.
+- **Assumption logged (per brief):** the path itself is NOT switchable from
+  settings — switching paths after a job exists has data consequences beyond
+  this build. DECISION FLAGGED FOR REVIEW.
+- **Not shown:** the import path's dropzone/data-matching (the import already
+  ran at creation) — only preset/role config remains editable. Logged as an
+  interpretation of "everything configured within that path."
+- **Verification (static):** renderSetupTab branches for all three paths plus
+  the no-path case; fragments render exactly once per surface (mount-swap
+  clears the other side); reg builder's mount clear-list includes the settings
+  mount with null guards. `node --check` clean; settings block div-balanced.
