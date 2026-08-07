@@ -1678,9 +1678,17 @@ html, body {
 
 .modal-overlay.fullscreen .modal-body { padding-left: 32px; padding-right: 32px; }
 
-/* two-column step layout for wide workflow steps */
-.wiz-2col-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: start; }
-@media (max-width: 1080px) { .wiz-2col-grid { grid-template-columns: 1fr; } }
+/* the wizard runs at one wide, modern column; individual steps cap their own
+   content so lighter steps don't stretch across just to use the space */
+#modal-wizard { --wiz-maxw: 1280px; }
+#wiz-1, #wiz-setup, #wiz-4 { max-width: 760px; margin-left: auto; margin-right: auto; }
+#wiz-sched { max-width: 920px; margin-left: auto; margin-right: auto; }
+#wiz-ecom { max-width: 820px; margin-left: auto; margin-right: auto; }
+#wiz-deadlines { max-width: 1020px; margin-left: auto; margin-right: auto; }
+#wz-ph-generic { max-width: 760px; margin-left: auto; margin-right: auto; }
+#wz-import-upload { max-width: 860px; margin: 0 auto; }
+#wz-import-match { max-width: 1120px; margin: 0 auto; }
+#wz-during-bulk { max-width: 1120px; margin: 0 auto; }
 
 .modal-overlay.fullscreen .modal-header { padding-top: 36px; }
 
@@ -5402,14 +5410,14 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
         <!-- Import Subject List → Create via CSV (matches the Volume Wizard flow, folder-setup step skipped since the job already has a destination) -->
         <div id="wz-ph-import" style="display:none;">
 
-          <!-- Phase 1: CSV upload + preset/role config -->
+          <!-- Phase 1: CSV upload + preset/audience config -->
           <div id="wz-import-upload">
             <div class="wiz-info" style="margin-top:0;">
               <i class="fa-solid fa-circle-info"></i>
               <div>Upload subject data to generate galleries in bulk and apply a preset. <a class="gallery-name-link" onclick="toast('Opens the Volume Wizard help article')">Click here</a> for more info.</div>
             </div>
 
-            <div class="wiz-2col-grid" style="margin-top:16px;">
+            <div style="margin-top:16px; display:flex; flex-direction:column; gap:16px;">
               <div class="detail-card" style="margin:0;">
                 <div class="detail-card-header" style="margin-bottom:4px;">Import CSV File</div>
                 <div style="font-size:12.5px; color:var(--text-3); margin-bottom:18px;">Create galleries in bulk by importing a CSV file. <a class="gallery-name-link" onclick="toast('Opens the CSV import guide')">Click here</a> to learn more.</div>
@@ -8218,8 +8226,8 @@ function downloadCsvTemplate() {
 /* ── matching step ── */
 function roleOptionsHTML(selected) {
   const presetRoles = (VOLUME_PRESET_ROLES[csvPreset] || []).filter(r => SYSTEM_ROLE_NAMES.indexOf(r) < 0);
-  return '<optgroup label="System Roles">' + SYSTEM_ROLE_NAMES.map(r => '<option' + (r === selected ? ' selected' : '') + '>' + r + '</option>').join('') + '</optgroup>' +
-    (presetRoles.length ? '<optgroup label="Gallery Preset Roles">' + presetRoles.map(r => '<option' + (r === selected ? ' selected' : '') + '>' + r + '</option>').join('') + '</optgroup>' : '');
+  return '<optgroup label="System Audiences">' + SYSTEM_ROLE_NAMES.map(r => '<option' + (r === selected ? ' selected' : '') + '>' + r + '</option>').join('') + '</optgroup>' +
+    (presetRoles.length ? '<optgroup label="Gallery Preset Audiences">' + presetRoles.map(r => '<option' + (r === selected ? ' selected' : '') + '>' + r + '</option>').join('') + '</optgroup>' : '');
 }
 
 function matchOptionsHTML(colIdx) {
@@ -8259,7 +8267,7 @@ function renderImportMatch() {
       '<td class="match-clear-cell">' + (m ? '<a class="match-clear" onclick="clearMatchMapping(' + i + ')">Clear</a>' : '') + '</td>' +
     '</tr>';
     if (roleRow) {
-      html += '<tr class="match-role-row"><td></td><td colspan="4"><span class="match-role-label">Role</span>' +
+      html += '<tr class="match-role-row"><td></td><td colspan="4"><span class="match-role-label">Audience</span>' +
         '<select class="f-input" style="width:auto; height:30px; font-size:12.5px; display:inline-block;" onchange="setColRole(' + i + ', this.value)">' + roleOptionsHTML(csvColRoles[i] || 'Client') + '</select></td></tr>';
     }
   }
@@ -9414,20 +9422,20 @@ function renderSetupTab() {
   }
 }
 
-/* shared fragments: CSV preset/role config + gallery bulk setup — reused by the Setup settings tab */
+/* shared fragments: CSV preset/audience config + gallery bulk setup — reused by the Setup settings tab */
 function csvConfigHTML() {
-  return '<div class="f-label" style="margin-bottom:5px;">Gallery Preset &amp; Role Configuration</div>' +
-    '<div style="font-size:12.5px; color:var(--text-3); margin-bottom:12px;">Select a preset to apply to all galleries, then choose how to assign roles to imported contacts.</div>' +
+  return '<div class="f-label" style="margin-bottom:5px;">Gallery Preset &amp; Audience</div>' +
+    '<div style="font-size:12.5px; color:var(--text-3); margin-bottom:12px;">Select a preset to apply to all galleries, then choose how to assign audiences to imported contacts.</div>' +
     '<select class="f-input" id="csv-preset" style="margin-bottom:16px;" onchange="onCsvPresetChange()"></select>' +
     '<div class="rdot-list">' +
       '<label class="rdot-row" onclick="setCsvRoleConfig(\'same\')" style="flex-wrap:wrap;">' +
         '<span class="rdot" id="csv-role-same"></span>' +
-        '<span>All contacts should be assigned to the same role.</span>' +
+        '<span>All contacts should be assigned to the same audience.</span>' +
         '<select class="f-input" id="csv-bulk-role" style="width:auto; height:30px; font-size:12.5px; margin-left:6px;" onclick="event.stopPropagation()" onchange="setCsvRoleConfig(\'same\')"></select>' +
       '</label>' +
       '<label class="rdot-row" onclick="setCsvRoleConfig(\'perColumn\')" style="align-items:flex-start;">' +
         '<span class="rdot" id="csv-role-percol" style="margin-top:1px;"></span>' +
-        '<span>I would like to assign contacts to roles during the matching phase.</span>' +
+        '<span>I would like to assign contacts to audiences during the matching phase.</span>' +
       '</label>' +
     '</div>';
 }
@@ -9482,8 +9490,8 @@ function renderCsvSetup() {
   const presetRoles = (VOLUME_PRESET_ROLES[csvPreset] || []).filter(r => SYSTEM_ROLE_NAMES.indexOf(r) < 0);
   const roleSel = document.getElementById('csv-bulk-role');
   roleSel.innerHTML =
-    '<optgroup label="System Roles">' + SYSTEM_ROLE_NAMES.map(r => '<option' + (r === csvBulkRole ? ' selected' : '') + '>' + r + '</option>').join('') + '</optgroup>' +
-    (presetRoles.length ? '<optgroup label="Gallery Preset Roles">' + presetRoles.map(r => '<option' + (r === csvBulkRole ? ' selected' : '') + '>' + r + '</option>').join('') + '</optgroup>' : '');
+    '<optgroup label="System Audiences">' + SYSTEM_ROLE_NAMES.map(r => '<option' + (r === csvBulkRole ? ' selected' : '') + '>' + r + '</option>').join('') + '</optgroup>' +
+    (presetRoles.length ? '<optgroup label="Gallery Preset Audiences">' + presetRoles.map(r => '<option' + (r === csvBulkRole ? ' selected' : '') + '>' + r + '</option>').join('') + '</optgroup>' : '');
   if (uiCtx === 'settings') persistJobSettings();
 }
 
@@ -9602,7 +9610,7 @@ function regFormBuilderHTML() {
           '</div>' : '') +
       '</div>' +
       (existingSelectionType === 'gallery'
-        ? '<div style="display:flex; align-items:center; gap:8px;"><span style="font-size:13px; font-weight:600; color:var(--text);">Role</span>' + roleSelectHTML('existingGalleryRole', existingGalleryRole) + '</div>'
+        ? '<div style="display:flex; align-items:center; gap:8px;"><span style="font-size:13px; font-weight:600; color:var(--text);">Audience</span>' + roleSelectHTML('existingGalleryRole', existingGalleryRole) + '</div>'
         : '<div style="font-size:12px; color:var(--text-3);">Note: Registrants will be added to the folder as a General Contact.</div>') +
     '</div>';
 
@@ -9613,9 +9621,9 @@ function regFormBuilderHTML() {
           Object.keys(VOLUME_PRESET_ROLES).map(p => '<option' + (p === regPreset ? ' selected' : '') + '>' + p + '</option>').join('') +
         '</select></div>' +
       '<label style="display:flex; align-items:center; gap:10px; cursor:pointer; margin-bottom:2px;" onclick="setGalleryTitleOption(\'email\')"><span class="rdot' + (regGalleryTitleOption === 'email' ? ' on' : '') + '"></span><span style="font-size:13px; color:var(--text);">Use <b>Registrant Email Address</b> for Gallery Title</span></label>' +
-      (regGalleryTitleOption === 'email' ? '<div style="margin-left:28px; margin-bottom:10px; display:flex; align-items:center; gap:8px;"><span style="font-size:13px; font-weight:600; color:var(--text);">Role</span>' + roleSelectHTML('newGalleryRole', newGalleryRole) + '</div>' : '') +
+      (regGalleryTitleOption === 'email' ? '<div style="margin-left:28px; margin-bottom:10px; display:flex; align-items:center; gap:8px;"><span style="font-size:13px; font-weight:600; color:var(--text);">Audience</span>' + roleSelectHTML('newGalleryRole', newGalleryRole) + '</div>' : '') +
       '<label style="display:flex; align-items:center; gap:10px; cursor:pointer;" onclick="setGalleryTitleOption(\'name\')"><span class="rdot' + (regGalleryTitleOption === 'name' ? ' on' : '') + '"></span><span style="font-size:13px; color:var(--text);">Use <b>Registrant First and Last Name</b> for Gallery Title</span></label>' +
-      (regGalleryTitleOption === 'name' ? '<div style="margin-left:28px; margin-top:8px; display:flex; align-items:center; gap:8px;"><span style="font-size:13px; font-weight:600; color:var(--text);">Role</span>' + roleSelectHTML('newGalleryRole', newGalleryRole) + '</div>' : '') +
+      (regGalleryTitleOption === 'name' ? '<div style="margin-left:28px; margin-top:8px; display:flex; align-items:center; gap:8px;"><span style="font-size:13px; font-weight:600; color:var(--text);">Audience</span>' + roleSelectHTML('newGalleryRole', newGalleryRole) + '</div>' : '') +
     '</div>';
 
   const previewFieldHTML = (id, label) => enabled_field(id) ? '<input readonly placeholder="' + label + (regFieldRequired[id] ? '*' : '') + '" class="f-input" style="background:var(--bg); color:var(--text-3); margin-bottom:10px;">' : '';
@@ -9825,20 +9833,10 @@ function wizNav(dir) {
   wizPaint();
 }
 
-/* per-step content width: compact steps read comfortably, workflow steps go wide */
-const WIZ_PANE_WIDTHS = { 'wiz-1': 760, 'wiz-sched': 920, 'wiz-setup': 760, 'wiz-placeholder': 760, 'wiz-ecom': 820, 'wiz-deadlines': 1020, 'wiz-4': 760 };
-
-function wizApplyWidth(curPane) {
-  let w = WIZ_PANE_WIDTHS[curPane] || 760;
-  if (curPane === 'wiz-placeholder' && ['import', 'prereg', 'duringreg'].indexOf(selectedJobType) >= 0) w = 1280;
-  document.getElementById('modal-wizard').style.setProperty('--wiz-maxw', w + 'px');
-}
-
 function wizPaint() {
   const flow = wizFlow();
   if (wizStep > flow.length) wizStep = flow.length;
   const curPane = flow[wizStep - 1];
-  wizApplyWidth(curPane);
   ['wiz-1', 'wiz-sched', 'wiz-setup', 'wiz-placeholder', 'wiz-ecom', 'wiz-deadlines', 'wiz-4'].forEach(id => {
     document.getElementById(id).classList.toggle('active', id === curPane);
   });
