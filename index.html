@@ -1664,14 +1664,23 @@ html, body {
   box-shadow: none;
 }
 
+/* fullscreen wizard: the content column width follows the active step —
+   compact steps stay a comfortable read, workflow steps use the room */
 .modal-overlay.fullscreen .modal-header,
 .modal-overlay.fullscreen .wiz-steps,
 .modal-overlay.fullscreen .modal-body,
 .modal-overlay.fullscreen .modal-footer {
   width: 100%;
-  max-width: 760px;
+  max-width: var(--wiz-maxw, 760px);
   margin: 0 auto;
+  transition: max-width 0.28s ease;
 }
+
+.modal-overlay.fullscreen .modal-body { padding-left: 32px; padding-right: 32px; }
+
+/* two-column step layout for wide workflow steps */
+.wiz-2col-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: start; }
+@media (max-width: 1080px) { .wiz-2col-grid { grid-template-columns: 1fr; } }
 
 .modal-overlay.fullscreen .modal-header { padding-top: 36px; }
 
@@ -5400,25 +5409,28 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
               <div>Upload subject data to generate galleries in bulk and apply a preset. <a class="gallery-name-link" onclick="toast('Opens the Volume Wizard help article')">Click here</a> for more info.</div>
             </div>
 
-            <div class="detail-card" style="margin-top:16px;">
-              <div class="detail-card-header" style="margin-bottom:4px;">Create via CSV</div>
-              <div style="font-size:12.5px; color:var(--text-3); margin-bottom:18px;">Create galleries in bulk by importing a CSV file. <a class="gallery-name-link" onclick="toast('Opens the CSV import guide')">Click here</a> to learn more.</div>
+            <div class="wiz-2col-grid" style="margin-top:16px;">
+              <div class="detail-card" style="margin:0;">
+                <div class="detail-card-header" style="margin-bottom:4px;">Import CSV File</div>
+                <div style="font-size:12.5px; color:var(--text-3); margin-bottom:18px;">Create galleries in bulk by importing a CSV file. <a class="gallery-name-link" onclick="toast('Opens the CSV import guide')">Click here</a> to learn more.</div>
 
-              <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
-                <span style="font-size:14px; font-weight:700; color:var(--text);">Import CSV File</span>
-                <a class="gallery-name-link" style="font-size:12.5px; font-weight:600;" onclick="downloadCsvTemplate()"><i class="fa-solid fa-arrow-down" style="font-size:10px; margin-right:4px;"></i>Download CSV template</a>
+                <div style="display:flex; align-items:center; justify-content:flex-end; margin-bottom:8px;">
+                  <a class="gallery-name-link" style="font-size:12.5px; font-weight:600;" onclick="downloadCsvTemplate()"><i class="fa-solid fa-arrow-down" style="font-size:10px; margin-right:4px;"></i>Download CSV template</a>
+                </div>
+                <div class="dropzone" id="wz-csv-drop" style="margin-bottom:18px;"
+                     onclick="document.getElementById('wz-csv-file').click()"
+                     ondragover="csvDragOver(event)" ondragleave="csvDragLeave(event)" ondrop="csvDrop(event)"></div>
+                <input type="file" id="wz-csv-file" accept=".csv,text/csv" style="display:none;" onchange="csvFileChosen(this)">
+
+                <div class="rdot-list">
+                  <label class="rdot-row" onclick="setCsvHeaders(true)"><span class="rdot" id="csv-hdr-yes"></span>My CSV file includes headers</label>
+                  <label class="rdot-row" onclick="setCsvHeaders(false)"><span class="rdot" id="csv-hdr-no"></span>My CSV file does not include headers</label>
+                </div>
               </div>
-              <div class="dropzone" id="wz-csv-drop" style="margin-bottom:18px;"
-                   onclick="document.getElementById('wz-csv-file').click()"
-                   ondragover="csvDragOver(event)" ondragleave="csvDragLeave(event)" ondrop="csvDrop(event)"></div>
-              <input type="file" id="wz-csv-file" accept=".csv,text/csv" style="display:none;" onchange="csvFileChosen(this)">
 
-              <div class="rdot-list" style="margin-bottom:22px;">
-                <label class="rdot-row" onclick="setCsvHeaders(true)"><span class="rdot" id="csv-hdr-yes"></span>My CSV file includes headers</label>
-                <label class="rdot-row" onclick="setCsvHeaders(false)"><span class="rdot" id="csv-hdr-no"></span>My CSV file does not include headers</label>
+              <div class="detail-card" style="margin:0;">
+                <div id="csv-config-mount"></div>
               </div>
-
-              <div id="csv-config-mount"></div>
             </div>
           </div>
 
@@ -9609,8 +9621,8 @@ function regFormBuilderHTML() {
   const previewFieldHTML = (id, label) => enabled_field(id) ? '<input readonly placeholder="' + label + (regFieldRequired[id] ? '*' : '') + '" class="f-input" style="background:var(--bg); color:var(--text-3); margin-bottom:10px;">' : '';
   function enabled_field(id) { return regFieldEnabled[id]; }
 
-  return '<div style="display:flex; gap:0; min-height:520px;">' +
-    '<div style="flex:0 0 400px; padding:0 20px 20px 0; border-right:1px solid var(--line); overflow-y:auto; max-height:640px;">' +
+  return '<div style="display:flex; gap:28px; min-height:520px; align-items:flex-start;">' +
+    '<div style="flex:0 0 460px; min-width:0; padding:0 28px 20px 0; border-right:1px solid var(--line);">' +
 
       '<div class="f-field">' +
         '<label class="f-label">Title</label>' +
@@ -9658,8 +9670,8 @@ function regFormBuilderHTML() {
       '</div>' +
 
     '</div>' +
-    '<div style="flex:1; padding:20px; background:var(--bg); display:flex; justify-content:center;">' +
-      '<div style="background:var(--surface); border:1px solid var(--line); border-radius:var(--r-lg); padding:28px; max-width:380px; width:100%; align-self:flex-start;">' +
+    '<div style="flex:1; min-width:0; padding:24px; background:var(--bg); border-radius:var(--r-md); display:flex; justify-content:center; position:sticky; top:0;">' +
+      '<div style="background:var(--surface); border:1px solid var(--line); border-radius:var(--r-lg); padding:28px; max-width:420px; width:100%; align-self:flex-start; box-shadow:var(--shadow-lg);">' +
         '<div style="height:90px; border-radius:var(--r-md); margin-bottom:16px; background:repeating-conic-gradient(#ccc 0% 25%, #e8e8e8 0% 50%) 0 0 / 20px 20px;"></div>' +
         '<div style="font-size:18px; font-weight:700; color:var(--text); text-align:center; margin-bottom:8px;">' + displayTitle + '</div>' +
         '<div style="font-size:12.5px; color:var(--text-3); text-align:center; margin-bottom:16px; line-height:1.5;">' + regFormDesc + '</div>' +
@@ -9813,10 +9825,20 @@ function wizNav(dir) {
   wizPaint();
 }
 
+/* per-step content width: compact steps read comfortably, workflow steps go wide */
+const WIZ_PANE_WIDTHS = { 'wiz-1': 760, 'wiz-sched': 920, 'wiz-setup': 760, 'wiz-placeholder': 760, 'wiz-ecom': 820, 'wiz-deadlines': 1020, 'wiz-4': 760 };
+
+function wizApplyWidth(curPane) {
+  let w = WIZ_PANE_WIDTHS[curPane] || 760;
+  if (curPane === 'wiz-placeholder' && ['import', 'prereg', 'duringreg'].indexOf(selectedJobType) >= 0) w = 1280;
+  document.getElementById('modal-wizard').style.setProperty('--wiz-maxw', w + 'px');
+}
+
 function wizPaint() {
   const flow = wizFlow();
   if (wizStep > flow.length) wizStep = flow.length;
   const curPane = flow[wizStep - 1];
+  wizApplyWidth(curPane);
   ['wiz-1', 'wiz-sched', 'wiz-setup', 'wiz-placeholder', 'wiz-ecom', 'wiz-deadlines', 'wiz-4'].forEach(id => {
     document.getElementById(id).classList.toggle('active', id === curPane);
   });
