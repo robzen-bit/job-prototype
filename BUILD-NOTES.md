@@ -419,3 +419,37 @@ re-anchored to the real current date at every load (`anchorDemoJobDates()`):
   labels without the paired windows would misreport the chart. The reports
   dataset therefore stays in its own fixed 2026 timeframe and will not line up
   with the re-anchored shoot dates.
+
+## Addendum — sales attributed only to the Sales phase
+
+Reported bug: the dashboard's "Revenue · last 30 days" filter surfaced Riverside
+Youth Soccer, which sits in the Upload phase and should have no sales yet.
+
+Cause: Riverside's card carried the `revenue` tag (which is what the tile
+filters on), and its order data generated 176 gallery-sale orders alongside its
+38 pre-orders (`n: 107, pre: 19` etc. plus a `saleWin`).
+
+Fix — Riverside now follows the pattern Lincoln (Shoot Day) already used for a
+pre-sales-phase job:
+- `revenue` tag removed from the card, so the tile filter shows only York.
+- Buckets changed to `n === pre` (19/12/7) and `saleWin: []`, so all 38 orders
+  are pre-orders and no gallery sales exist. The bucket totals still match
+  `preMix` (21+11+6 = 38), preserving the `sum(pre) === sum(preMix)` invariant
+  that `generateOrders` relies on for pre-order amounts.
+- Revenue captions reframed: conversion now reads "38 of 96 registered families
+  pre-ordered" (40%, matching `po.ordersSub`) instead of claiming 66 gallery
+  purchases, and the revenue sub-caption reads "Pre-orders only — gallery sales
+  open at delivery".
+- The tile's hardcoded `$12,648` is now computed at init from exactly the
+  revenue-tagged jobs (`refreshRevenueStat()`), so the number and the filter
+  can never disagree again.
+
+Resulting demo state: Keystone (Setup) $0 · Lincoln (Shoot Day) $770 pre-orders
+· Riverside (Upload) $1,240 pre-orders · York (Sales) $7,640 incl. $6,210
+gallery sales — the only revenue-attributed job.
+
+**Interpretation logged:** pre-order revenue is left in place on pre-sales-phase
+jobs, since pre-order exists precisely to take orders before galleries have
+content (and the Pre-Orders tab demo depends on it). "Sales" attribution — the
+dashboard revenue tile and gallery-sale orders — is what's now restricted to the
+Sales phase.

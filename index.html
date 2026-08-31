@@ -3522,7 +3522,7 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
           </div>
           <div class="stat-tile" onclick="tileFilter(this,'revenue')" title="Show jobs generating revenue">
             <div class="stat-label">Revenue · last 30 days</div>
-            <div class="stat-value">$12,648</div>
+            <div class="stat-value" id="stat-revenue">$12,648</div>
             <div class="stat-delta up"><i class="fa-solid fa-arrow-up"></i> 18% vs prior 30 days</div>
           </div>
         </div>
@@ -3564,7 +3564,7 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
         <div class="jobs-list">
 
           <!-- Job 1: Riverside Soccer — Upload phase — CLICKABLE -->
-          <div class="job-card" data-status="uploading" data-tags="active awaiting-upload ready-share revenue" id="job-riverside" style="cursor:pointer;" onclick="openJob('riverside')">
+          <div class="job-card" data-status="uploading" data-tags="active awaiting-upload ready-share" id="job-riverside" style="cursor:pointer;" onclick="openJob('riverside')">
             <div class="job-info">
               <span class="job-status-pill pill-uploading">Uploading</span>
               <div class="job-name">Riverside Youth Soccer League — Spring 2026</div>
@@ -6402,17 +6402,17 @@ const JOBS = {
     ],
     teamFoot: '2 sub-photographers assigned',
     buckets: [
-      { photog: 'Robert Campbell', folder: 'Individual Portraits',  n: 107, pre: 19 },
-      { photog: 'Sofia Khan',      folder: 'Riverside Raptors U12', n: 69,  pre: 12 },
-      { photog: 'James Torres',    folder: 'Eagles U10',            n: 38,  pre: 7 }
+      { photog: 'Robert Campbell', folder: 'Individual Portraits',  n: 19, pre: 19 },
+      { photog: 'Sofia Khan',      folder: 'Riverside Raptors U12', n: 12, pre: 12 },
+      { photog: 'James Torres',    folder: 'Eagles U10',            n: 7,  pre: 7 }
     ],
     preMix: [21, 11, 6],
-    preWin: [[4, 1, 13]], saleWin: [[5, 2, 20]],
+    preWin: [[4, 1, 13]], saleWin: [],
     weeks: [
       ['May 1',  [[4, 1, 7]]], ['May 8', [[4, 8, 14]]], ['May 15', [[4, 15, 21]]], ['May 22', [[4, 22, 28]]],
       ['May 29', [[4, 29, 31], [5, 1, 4]]], ['Jun 5', [[5, 5, 11]]], ['Jun 12', [[5, 12, 18]]], ['Jun 19', [[5, 19, 25]]]
     ],
-    views: ['1,847', '214 in last 7 days'], conv: ['31%', '66 of 213 unique visitors'], revSub7: '$612 in last 7 days',
+    views: ['1,847', '214 in last 7 days'], conv: ['40%', '38 of 96 registered families pre-ordered'], revSub7: 'Pre-orders only — gallery sales open at delivery',
     eng: { pct: 68, cap: '17 of 25 shared galleries viewed',
       legend: '<span><b>17</b> viewed</span><span><b>8</b> not yet viewed</span><span><b>17</b> not yet shared</span>',
       link: ['Send reminder to 8 unviewed galleries →', '8 reminder emails queued for unviewed galleries'] },
@@ -6774,6 +6774,20 @@ function refreshUpcomingShootStat() {
   setText('stat-upcoming-next', next
     ? 'Next: ' + MONTHS[next.getMonth()] + ' ' + next.getDate() + ' · ' + nextJob.org2.replace(/ (PTA|Association|Boosters|Little League)$/, '')
     : 'No shoots scheduled');
+}
+
+/* The revenue tile must agree with what its own filter shows: only jobs credited
+   with sales carry the `revenue` tag, so sum exactly those. Pre-orders on
+   earlier-phase jobs are real revenue but aren't attributed as sales yet. */
+function refreshRevenueStat() {
+  let total = 0;
+  document.querySelectorAll('#view-jobs-list .job-card').forEach(card => {
+    if (!/(^| )revenue( |$)/.test(card.dataset.tags || '')) return;
+    const m = /openJob\('([^']+)'\)/.exec(card.getAttribute('onclick') || '');
+    const j = m && JOBS[m[1]];
+    if (j) total += generateOrders(j).reduce((t, o) => t + o.amt, 0);
+  });
+  setText('stat-revenue', fmt$(total));
 }
 
 /* the demo job cards on the jobs list are static markup — resync their shoot line */
@@ -11839,6 +11853,7 @@ function updateSaveOrgRows() {
 anchorDemoJobDates();
 refreshJobCardShootDates();
 refreshUpcomingShootStat();
+refreshRevenueStat();
 renderQR();
 updateRuleSentence();
 refreshJobCounts();
