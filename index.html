@@ -3507,8 +3507,8 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
           </div>
           <div class="stat-tile" onclick="tileFilter(this,'upcoming')" title="Show jobs with an upcoming shoot">
             <div class="stat-label">Upcoming shoots</div>
-            <div class="stat-value">2</div>
-            <div class="stat-delta flat">Next: Jun 2 · Lincoln Elementary</div>
+            <div class="stat-value" id="stat-upcoming-count">2</div>
+            <div class="stat-delta flat" id="stat-upcoming-next">Next: Jun 2 · Lincoln Elementary</div>
           </div>
           <div class="stat-tile" onclick="tileFilter(this,'awaiting-upload')" title="Show jobs with galleries awaiting upload">
             <div class="stat-label">Galleries awaiting upload</div>
@@ -6656,6 +6656,136 @@ const JOBS = {
   }
 };
 
+
+/* ══════════ DEMO JOB DATES (anchored to today at load) ══════════
+   The four demo jobs each hold one phase of the workflow, so their dates are
+   re-anchored to the current date every time the prototype loads. Each job's
+   whole date set shifts by one delta, so created → shoot → deadline → upload
+   relationships stay exactly as authored. */
+const DEMO_SHOOT_ANCHORS = {
+  riverside: { days: -2 },    /* Upload phase — shot two days ago */
+  lincoln:   { days: 0 },     /* Shoot Day — shooting today */
+  keystone:  { months: 2 },   /* Setup — two months out */
+  york:      { days: -7 }     /* Sales — shot a week ago */
+};
+
+const MONTHS_FULL = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+function todayLocal() { const n = new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate()); }
+
+/* month arithmetic that never overflows into the next month (Dec 31 + 2 → Feb 28) */
+function addMonthsClamped(date, n) {
+  const first = new Date(date.getFullYear(), date.getMonth() + n, 1);
+  const lastDay = new Date(first.getFullYear(), first.getMonth() + 1, 0).getDate();
+  return new Date(first.getFullYear(), first.getMonth(), Math.min(date.getDate(), lastDay));
+}
+
+function demoAnchorDate(spec) {
+  const t = todayLocal();
+  if (spec.months) return addMonthsClamped(t, spec.months);
+  const d = new Date(t);
+  d.setDate(d.getDate() + (spec.days || 0));
+  return d;
+}
+
+const DEMO_DATE_RX = /\b(January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+(\d{1,2})(?:,\s*(\d{4}))?\b/g;
+
+/* shift every date inside a string, preserving each one's original format
+   (abbreviated vs full month name, with or without a year) */
+function shiftDatesInString(str, deltaDays, baseYear) {
+  return str.replace(DEMO_DATE_RX, (match, mon, day, year) => {
+    let mi = MONTHS.indexOf(mon);
+    const isFull = mi < 0;
+    if (isFull) mi = MONTHS_FULL.indexOf(mon);
+    if (mi < 0) return match;
+    const d = new Date(year ? parseInt(year, 10) : baseYear, mi, parseInt(day, 10));
+    d.setDate(d.getDate() + deltaDays);
+    return (isFull ? MONTHS_FULL : MONTHS)[d.getMonth()] + ' ' + d.getDate() + (year ? ', ' + d.getFullYear() : '');
+  });
+}
+
+/* `weeks` is skipped: its labels are paired with fixed numeric order-date
+   windows, so shifting the labels alone would misreport the chart. */
+const DEMO_SKIP_KEYS = ['weeks', 'key', 'seed', 'icon', 'phase'];
+
+function shiftNodeDates(node, deltaDays, baseYear) {
+  if (typeof node === 'string') return shiftDatesInString(node, deltaDays, baseYear);
+  if (Array.isArray(node)) return node.map(v => shiftNodeDates(v, deltaDays, baseYear));
+  if (node && typeof node === 'object') {
+    Object.keys(node).forEach(k => {
+      if (DEMO_SKIP_KEYS.indexOf(k) >= 0) return;
+      node[k] = shiftNodeDates(node[k], deltaDays, baseYear);
+    });
+    return node;
+  }
+  return node;
+}
+
+function displayDateToLocal(txt) {
+  const iso = parseDisplayDateISO(txt);
+  if (!iso) return null;
+  return new Date(+iso.slice(0, 4), +iso.slice(5, 7) - 1, +iso.slice(8, 10));
+}
+
+/* done / today / upcoming, recomputed from the re-anchored dates */
+function refreshShootStatuses(j) {
+  const t = todayLocal().getTime();
+  (j.shoots || []).forEach(s => {
+    const d = displayDateToLocal(s.date);
+    if (!d) return;
+    s.st = d.getTime() < t ? 'done' : (d.getTime() === t ? 'today' : 'upcoming');
+  });
+}
+
+function anchorDemoJobDates() {
+  Object.keys(DEMO_SHOOT_ANCHORS).forEach(key => {
+    const j = JOBS[key];
+    if (!j || !j.shoots || !j.shoots.length) return;
+    const orig = displayDateToLocal(j.shoots[0].date);
+    if (!orig) return;
+    const target = demoAnchorDate(DEMO_SHOOT_ANCHORS[key]);
+    const delta = Math.round((target - orig) / 86400000);
+    if (delta !== 0) shiftNodeDates(j, delta, orig.getFullYear());
+    refreshShootStatuses(j);
+    /* the source data mixed 'May 14, 2026' and 'June 2, 2026' styles — settle on one */
+    j.shoot = j.shoots[0].date;
+    const dl = displayDateToLocal(j.deadline);
+    if (dl) j.deadline = MONTHS[dl.getMonth()] + ' ' + dl.getDate() + ', ' + dl.getFullYear();
+  });
+}
+
+/* the "Upcoming shoots" tile counts shoots today or later across the demo jobs */
+function refreshUpcomingShootStat() {
+  const t = todayLocal().getTime();
+  let count = 0, next = null, nextJob = null;
+  Object.keys(DEMO_SHOOT_ANCHORS).forEach(k => {
+    const j = JOBS[k];
+    if (!j) return;
+    let jobHasUpcoming = false;
+    (j.shoots || []).forEach(s => {
+      const d = displayDateToLocal(s.date);
+      if (!d || d.getTime() < t) return;
+      jobHasUpcoming = true;
+      if (!next || d < next) { next = d; nextJob = j; }
+    });
+    if (jobHasUpcoming) count++;
+  });
+  setText('stat-upcoming-count', String(count));
+  setText('stat-upcoming-next', next
+    ? 'Next: ' + MONTHS[next.getMonth()] + ' ' + next.getDate() + ' · ' + nextJob.org2.replace(/ (PTA|Association|Boosters|Little League)$/, '')
+    : 'No shoots scheduled');
+}
+
+/* the demo job cards on the jobs list are static markup — resync their shoot line */
+function refreshJobCardShootDates() {
+  document.querySelectorAll('#view-jobs-list .job-card').forEach(card => {
+    const m = /openJob\('([^']+)'\)/.exec(card.getAttribute('onclick') || '');
+    const j = m && JOBS[m[1]];
+    const row = j && card.querySelector('.job-meta-row.shoot-date');
+    if (row) row.innerHTML = '<i class="fa-solid fa-camera"></i> Shoot: ' + j.shoot;
+  });
+}
+
 let currentJob = null;
 let ORDERS = [];
 
@@ -9375,7 +9505,8 @@ function snapshotWizardConfig() {
 function parseDisplayDateISO(txt) {
   const m = /^([A-Za-z]+) (\d{1,2}), (\d{4})/.exec(txt || '');
   if (!m) return '';
-  const mi = MONTHS.indexOf(m[1]);
+  let mi = MONTHS.indexOf(m[1]);
+  if (mi < 0) mi = MONTHS_FULL.indexOf(m[1]);
   if (mi < 0) return '';
   return m[3] + '-' + pad2(mi + 1) + '-' + pad2(parseInt(m[2], 10));
 }
@@ -10017,7 +10148,7 @@ function createJob(opts) {
     name: name, org2: o.name, shoot: dateTxt, deadline: '—', loc: locTxt,
     path: wzParent,
     contact: [o.contact, o.email || ''], notes: initNoteTxt ? [{ t: initNoteTxt, d: PROTO_TODAY_LABEL, a: 'Robert Campbell' }] : [],
-    created: 'Jun 3, 2026', modified: 'Jun 3, 2026',
+    created: PROTO_TODAY_LABEL, modified: PROTO_TODAY_LABEL,
     phase: 0,
     needsSetup: !!opts.early,
     shoots: shoots,
@@ -10262,7 +10393,7 @@ function renderQR() {
 
 /* ══════════ CRM — ORGANIZATIONS ══════════ */
 const PROTO_TODAY_KEY = 721; /* Jul 21, 2026 — (month+1)*100+day */
-const PROTO_TODAY_LABEL = 'Jul 21, 2026';
+const PROTO_TODAY_LABEL = (function () { const d = todayLocal(); return MONTHS[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear(); })();
 const ORG_TYPE_SEEDS = ['School', 'Sports league', 'Dance studio', 'Corporate', 'Church', 'Daycare'];
 let ORG_TYPE_VOCAB = ORG_TYPE_SEEDS.slice();
 let KC_LABEL_VOCAB = ['Scheduling', 'Picture day coordination', 'Billing', 'Call for volleyball scheduling'];
@@ -11705,6 +11836,9 @@ function updateSaveOrgRows() {
 }
 
 /* ══════════ INIT ══════════ */
+anchorDemoJobDates();
+refreshJobCardShootDates();
+refreshUpcomingShootStat();
 renderQR();
 updateRuleSentence();
 refreshJobCounts();

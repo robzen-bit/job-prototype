@@ -392,3 +392,30 @@ wanted later, `persistJobSettings()` is the single choke point to gate.)
     declarations; no duplicate live DOM ids (the one flagged id pair is two
     mutually exclusive innerHTML branches); 1419/1419 div balance; every
     on* handler referenced in HTML/generated HTML has a definition.
+
+## Addendum — demo job dates anchored to today
+
+The four demo jobs each hold one workflow phase, and their dates are now
+re-anchored to the real current date at every load (`anchorDemoJobDates()`):
+
+| Job | Phase | Shoot date |
+|---|---|---|
+| Riverside Youth Soccer | Upload | 2 days ago |
+| Lincoln Elementary | Shoot Day | today |
+| Keystone Dance Academy | Setup | 2 months out |
+| York Central Little League | Sales | 7 days ago |
+
+- **Approach:** each job's ENTIRE date set shifts by a single delta, so authored
+  relationships (created → shoot → deadline → upload-complete, York's two
+  consecutive shoot days) stay intact. `shoots[].st` (done/today/upcoming) is
+  recomputed from the new dates; the static job cards and the "Upcoming shoots"
+  stat tile are resynced at init; `PROTO_TODAY_LABEL` and new-job created/
+  modified stamps now derive from the real date.
+- Month arithmetic clamps (Dec 31 + 2 months → Feb 28/29), verified across
+  year-end, leap-year, and short-month boundaries.
+- **Known limitation (flagged, not fixed):** the Reports tab's order dates and
+  revenue-week labels come from fixed numeric month/day windows
+  (`preWin`/`saleWin`/`weeks`) and are deliberately NOT shifted — shifting the
+  labels without the paired windows would misreport the chart. The reports
+  dataset therefore stays in its own fixed 2026 timeframe and will not line up
+  with the re-anchored shoot dates.
