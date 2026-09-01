@@ -3805,7 +3805,6 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
               <div class="job-tab"          data-panel="tab-team"       onclick="switchJobTab(this,'tab-team')">Team</div>
               <div class="job-tab"          data-panel="tab-preorders"  onclick="switchJobTab(this,'tab-preorders')">Pre-Orders</div>
               <div class="job-tab"          data-panel="tab-documents"  onclick="switchJobTab(this,'tab-documents')">Documents</div>
-              <div class="job-tab"          data-panel="tab-automation" onclick="switchJobTab(this,'tab-automation')">Automation</div>
               <div class="job-tab"          data-panel="tab-reports"    onclick="switchJobTab(this,'tab-reports')">Reports</div>
             </div>
           </div>
@@ -3938,7 +3937,7 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
                   <div class="summary-card-main" id="sc-docs">3 files</div>
                   <div class="summary-card-sub" id="sc-docs-sub">1 awaiting signature</div>
                 </div>
-                <div class="summary-card" onclick="switchJobTabById('tab-automation')">
+                <div class="summary-card" onclick="openJobSettings('set-deadlines')">
                   <div class="summary-card-top">
                     <span class="summary-card-title">Automation</span>
                     <i class="fa-solid fa-bolt"></i>
@@ -4550,68 +4549,6 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
             </div>
 
             <!-- AUTOMATION TAB -->
-            <div id="tab-automation" class="tab-panel">
-
-              <div class="tab-section-head">
-                <div>
-                  <div class="tab-section-title">Automation</div>
-                  <div class="tab-section-sub">Logic-based rules that move this job along without manual work. Rules run only within this job.</div>
-                </div>
-                <button class="btn btn-brand" onclick="openModal('modal-rule')"><i class="fa-solid fa-plus"></i> New Automation</button>
-              </div>
-
-              <div class="rules-list" id="rules-list">
-
-                <div class="rule-card">
-                  <div class="rule-icon"><i class="fa-solid fa-envelope-open-text"></i></div>
-                  <div class="rule-body">
-                    <div class="rule-sentence"><span class="rule-kw when">WHEN</span> <b>3 days</b> before the shoot date <span class="rule-kw then">THEN</span> send a <b>registration reminder</b> to families who haven't registered</div>
-                    <div class="rule-meta">Ran 1 time · May 11, 9:00 AM · 53 reminders sent · 12 registrations followed</div>
-                  </div>
-                  <div class="rule-actions"><span class="chip chip-teal">Active</span><button class="toggle on" onclick="flipRule(this)"></button></div>
-                </div>
-
-                <div class="rule-card">
-                  <div class="rule-icon"><i class="fa-solid fa-share-nodes"></i></div>
-                  <div class="rule-body">
-                    <div class="rule-sentence"><span class="rule-kw when">WHEN</span> all galleries in a folder are marked <b>Upload Complete</b> <span class="rule-kw then">THEN</span> <b>share galleries</b> and send the <b>“Your photos are ready”</b> email to their contacts</div>
-                    <div class="rule-meta">Ran 2 times · last run Jun 2, 4:10 PM · 14 galleries delivered</div>
-                  </div>
-                  <div class="rule-actions"><span class="chip chip-teal">Active</span><button class="toggle on" onclick="flipRule(this)"></button></div>
-                </div>
-
-                <div class="rule-card">
-                  <div class="rule-icon"><i class="fa-solid fa-tag"></i></div>
-                  <div class="rule-body">
-                    <div class="rule-sentence"><span class="rule-kw when">WHEN</span> <b>7 days</b> after a gallery is shared and no order was placed <span class="rule-kw then">THEN</span> send a <b>10% off promo code</b></div>
-                    <div class="rule-meta">Ran 2 times · last run Jun 1, 9:00 AM · 41 emails sent</div>
-                  </div>
-                  <div class="rule-actions"><span class="chip chip-teal">Active</span><button class="toggle on" onclick="flipRule(this)"></button></div>
-                </div>
-
-                <div class="rule-card">
-                  <div class="rule-icon"><i class="fa-solid fa-bell"></i></div>
-                  <div class="rule-body">
-                    <div class="rule-sentence"><span class="rule-kw when">WHEN</span> a sub-photographer uploads to their assigned folder <span class="rule-kw then">THEN</span> <b>notify Robert Campbell</b></div>
-                    <div class="rule-meta">Ran 12 times · last run today, 8:42 AM</div>
-                  </div>
-                  <div class="rule-actions"><span class="chip chip-teal">Active</span><button class="toggle on" onclick="flipRule(this)"></button></div>
-                </div>
-
-                <div class="rule-card off">
-                  <div class="rule-icon"><i class="fa-solid fa-hourglass-half"></i></div>
-                  <div class="rule-body">
-                    <div class="rule-sentence"><span class="rule-kw when">WHEN</span> <b>30 days</b> after job is delivered <span class="rule-kw then">THEN</span> <b>expire gallery access</b> and archive the job</div>
-                    <div class="rule-meta">Paused · will not run</div>
-                  </div>
-                  <div class="rule-actions"><span class="chip chip-gray">Paused</span><button class="toggle" onclick="flipRule(this)"></button></div>
-                </div>
-
-              </div>
-
-              <div class="settings-note" style="margin-top:16px;"><i class="fa-solid fa-circle-info" style="margin-right:6px;"></i>Automations pause automatically if the job is archived. Drip campaigns and review requests arrive in Phase 3.</div>
-            </div>
-
             <!-- SETTINGS TAB -->
             <div id="tab-settings" class="tab-panel">
               <div class="settings-grid">
@@ -4705,6 +4642,67 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
                       <div class="settings-section-title">Deadlines &amp; Automation</div>
                       <div style="font-size:12.5px; color:var(--text-3); margin:-8px 0 12px; line-height:1.55;">The deadlines that govern this job and the automations that run on them.</div>
                       <div id="set-dl-mount"></div>
+                    </div>
+
+                    <div class="detail-card">
+                      <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:16px;">
+                        <div>
+                          <div class="settings-section-title" style="margin-bottom:4px;">Automation Rules</div>
+                          <div style="font-size:12.5px; color:var(--text-3); line-height:1.55;">Logic-based rules that move this job along without manual work. Rules run only within this job.</div>
+                        </div>
+                        <button class="btn btn-brand" style="flex-shrink:0;" onclick="openModal('modal-rule')"><i class="fa-solid fa-plus"></i> New Automation</button>
+                      </div>
+
+                  <div class="rules-list" id="rules-list">
+
+                    <div class="rule-card">
+                      <div class="rule-icon"><i class="fa-solid fa-envelope-open-text"></i></div>
+                      <div class="rule-body">
+                        <div class="rule-sentence"><span class="rule-kw when">WHEN</span> <b>3 days</b> before the shoot date <span class="rule-kw then">THEN</span> send a <b>registration reminder</b> to families who haven't registered</div>
+                        <div class="rule-meta">Ran 1 time · May 11, 9:00 AM · 53 reminders sent · 12 registrations followed</div>
+                      </div>
+                      <div class="rule-actions"><span class="chip chip-teal">Active</span><button class="toggle on" onclick="flipRule(this)"></button></div>
+                    </div>
+
+                    <div class="rule-card">
+                      <div class="rule-icon"><i class="fa-solid fa-share-nodes"></i></div>
+                      <div class="rule-body">
+                        <div class="rule-sentence"><span class="rule-kw when">WHEN</span> all galleries in a folder are marked <b>Upload Complete</b> <span class="rule-kw then">THEN</span> <b>share galleries</b> and send the <b>“Your photos are ready”</b> email to their contacts</div>
+                        <div class="rule-meta">Ran 2 times · last run Jun 2, 4:10 PM · 14 galleries delivered</div>
+                      </div>
+                      <div class="rule-actions"><span class="chip chip-teal">Active</span><button class="toggle on" onclick="flipRule(this)"></button></div>
+                    </div>
+
+                    <div class="rule-card">
+                      <div class="rule-icon"><i class="fa-solid fa-tag"></i></div>
+                      <div class="rule-body">
+                        <div class="rule-sentence"><span class="rule-kw when">WHEN</span> <b>7 days</b> after a gallery is shared and no order was placed <span class="rule-kw then">THEN</span> send a <b>10% off promo code</b></div>
+                        <div class="rule-meta">Ran 2 times · last run Jun 1, 9:00 AM · 41 emails sent</div>
+                      </div>
+                      <div class="rule-actions"><span class="chip chip-teal">Active</span><button class="toggle on" onclick="flipRule(this)"></button></div>
+                    </div>
+
+                    <div class="rule-card">
+                      <div class="rule-icon"><i class="fa-solid fa-bell"></i></div>
+                      <div class="rule-body">
+                        <div class="rule-sentence"><span class="rule-kw when">WHEN</span> a sub-photographer uploads to their assigned folder <span class="rule-kw then">THEN</span> <b>notify Robert Campbell</b></div>
+                        <div class="rule-meta">Ran 12 times · last run today, 8:42 AM</div>
+                      </div>
+                      <div class="rule-actions"><span class="chip chip-teal">Active</span><button class="toggle on" onclick="flipRule(this)"></button></div>
+                    </div>
+
+                    <div class="rule-card off">
+                      <div class="rule-icon"><i class="fa-solid fa-hourglass-half"></i></div>
+                      <div class="rule-body">
+                        <div class="rule-sentence"><span class="rule-kw when">WHEN</span> <b>30 days</b> after job is delivered <span class="rule-kw then">THEN</span> <b>expire gallery access</b> and archive the job</div>
+                        <div class="rule-meta">Paused · will not run</div>
+                      </div>
+                      <div class="rule-actions"><span class="chip chip-gray">Paused</span><button class="toggle" onclick="flipRule(this)"></button></div>
+                    </div>
+
+                  </div>
+
+                      <div class="settings-note" style="margin-top:16px;"><i class="fa-solid fa-circle-info" style="margin-right:6px;"></i>Automations pause automatically if the job is archived. Drip campaigns and review requests arrive in Phase 3.</div>
                     </div>
                   </div>
                 </div>
@@ -6185,6 +6183,13 @@ function refreshJobCounts() {
   document.querySelectorAll('#view-jobs-list .jobs-filterbar .subtab').forEach(t => {
     t.querySelector('.cnt').textContent = counts[t.dataset.f] || 0;
   });
+}
+
+/* jump straight to one pane of the job's Settings tab */
+function openJobSettings(paneId) {
+  switchJobTabById('tab-settings');
+  const nav = document.querySelector('#tab-settings .settings-nav-item[onclick*="' + paneId + '"]');
+  if (nav) switchSettings(nav, paneId);
 }
 
 function switchJobTabById(panelId) {
