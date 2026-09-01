@@ -776,9 +776,47 @@ html, body {
 /* ── OVERVIEW GRID ── */
 .overview-grid {
   display: grid;
-  grid-template-columns: 1fr 380px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 20px;
   align-items: start;
+}
+
+/* left column of the job overview: Job Details, then the tiles beneath it */
+.ov-left { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+.ov-left .overview-stats { margin-bottom: 0; grid-template-columns: repeat(auto-fit, minmax(116px, 1fr)); }
+.ov-left .summary-cards { margin-top: 0; grid-template-columns: repeat(auto-fit, minmax(148px, 1fr)); }
+
+@media (max-width: 1100px) { .overview-grid { grid-template-columns: minmax(0, 1fr); } }
+
+/* ── job overview: horizontal progress meter ── */
+.jd-progress-card { margin-bottom: 20px; }
+
+.jd-progress-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.stepper-h { display: flex; }
+.stepper-h-step { flex: 1 1 0; min-width: 0; }
+
+.stepper-h-rail { display: flex; align-items: center; margin-bottom: 11px; }
+.stepper-h-rail .stepper-dot { margin-right: 10px; }
+
+.stepper-h-line { flex: 1; height: 2px; border-radius: 2px; }
+.stepper-h-line.done { background: var(--teal); }
+.stepper-h-line.gray { background: var(--line); }
+
+.stepper-h-body { padding-right: 22px; }
+.stepper-h .stepper-title { font-size: 13.5px; }
+.stepper-h .stepper-desc { margin-top: 4px; }
+
+@media (max-width: 860px) {
+  .stepper-h { flex-direction: column; gap: 16px; }
+  .stepper-h-line { display: none; }
+  .stepper-h-body { padding-right: 0; }
 }
 
 /* ── DETAIL CARD ── */
@@ -858,25 +896,6 @@ html, body {
 }
 
 /* ── VERTICAL STEPPER ── */
-.stepper-v {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 24px;
-}
-
-.stepper-step {
-  display: flex;
-  gap: 16px;
-}
-
-.stepper-dot-col {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 32px;
-  flex-shrink: 0;
-}
-
 .stepper-dot {
   width: 32px;
   height: 32px;
@@ -893,25 +912,6 @@ html, body {
 .stepper-dot.done     { background: var(--teal); color: #fff; }
 .stepper-dot.active   { background: var(--orange); color: #fff; box-shadow: 0 0 0 5px rgba(242,107,58,0.15); }
 .stepper-dot.upcoming { background: var(--bg); border: 2px solid var(--line); color: var(--text-3); }
-
-.stepper-line {
-  flex: 1;
-  width: 2px;
-  min-height: 16px;
-  margin: 3px 0;
-  border-radius: 2px;
-}
-
-.stepper-line.done    { background: var(--teal); }
-.stepper-line.active  { background: var(--line); }
-.stepper-line.gray    { background: var(--line); }
-
-.stepper-content {
-  flex: 1;
-  padding: 4px 0 24px;
-}
-
-.stepper-step:last-child .stepper-content { padding-bottom: 4px; }
 
 .stepper-title {
   font-size: 14px;
@@ -3816,35 +3816,21 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
             <!-- OVERVIEW TAB -->
             <div id="tab-overview" class="tab-panel active">
 
-              <div class="overview-stats">
-                <div class="stat-tile">
-                  <div class="stat-label">Galleries</div>
-                  <div class="stat-value" id="ov-galleries">42</div>
-                  <div class="stat-delta flat" id="ov-galleries-sub">25 with photos · 17 empty</div>
+              <!-- Job Progress — horizontal, full width, above everything else -->
+              <div class="detail-card jd-progress-card">
+                <div class="jd-progress-head">
+                  <span class="detail-card-header" style="margin-bottom:0;">Job Progress</span>
+                  <button class="btn btn-brand" id="jd-cta" onclick="goToUploads()">
+                    Go to Upload Status <i class="fa-solid fa-arrow-right" style="margin-left:6px;"></i>
+                  </button>
                 </div>
-                <div class="stat-tile">
-                  <div class="stat-label">Photos uploaded</div>
-                  <div class="stat-value" id="ov-photos">3,847</div>
-                  <div class="stat-delta flat" id="ov-photos-sub">412 in last 24h</div>
-                </div>
-                <div class="stat-tile">
-                  <div class="stat-label">Contacts</div>
-                  <div class="stat-value" id="ov-contacts">128</div>
-                  <div class="stat-delta flat" id="ov-contacts-sub">96 registered · 32 imported</div>
-                </div>
-                <div class="stat-tile">
-                  <div class="stat-label">Orders</div>
-                  <div class="stat-value" id="ov-orders">214</div>
-                  <div class="stat-delta flat" id="ov-orders-sub">38 pre-orders included</div>
-                </div>
-                <div class="stat-tile">
-                  <div class="stat-label">Revenue</div>
-                  <div class="stat-value" id="ov-revenue">$8,432</div>
-                  <div class="stat-delta flat" id="ov-revenue-sub">$1,240 from pre-orders</div>
-                </div>
+                <div class="stepper-h" id="jd-stepper"></div>
               </div>
 
               <div class="overview-grid">
+
+                <!-- Left: Job Details, with the metric + summary tiles beneath it -->
+                <div class="ov-left">
 
                 <!-- Left: Job Details card -->
                 <div class="detail-card">
@@ -3899,25 +3885,35 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
                   </div>
                 </div>
 
-                <!-- Right column: progress + shoot day -->
-                <div style="display:flex; flex-direction:column; gap:20px;">
-
-                <div class="detail-card">
-                  <div class="detail-card-header">Job Progress</div>
-                  <div class="stepper-v" id="jd-stepper"></div>
-                  <button class="btn btn-brand" style="width:100%; justify-content:center;" id="jd-cta" onclick="goToUploads()">
-                    Go to Upload Status <i class="fa-solid fa-arrow-right" style="margin-left:6px;"></i>
-                  </button>
+                <div class="overview-stats">
+                <div class="stat-tile">
+                  <div class="stat-label">Galleries</div>
+                  <div class="stat-value" id="ov-galleries">42</div>
+                  <div class="stat-delta flat" id="ov-galleries-sub">25 with photos · 17 empty</div>
                 </div>
+                <div class="stat-tile">
+                  <div class="stat-label">Photos uploaded</div>
+                  <div class="stat-value" id="ov-photos">3,847</div>
+                  <div class="stat-delta flat" id="ov-photos-sub">412 in last 24h</div>
+                </div>
+                <div class="stat-tile">
+                  <div class="stat-label">Contacts</div>
+                  <div class="stat-value" id="ov-contacts">128</div>
+                  <div class="stat-delta flat" id="ov-contacts-sub">96 registered · 32 imported</div>
+                </div>
+                <div class="stat-tile">
+                  <div class="stat-label">Orders</div>
+                  <div class="stat-value" id="ov-orders">214</div>
+                  <div class="stat-delta flat" id="ov-orders-sub">38 pre-orders included</div>
+                </div>
+                <div class="stat-tile">
+                  <div class="stat-label">Revenue</div>
+                  <div class="stat-value" id="ov-revenue">$8,432</div>
+                  <div class="stat-delta flat" id="ov-revenue-sub">$1,240 from pre-orders</div>
+                </div>
+              </div>
 
-                <!-- Shoot Day card (built per job) -->
-                <div class="detail-card" id="jd-shootday"></div>
-
-                </div><!-- /right column -->
-
-              </div><!-- /overview-grid -->
-
-              <div class="summary-cards">
+                <div class="summary-cards">
                 <div class="summary-card" onclick="switchJobTabById('tab-team')">
                   <div class="summary-card-top">
                     <span class="summary-card-title">Team</span>
@@ -3951,6 +3947,13 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
                   <div class="summary-card-sub" id="sc-auto-sub">12 runs in last 7 days</div>
                 </div>
               </div>
+
+                </div><!-- /ov-left -->
+
+                <!-- Right: Shoots & Locations (built per job) -->
+                <div class="detail-card" id="jd-shootday"></div>
+
+              </div><!-- /overview-grid -->
 
             </div><!-- /tab-overview -->
 
@@ -6905,13 +6908,13 @@ function buildStepper(j) {
   el.innerHTML = j.steps.map((s, i) => {
     const state = i < j.phase ? 'done' : (i === j.phase ? 'active' : 'upcoming');
     const dotIcon = state === 'done' ? 'fa-check' : s.icon;
-    const line = i === j.steps.length - 1 ? '' : '<div class="stepper-line ' + (i < j.phase ? 'done' : 'gray') + '"></div>';
+    const line = i === j.steps.length - 1 ? '' : '<div class="stepper-h-line ' + (i < j.phase ? 'done' : 'gray') + '"></div>';
     const badge = state === 'active' ? '<span class="stepper-badge active">' + (s.badge || 'In Progress') + '</span>'
       : (state === 'upcoming' ? '<span class="stepper-badge upcoming">Upcoming</span>' : '');
     const ts = s.ts ? '<div class="stepper-ts done">' + s.ts + '</div>' : '';
-    return '<div class="stepper-step">' +
-      '<div class="stepper-dot-col"><div class="stepper-dot ' + state + '"><i class="fa-solid ' + dotIcon + '"></i></div>' + line + '</div>' +
-      '<div class="stepper-content">' +
+    return '<div class="stepper-h-step">' +
+      '<div class="stepper-h-rail"><div class="stepper-dot ' + state + '"><i class="fa-solid ' + dotIcon + '"></i></div>' + line + '</div>' +
+      '<div class="stepper-h-body">' +
         '<div class="stepper-title">' + s.t + ' ' + badge + '</div>' +
         '<div class="stepper-desc">' + s.d + '</div>' + ts +
       '</div></div>';
