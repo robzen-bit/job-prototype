@@ -1640,6 +1640,22 @@ html, body {
 
 .modal-overlay.open { display: flex; }
 
+/* Phase chooser — shown on every load; only Phase 3 (the current build) is live.
+   Flip `enabled` in PHASES to switch Phase 1 / Phase 2 on once their work lands. */
+.phase-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+@media (max-width: 640px) { .phase-grid { grid-template-columns: 1fr; } }
+.phase-tile {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 8px;
+  padding: 16px; border: 1px solid var(--line); border-radius: var(--r-md);
+  background: var(--surface); text-align: left; font: inherit; cursor: pointer;
+  transition: border-color .15s, box-shadow .15s;
+}
+.phase-tile:not(:disabled):hover { border-color: var(--orange); box-shadow: var(--shadow-md); }
+.phase-tile:disabled { cursor: not-allowed; opacity: .5; }
+.phase-tile-head { display: flex; width: 100%; align-items: center; justify-content: space-between; gap: 8px; }
+.phase-tile-title { font-size: 15px; font-weight: 700; color: var(--text); }
+.phase-tile-desc { font-size: 12.5px; color: var(--text-3); line-height: 1.45; }
+
 .modal {
   background: var(--surface);
   border-radius: var(--r-lg);
@@ -6057,6 +6073,22 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
     </div>
   </div>
 </div>
+
+<!-- Phase chooser — opened at load; a phase must be picked (no close button) -->
+<div class="modal-overlay" id="modal-phase">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">Choose a Phase</div>
+        <div class="modal-subtitle">Pick which phase of the Jobs prototype to load.</div>
+      </div>
+    </div>
+    <div class="modal-body">
+      <div class="phase-grid" id="phase-grid"></div>
+    </div>
+  </div>
+</div>
+
 
 <div class="menu-pop" id="menu-orgrow">
   <div class="menu-pop-item" onclick="orgRowAction('view')"><i class="fa-solid fa-eye"></i> View</div>
@@ -11857,6 +11889,28 @@ function updateSaveOrgRows() {
   document.querySelectorAll('.loc-card').forEach(updateSaveOrgRowForCard);
 }
 
+
+/* ══════════ PHASE CHOOSER ══════════ */
+const PHASES = [
+  { id: 1, title: 'Phase 1', desc: 'In progress — not available yet.', enabled: false },
+  { id: 2, title: 'Phase 2', desc: 'In progress — not available yet.', enabled: false },
+  { id: 3, title: 'Phase 3', desc: 'Current build: jobs dashboard, job detail, Create Job wizard and CRM.', enabled: true }
+];
+function renderPhaseChooser() {
+  document.getElementById('phase-grid').innerHTML = PHASES.map(p =>
+    '<button class="phase-tile" type="button"' + (p.enabled ? ' onclick="pickPhase(' + p.id + ')"' : ' disabled') + '>' +
+      '<div class="phase-tile-head"><span class="phase-tile-title">' + p.title + '</span>' +
+      (p.enabled ? chipTeal('Available') : '<span class="chip chip-gray"><i class="fa-solid fa-lock" style="font-size:9px;"></i> Coming Soon</span>') +
+      '</div><span class="phase-tile-desc">' + p.desc + '</span></button>'
+  ).join('');
+  openModal('modal-phase');
+}
+function pickPhase(id) {
+  const p = PHASES.find(x => x.id === id);
+  if (!p || !p.enabled) return;
+  closeModal('modal-phase');
+}
+
 /* ══════════ INIT ══════════ */
 anchorDemoJobDates();
 refreshJobCardShootDates();
@@ -11865,6 +11919,7 @@ refreshRevenueStat();
 renderQR();
 updateRuleSentence();
 refreshJobCounts();
+renderPhaseChooser();
 </script>
 
 </body>

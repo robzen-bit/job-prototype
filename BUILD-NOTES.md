@@ -453,3 +453,21 @@ jobs, since pre-order exists precisely to take orders before galleries have
 content (and the Pre-Orders tab demo depends on it). "Sales" attribution — the
 dashboard revenue tile and gallery-sale orders — is what's now restricted to the
 Sales phase.
+
+## Addendum — phase chooser on load
+
+Every load now opens a **Choose a Phase** modal over the jobs list
+(`modal-phase`, `PHASES`, `renderPhaseChooser()`, `pickPhase()`).
+
+| Tile | State |
+|---|---|
+| Phase 1 | Locked — "Coming Soon" chip, button disabled |
+| Phase 2 | Locked — "Coming Soon" chip, button disabled |
+| Phase 3 | Available — the current build; picking it closes the modal |
+
+- A phase must be chosen: the modal has no close button, and the overlay
+  doesn't dismiss it.
+- **To turn a phase on later:** set `enabled: true` on its entry in `PHASES`
+  and add what that phase loads in `pickPhase()`.
+- Mirrored in the native rebuild (`zf-image-insights-frontend`, branch
+  `prototype/jobs-rebuild`, `components/prototypes/jobs/PhasePicker.tsx`).
