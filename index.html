@@ -1664,8 +1664,7 @@ html, body {
 body.phase-1 #view-jobs-list .dash-strip,
 body.phase-1 #view-jobs-list .dash-lower,
 body.phase-1 #view-jobs-list .jobs-filterbar,
-body.phase-1 #view-jobs-list .jobs-list,
-body.phase-1 #view-jobs-list .page-header .btn-brand { display: none; }
+body.phase-1 #view-jobs-list .jobs-list { display: none; }
 body:not(.phase-1) #jobs-table-p1 { display: none; }
 /* visible overflow so the +X popover isn't clipped; scroll sideways only when narrow */
 #jobs-table-p1 .gallery-table-wrap { overflow: visible; }
@@ -10248,6 +10247,8 @@ function wizActivePreset() {
 function wizFlow() {
   const flow = ['wiz-1', 'wiz-sched', 'wiz-setup'];
   if (setupMode === 'now' && selectedJobType) flow.push('wiz-placeholder');
+  /* Phase 1: simplified wizard — no Deadlines & Automation, no Review; the last step creates the job */
+  if (currentPhase === 1) { if (wizEcomPath()) flow.push('wiz-ecom'); return flow; }
   if (wizEcomPath()) flow.push('wiz-ecom', 'wiz-deadlines');
   flow.push('wiz-4');
   return flow;
@@ -10489,7 +10490,7 @@ function createJob(opts) {
     J.cta = ['Download QR Codes', "toast('Downloading QR codes for " + importResult.galleries + " galleries…')"];
   }
   if (wizEcomPath()) {
-    const dlv = dlResolve('delivery');
+    const dlv = currentPhase === 1 ? { err: true } : dlResolve('delivery');   /* Phase 1 sets no deadlines */
     if (!dlv.err) JOBS[key].deadline = fmtInputDate(dlv.iso);
     JOBS[key].po = {
       setup: !!(ecomPriceList && preorderOn),
@@ -10547,6 +10548,7 @@ function createJob(opts) {
   refreshJobCounts();
   closeModal('modal-wizard');
   showView('view-jobs-list');
+  if (currentPhase === 1) { renderJobsTableP1(); openJobP1(key); }   /* Phase 1 lands on the new job's page */
   toast(opts.early ? 'Job saved — finish setup anytime from the job' : 'Job created');
 }
 

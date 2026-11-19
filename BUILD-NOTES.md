@@ -618,3 +618,21 @@ exploring. State is per job (`p1RegByJob`, `p1Reg()`), so it survives tab switch
 - Sorting the Status column ascending orders Upcoming, Active, Complete.
 - Upcoming uses a blue pill (#2F6BAD, 5.5:1 on white); Active stays teal,
   Complete gray.
+
+## Addendum — Phase 1: simplified Create New Job wizard
+
+Phase 1 now has the **New Job** button on the jobs table, and it opens a
+simplified wizard (`wizFlow()` branches on `currentPhase === 1`).
+
+- **Kept as-is:** Details · Schedule · Setup (including the job-type sub-step:
+  Import / Before / During registration) · Ecommerce (shown on the same paths
+  as Phase 3 — Import, Before and During registration).
+- **Removed in Phase 1:** Deadlines & Automation and Review. The last step's
+  button reads **Create Job** and creates the job directly.
+- No deadlines are set in Phase 1: `createJob()` skips `dlResolve('delivery')`,
+  so the job's deadline stays "—".
+- After Create Job the wizard closes and opens the new job's Phase 1 page (the
+  jobs table re-renders with it at the top). Phase 3's wizard is unchanged.
+- Mirrored in the native rebuild: `wizFlow(s, simplified)` in
+  `wizard/logic.ts`, `<NewJobWizard simplified={phase === 1} />` in
+  `JobsApp.tsx`, and a New Job button on `list/JobsTableView.tsx`.
