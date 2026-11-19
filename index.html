@@ -14,11 +14,12 @@
 :root {
   --orange:   #F26B3A;
   --teal:     #2DB3A6;
+  --teal-text: #1F7C73;  /* --teal as text/icons is 2.6:1; this passes WCAG AA 4.5:1 on white and on teal chip tints */
   --bg:       #F5F5F7;
   --surface:  #FFFFFF;
   --text:     #1D1D1F;
   --text-2:   #424247;
-  --text-3:   #86868B;
+  --text-3:   #6D6D71;   /* was #86868B (3.6:1) — darkened just enough for WCAG AA 4.5:1 on white, --bg, row hover and gray chips */
   --line:     #E8E8ED;
   --nav-bg:   #1D1D1F;
 
@@ -406,7 +407,7 @@ html, body {
 
 .pill-planning  { background: #F0F0F2; color: var(--text-3); }
 .pill-shootday  { background: rgba(242,107,58,0.12); color: var(--orange); }
-.pill-uploading { background: rgba(45,179,166,0.12); color: var(--teal); }
+.pill-uploading { background: rgba(45,179,166,0.12); color: var(--teal-text); }
 .pill-delivered { background: #1D1D1F; color: #fff; }
 
 /* Left section */
@@ -536,7 +537,7 @@ html, body {
   padding: 0 4px;
 }
 
-.phase-step.done .phase-label    { color: var(--teal); }
+.phase-step.done .phase-label    { color: var(--teal-text); }
 .phase-step.active .phase-label  { color: var(--orange); }
 .phase-step.upcoming .phase-label{ color: var(--text-3); }
 
@@ -867,7 +868,7 @@ html, body {
 }
 
 .detail-field-value a {
-  color: var(--teal);
+  color: var(--teal-text);
   text-decoration: none;
 }
 
@@ -950,7 +951,7 @@ html, body {
   font-weight: 500;
 }
 
-.stepper-ts.done     { color: var(--teal); }
+.stepper-ts.done     { color: var(--teal-text); }
 .stepper-ts.upcoming { color: var(--text-3); font-style: italic; }
 
 /* ──────────────────────────────────────
@@ -1063,7 +1064,7 @@ html, body {
 .gallery-thumb.is-empty   { background: #F0F0F2; color: var(--text-3); }
 
 .gallery-name-link {
-  color: var(--teal);
+  color: var(--teal-text);
   font-weight: 500;
   cursor: pointer;
   text-decoration: none;
@@ -1080,7 +1081,7 @@ html, body {
   font-size: 11px;
   font-weight: 600;
   background: rgba(45,179,166,0.10);
-  color: var(--teal);
+  color: var(--teal-text);
 }
 
 .pill-empty {
@@ -1176,7 +1177,7 @@ html, body {
   gap: 4px;
 }
 
-.stat-delta.up   { color: var(--teal); }
+.stat-delta.up   { color: var(--teal-text); }
 .stat-delta.down { color: var(--orange); }
 .stat-delta.flat { color: var(--text-3); font-weight: 500; }
 
@@ -1232,7 +1233,7 @@ html, body {
 }
 
 .attention-row a {
-  color: var(--teal);
+  color: var(--teal-text);
   text-decoration: none;
   font-weight: 500;
   cursor: pointer;
@@ -1256,7 +1257,7 @@ html, body {
   white-space: nowrap;
 }
 
-.chip-teal   { background: rgba(45,179,166,0.10); color: var(--teal); }
+.chip-teal   { background: rgba(45,179,166,0.10); color: var(--teal-text); }
 .chip-orange { background: rgba(242,107,58,0.12); color: var(--orange); }
 .chip-gray   { background: #F0F0F2; color: var(--text-3); }
 .chip-dark   { background: var(--text); color: #fff; }
@@ -1655,6 +1656,141 @@ html, body {
 .phase-tile-head { display: flex; width: 100%; align-items: center; justify-content: space-between; gap: 8px; }
 .phase-tile-title { font-size: 15px; font-weight: 700; color: var(--text); }
 .phase-tile-desc { font-size: 12.5px; color: var(--text-3); line-height: 1.45; }
+.phase-tile.current { border-color: var(--orange); }
+#modal-phase .modal-header { padding: 24px 24px 0; }
+
+/* Phase 1 jobs dashboard — a plain sortable table instead of tiles, attention
+   card, status tabs and the Setup / Shoot Day / Upload / Sales tracker */
+body.phase-1 #view-jobs-list .dash-strip,
+body.phase-1 #view-jobs-list .dash-lower,
+body.phase-1 #view-jobs-list .jobs-filterbar,
+body.phase-1 #view-jobs-list .jobs-list,
+body.phase-1 #view-jobs-list .page-header .btn-brand { display: none; }
+body:not(.phase-1) #jobs-table-p1 { display: none; }
+/* visible overflow so the +X popover isn't clipped; scroll sideways only when narrow */
+#jobs-table-p1 .gallery-table-wrap { overflow: visible; }
+@media (max-width: 900px) { #jobs-table-p1 .gallery-table-wrap { overflow-x: auto; } }
+#jobs-table-p1 .gallery-table td:first-child { font-weight: 600; color: var(--text); }
+#jobs-table-p1 th { white-space: nowrap; }
+.jt-sort { background: none; border: 0; padding: 0; font: inherit; color: inherit; text-transform: inherit;
+  letter-spacing: inherit; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; }
+.jt-sort:hover, .jt-sort.on { color: var(--text); }
+.jt-sort i { font-size: 9px; }   /* inherits the header colour — no opacity, so it meets 3:1 */
+.jt-cell { display: inline-flex; align-items: center; gap: 8px; }
+#jobs-table-p1 tbody tr { cursor: pointer; }
+.jt-title { background: none; border: 0; padding: 0; font: inherit; color: inherit; cursor: pointer; text-align: left; }
+.jt-title:hover { text-decoration: underline; }
+
+/* Phase 1 job page — a job laid out like a Zenfolio folder (Organize · Settings ·
+   Design) plus Team and Reports. Skeleton: actions toast. */
+.p1-crumb { font-size: 12px; color: var(--text-3); margin-bottom: 8px; }
+.p1-crumb a { cursor: pointer; }
+.p1-crumb a:hover { color: var(--text); }
+.p1-crumb b { color: var(--text); font-weight: 600; }
+.p1-toolbar { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin-bottom: 12px; }
+.p1-thumb { width: 56px; height: 40px; border-radius: var(--r-xs); background: var(--bg); color: var(--text-3);
+  display: flex; align-items: center; justify-content: center; }
+.p1-sub { display: block; font-size: 11.5px; color: var(--text-3); }
+.p1-access { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+@media (max-width: 760px) { .p1-access { grid-template-columns: 1fr; } }
+.p1-choice { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding: 16px; border: 1px solid var(--line);
+  border-radius: var(--r-md); background: var(--surface); font: inherit; text-align: left; cursor: pointer; }
+.p1-choice.on { border-color: var(--orange); }
+.p1-choice b { font-size: 13px; color: var(--text); }
+.p1-choice span { font-size: 12px; color: var(--text-3); }
+.p1-choice i { color: var(--text-2); }
+.p1-block { margin-top: 20px; }
+.p1-block-title { font-size: 13px; font-weight: 700; color: var(--text); }
+.p1-muted { font-size: 12.5px; color: var(--text-3); line-height: 1.5; }
+.p1-reg { margin-top: 14px; padding-left: 16px; border-left: 2px solid var(--line); display: flex; flex-direction: column; gap: 14px; }
+.p1-opt { display: flex; gap: 10px; align-items: flex-start; font-size: 13px; }
+.p1-opt input { margin-top: 3px; accent-color: var(--orange); }
+.p1-meta { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 12px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); max-width: 520px; }
+.p1-meta span { display: block; font-size: 11.5px; color: var(--text-3); }
+.p1-meta b { font-size: 13px; color: var(--text); }
+.p1-count { text-align: right; font-size: 11.5px; color: var(--text-3); max-width: 520px; }
+.p1-cover { width: 180px; border: 1px solid var(--line); border-radius: var(--r-md); padding: 8px; background: var(--surface); cursor: pointer; font: inherit; text-align: left; }
+.p1-cover-img { height: 110px; border-radius: var(--r-sm); background: var(--bg); color: var(--text-3); display: flex; align-items: center; justify-content: center; font-size: 26px; }
+.p1-cover-cap { display: flex; justify-content: space-between; margin-top: 8px; font-size: 12px; font-weight: 600; color: var(--text); }
+.p1-appearance { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; max-width: 420px; margin-top: 10px; }
+.p1-appearance .p1-choice.on { background: rgba(242,107,58,0.06); }
+.p1-appearance .p1-choice b { text-transform: uppercase; font-size: 12px; }
+.p1-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+@media (max-width: 760px) { .p1-stats { grid-template-columns: repeat(2, 1fr); } }
+.p1-chart-empty { height: 160px; border: 1px dashed var(--line); border-radius: var(--r-sm); display: flex; align-items: center;
+  justify-content: center; font-size: 12.5px; color: var(--text-3); }
+.p1-contact-add { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 10px 0; }
+.p1-links a { margin-left: 14px; font-size: 12.5px; font-weight: 600; color: var(--text); text-decoration: underline; cursor: pointer; }
+/* Phase 1 registration (Job Access) + Edit Custom Form */
+.p1-optrow { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.p1-optional { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--text-2); }
+.p1-optional.off { color: var(--text-3); }
+.p1-optional input { accent-color: var(--orange); }
+.p1-note { padding-left: 24px; font-size: 11.5px; color: var(--text-3); }
+.p1-note b { color: var(--text-2); }
+.p1-search-opts { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }
+.p1-search-opts label { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--text); }
+.p1-search-opts a { font-weight: 600; text-decoration: underline; cursor: pointer; }
+.cf-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 28px; align-items: start; }
+@media (max-width: 900px) { .cf-grid { grid-template-columns: minmax(0, 1fr); } }
+.cf-col { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+.cf-field { display: flex; flex-direction: column; gap: 6px; }
+.cf-count { font-size: 11px; color: var(--text-3); }
+.cf-block { border: 1px solid var(--line); border-radius: var(--r-md); overflow: hidden; }
+.cf-block-head { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: var(--bg); }
+.cf-block-head button { background: none; border: 0; font: inherit; font-size: 13px; font-weight: 600; color: var(--text); cursor: pointer; display: flex; align-items: center; gap: 8px; }
+.cf-block-body { padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+.cf-two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.cf-frow { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border: 1px solid var(--line); border-radius: var(--r-sm); font-size: 13px; }
+.cf-frow.locked { color: var(--text-3); }
+.cf-frow label { display: flex; align-items: center; gap: 8px; }
+.cf-frow input[type=checkbox] { accent-color: var(--orange); }
+.cf-custom-sub { display: block; font-size: 11.5px; color: var(--text-3); }
+.cf-center { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.cf-radio { display: flex; flex-direction: column; gap: 8px; }
+.cf-radio > label { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text); }
+.cf-radio > label.off { color: var(--text-3); }
+.cf-radio input { accent-color: var(--orange); }
+.cf-sub { padding-left: 24px; display: flex; flex-direction: column; gap: 8px; font-size: 12px; color: var(--text-2); }
+.cf-seg { display: inline-flex; background: var(--bg); border-radius: var(--r-sm); padding: 3px; width: fit-content; }
+.cf-seg button { border: 0; background: none; font: inherit; font-size: 12px; padding: 4px 12px; border-radius: var(--r-xs); color: var(--text-2); cursor: pointer; }
+.cf-seg button.on { background: var(--surface); color: var(--text); font-weight: 600; box-shadow: var(--shadow-sm); }
+.cf-error { font-size: 11.5px; font-weight: 600; color: #B42318; }
+.cf-preview { background: var(--bg); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 28px; position: sticky; top: 0; }
+.cf-preview-inner { max-width: 360px; margin: 0 auto; display: flex; flex-direction: column; gap: 10px; }
+.cf-preview h2 { text-align: center; font-size: 20px; font-weight: 700; color: var(--text); margin: 0; }
+.cf-preview .cf-pdesc { text-align: center; font-size: 13px; color: var(--text-2); }
+.cf-plabel { font-size: 13px; font-style: italic; color: var(--text-2); }
+.cf-pcap { font-size: 11.5px; font-style: italic; color: var(--text-3); margin-top: -6px; }
+.cf-pin { display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--line); background: var(--surface); border-radius: var(--r-xs); padding: 8px 12px; font-size: 13px; color: var(--text-3); }
+.cf-pbtns { display: flex; justify-content: center; gap: 8px; }
+.cf-pbtns span { padding: 8px 24px; border-radius: var(--r-xs); font-size: 13px; }
+.cf-pskip { border: 1px solid var(--text); color: var(--text); }
+.cf-psubmit { background: var(--text); color: #fff; }
+.cf-pick-list { max-height: 320px; overflow-y: auto; }
+.cf-pick-list label { display: flex; align-items: center; gap: 12px; padding: 10px 8px; border-bottom: 1px solid var(--line); font-size: 13px; color: var(--text); }
+.cf-pick-list label span { display: block; font-size: 11.5px; color: var(--text-3); }
+.cf-warn { font-size: 12.5px; font-weight: 600; color: #B42318; margin-bottom: 12px; }
+.menu-pop-heading { padding: 8px 12px 4px; font-size: 10.5px; font-weight: 700; letter-spacing: .4px; text-transform: uppercase; color: var(--text-3); }
+.menu-pop-sep { height: 1px; background: var(--line); margin: 4px 0; }
+/* Phase 1 status — a pill-styled select (Upcoming blue, Active teal, Complete gray) */
+.jt-status { font: inherit; font-size: 12px; font-weight: 600; border: 1px solid var(--line); border-radius: 999px;
+  padding: 4px 26px 4px 10px; cursor: pointer; appearance: none; -webkit-appearance: none;
+  background: var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%2386868B' stroke-width='1.5'/%3E%3C/svg%3E") no-repeat right 10px center; }
+.jt-status.upcoming { color: #2F6BAD; }
+.jt-status.active { color: var(--teal-text); }
+.jt-status.complete { color: var(--text-3); }
+/* "+X" pill — hover or focus lists the rest */
+.more-pill { position: relative; display: inline-flex; border: 0; background: #F0F0F2; color: var(--text-2);
+  font: inherit; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px; cursor: default; }
+.more-pop { display: none; position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%);
+  z-index: 20; background: var(--text); color: #fff; border-radius: var(--r-xs); padding: 8px 10px;
+  font-size: 12px; font-weight: 500; line-height: 1.5; white-space: nowrap; text-align: left; box-shadow: var(--shadow-md); }
+.more-pop b { display: block; font-weight: 700; }
+.more-pill:hover .more-pop, .more-pill:focus .more-pop { display: block; }
+#modal-phase .modal-body { padding: 20px 24px 24px; }
+#modal-phase .modal-close { display: none; }
+#modal-phase.has-phase .modal-close { display: inline-block; }
 
 .modal {
   background: var(--surface);
@@ -1796,7 +1932,7 @@ html, body {
 .wiz-step.active { color: var(--text); font-weight: 600; }
 .wiz-step.active .wiz-step-num { background: var(--orange); border-color: var(--orange); color: #fff; }
 .wiz-step.done .wiz-step-num   { background: var(--teal); border-color: var(--teal); color: #fff; }
-.wiz-step.done { color: var(--teal); }
+.wiz-step.done { color: var(--teal-text); }
 
 .wiz-connector {
   flex: 1;
@@ -2116,7 +2252,7 @@ html, body {
   color: var(--text-2);
 }
 
-.csv-preview-head i { color: var(--teal); }
+.csv-preview-head i { color: var(--teal-text); }
 
 .csv-preview table { width: 100%; border-collapse: collapse; }
 
@@ -2153,7 +2289,7 @@ html, body {
   margin-top: 12px;
 }
 
-.wiz-info i { color: var(--teal); margin-top: 2px; }
+.wiz-info i { color: var(--teal-text); margin-top: 2px; }
 
 /* Review list (wizard step 4) */
 .review-list { border: 1px solid var(--line); border-radius: var(--r-sm); overflow: hidden; }
@@ -2268,7 +2404,7 @@ html, body {
 
 .dropzone i { font-size: 22px; opacity: 0.4; display: block; margin-bottom: 8px; }
 
-.dropzone b { color: var(--teal); font-weight: 600; }
+.dropzone b { color: var(--teal-text); font-weight: 600; }
 
 /* Import Subject List — functional CSV dropzone states */
 #wz-csv-drop { min-height: 160px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; background: #fafafa; border-width: 2px; }
@@ -2489,7 +2625,7 @@ html, body {
   vertical-align: 1px;
 }
 
-.rule-kw.when { background: rgba(45,179,166,0.12); color: var(--teal); }
+.rule-kw.when { background: rgba(45,179,166,0.12); color: var(--teal-text); }
 .rule-kw.then { background: rgba(242,107,58,0.12); color: var(--orange); }
 
 .rule-meta { margin-top: 4px; font-size: 11.5px; color: var(--text-3); }
@@ -2533,11 +2669,11 @@ html, body {
 
 .settings-nav-item.active {
   background: rgba(242,107,58,0.08);
-  color: var(--orange);
+  color: var(--text);   /* was --orange: 2.6:1 on the tint; the tint still marks the active item */
   font-weight: 600;
 }
 
-.settings-nav-item.active i { color: var(--orange); }
+.settings-nav-item.active i { color: var(--text); }   /* was --orange: 2.6:1 on the tint */
 
 .settings-pane { display: none; }
 .settings-pane.active { display: block; }
@@ -2688,7 +2824,7 @@ html, body {
   gap: 7px;
   font-size: 12px;
   font-weight: 600;
-  color: var(--teal);
+  color: var(--teal-text);
   cursor: pointer;
   margin-top: 14px;
 }
@@ -2773,7 +2909,7 @@ html, body {
   gap: 6px;
   background: transparent;
   border: none;
-  color: var(--teal);
+  color: var(--teal-text);
   font-family: 'Inter', sans-serif;
   font-size: 12px;
   font-weight: 600;
@@ -3092,7 +3228,7 @@ html, body {
   padding: 9px 15px;
   font-size: 12.5px;
   font-weight: 600;
-  color: var(--teal);
+  color: var(--teal-text);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -3244,7 +3380,7 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
 
 .rail-job-row:hover .rail-job-name { text-decoration: underline; }
 
-.rail-job-name { font-weight: 600; color: var(--teal); }
+.rail-job-name { font-weight: 600; color: var(--teal-text); }
 .rail-job-meta { color: var(--text-3); font-size: 11.5px; margin-top: 2px; }
 .rail-empty { padding: 14px 0 6px; color: var(--text-3); font-size: 12.5px; }
 
@@ -3254,7 +3390,7 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
   gap: 7px;
   font-size: 12.5px;
   font-weight: 600;
-  color: var(--teal);
+  color: var(--teal-text);
   cursor: pointer;
   padding: 16px 24px 0;
 }
@@ -3388,7 +3524,7 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
 
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
 
-.toast i { color: var(--teal); }
+.toast i { color: var(--teal-text); }
 
 /* Folder row styling in galleries table */
 .gallery-thumb.is-folder { background: #F0F0F2; color: var(--text-2); }
@@ -3430,7 +3566,7 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
 .contact-add-links a {
   font-size: 12.5px;
   font-weight: 500;
-  color: var(--teal);
+  color: var(--teal-text);
   text-decoration: none;
   cursor: pointer;
 }
@@ -3485,6 +3621,7 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
         <input type="text" placeholder="Search galleries, contacts…">
       </div>
       <div class="topbar-right">
+        <button class="btn btn-ghost-sm" onclick="openPhaseChooser()">Switch Phase</button>
         <button class="topbar-icon-btn" title="Notifications">
           <i class="fa-regular fa-bell"></i>
         </button>
@@ -3513,6 +3650,9 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
             New Job
           </button>
         </div>
+
+        <!-- Phase 1: plain sortable jobs table (renderJobsTableP1) -->
+        <div id="jobs-table-p1"></div>
 
         <!-- ── GLOBAL JOB DASHBOARD ── -->
         <div class="dash-strip">
@@ -3775,6 +3915,11 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
         </div><!-- /jobs-list -->
       </div><!-- /page-inner -->
       </div><!-- /view-jobs-list -->
+
+      <!-- ── VIEW: PHASE 1 JOB PAGE (rendered by renderJobP1) ── -->
+      <div id="view-job-p1" class="view">
+        <div class="job-detail-inner" id="p1-root"></div>
+      </div>
 
       <!-- ── VIEW: JOB DETAIL ── -->
       <div id="view-job-detail" class="view">
@@ -6079,9 +6224,10 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
   <div class="modal">
     <div class="modal-header">
       <div>
-        <div class="modal-title">Choose a Phase</div>
+        <div class="modal-title" id="phase-title">Choose a Phase</div>
         <div class="modal-subtitle">Pick which phase of the Jobs prototype to load.</div>
       </div>
+      <button class="modal-close" onclick="closeModal('modal-phase')"><i class="fa-solid fa-xmark"></i></button>
     </div>
     <div class="modal-body">
       <div class="phase-grid" id="phase-grid"></div>
@@ -6150,6 +6296,94 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
   <div class="menu-pop-item" onclick="menuAction2('Sharing 25 completed galleries with their contacts…')"><i class="fa-solid fa-share-nodes"></i> Share completed galleries</div>
   <div class="menu-pop-item" onclick="menuAction2('Email composer opens — all 128 job contacts selected')"><i class="fa-solid fa-envelope"></i> Email all contacts</div>
   <div class="menu-pop-item" onclick="menuAction2('Generating printable QR card PDF for 142 subjects…')"><i class="fa-solid fa-qrcode"></i> Download QR cards</div>
+</div>
+
+<!-- Phase 1 registration modals (Job Access → Edit Details / Edit Form) -->
+<div class="modal-overlay" id="modal-p1-fee">
+  <div class="modal modal-sm">
+    <div class="modal-header"><div><div class="modal-title">Access Fee Details</div></div>
+      <button class="modal-close" onclick="closeModal('modal-p1-fee')"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="modal-body" style="display:flex; flex-direction:column; gap:12px;">
+      <div class="f-field"><label class="f-label" for="p1-fee-title">Access Fee Title</label><input class="f-input" id="p1-fee-title"></div>
+      <div class="f-field"><label class="f-label" for="p1-fee-desc">Description to Visitors</label><textarea class="f-textarea" id="p1-fee-desc" rows="3"></textarea></div>
+      <div class="f-field"><label class="f-label" for="p1-fee-conf">Payment Confirmation Message</label><textarea class="f-textarea" id="p1-fee-conf" rows="3"></textarea></div>
+    </div>
+    <div class="modal-footer"><div class="spacer"></div>
+      <button class="btn btn-ghost-sm" onclick="closeModal('modal-p1-fee')">Close</button>
+      <button class="btn btn-brand" onclick="p1SaveFee()">Save</button></div>
+  </div>
+</div>
+<div class="modal-overlay fullscreen" id="modal-p1-form" style="--wiz-maxw: 1040px;">
+  <div class="modal">
+    <div class="modal-header" style="align-items:center;">
+      <button class="btn btn-ghost-sm" onclick="closeModal('modal-p1-form')"><i class="fa-solid fa-arrow-left"></i> Back to Job Settings</button>
+      <div class="modal-title" style="text-transform:uppercase; letter-spacing:.06em; font-size:14px;">Edit Custom Form</div>
+      <span style="width:150px;"></span>
+    </div>
+    <div class="modal-body" id="p1-form-root"></div>
+  </div>
+</div>
+<div class="modal-overlay" id="modal-p1-field">
+  <div class="modal modal-sm">
+    <div class="modal-header"><div><div class="modal-title" id="p1-field-title">Add Text</div></div>
+      <button class="modal-close" onclick="closeModal('modal-p1-field')"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="modal-body" style="display:flex; flex-direction:column; gap:12px;">
+      <div class="f-field"><label class="f-label" for="p1-field-label">Label Text (Question)</label>
+        <input class="f-input" id="p1-field-label" maxlength="250" oninput="p1FieldValidate()"><div class="cf-count" id="p1-field-n" style="text-align:right;">0/250</div></div>
+      <div class="f-field" id="p1-field-opts-wrap"><label class="f-label" for="p1-field-opts">Dropdown Options</label>
+        <input class="f-input" id="p1-field-opts" placeholder="Example: Red, Green, Blue" oninput="p1FieldValidate()"><div class="cf-count">Enter your options separated by a comma ( , )</div></div>
+      <label class="p1-opt"><input type="checkbox" id="p1-field-req"> Required</label>
+    </div>
+    <div class="modal-footer"><div class="spacer"></div>
+      <button class="btn btn-ghost-sm" onclick="closeModal('modal-p1-field')">Cancel</button>
+      <button class="btn btn-brand" id="p1-field-add" disabled onclick="p1FieldAdd()">Add</button></div>
+  </div>
+</div>
+<div class="modal-overlay" id="modal-p1-pick">
+  <div class="modal modal-sm">
+    <div class="modal-header"><div><div class="modal-title" id="p1-pick-title"></div><div class="modal-subtitle" id="p1-pick-sub"></div></div>
+      <button class="modal-close" onclick="closeModal('modal-p1-pick')"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="modal-body"><div id="p1-pick-warn" class="cf-warn"></div>
+      <input class="f-input" id="p1-pick-q" placeholder="Search locations..." aria-label="Search locations" oninput="p1PickRender()" style="margin-bottom:10px;">
+      <div class="cf-pick-list" id="p1-pick-list"></div></div>
+    <div class="modal-footer"><div class="spacer"></div>
+      <button class="btn btn-ghost-sm" onclick="closeModal('modal-p1-pick')">Cancel</button>
+      <button class="btn btn-brand" id="p1-pick-ok" onclick="p1PickApply()">Done</button></div>
+  </div>
+</div>
+
+<!-- Phase 1 job page menus — the folder page's menus, reworded for jobs -->
+<div class="menu-pop" id="menu-p1-share">
+  <div class="menu-pop-item" onclick="menuAction2('Share Job by Email')"><i class="fa-solid fa-envelope"></i> Share Job by Email</div>
+  <div class="menu-pop-item" onclick="menuAction2('Share Job by SMS')"><i class="fa-solid fa-paper-plane"></i> Share Job by SMS</div>
+  <div class="menu-pop-item" onclick="menuAction2('Bulk Share by Email')"><i class="fa-solid fa-envelope-open-text"></i> Bulk Share by Email</div>
+  <div class="menu-pop-item" onclick="menuAction2('Bulk Share by SMS')"><i class="fa-solid fa-paper-plane"></i> Bulk Share by SMS</div>
+  <div class="menu-pop-item" onclick="menuAction2('Copy Direct Link')"><i class="fa-solid fa-link"></i> Copy Direct Link</div>
+  <div class="menu-pop-item" onclick="menuAction2('Message')"><i class="fa-solid fa-envelope"></i> Message</div>
+  <div class="menu-pop-item" onclick="menuAction2('Get QR Code')"><i class="fa-solid fa-qrcode"></i> Get QR Code</div>
+  <div class="menu-pop-sep"></div>
+  <div class="menu-pop-item" onclick="menuAction2('Edit Job Link')"><i class="fa-solid fa-pencil"></i> Edit Job Link</div>
+</div>
+<div class="menu-pop" id="menu-p1-field">
+  <div class="menu-pop-item" onclick="p1OpenField('text')"><i class="fa-solid fa-pen-nib"></i> Text</div>
+  <div class="menu-pop-item" onclick="p1OpenField('dropdown')"><i class="fa-solid fa-chevron-down"></i> Dropdown</div>
+  <div class="menu-pop-item" onclick="p1OpenField('date')"><i class="fa-solid fa-calendar-days"></i> Date</div>
+</div>
+<div class="menu-pop" id="menu-p1-addfolder">
+  <div class="menu-pop-item" onclick="menuAction2('Create Folder')"><i class="fa-solid fa-folder-plus"></i> Create Folder</div>
+  <div class="menu-pop-item" onclick="menuAction2('Upload Folder')"><i class="fa-solid fa-arrow-up-from-bracket"></i> Upload Folder</div>
+</div>
+<div class="menu-pop" id="menu-p1-qr">
+  <div class="menu-pop-heading">Create Galleries &amp; QR Codes</div>
+  <div class="menu-pop-item" onclick="menuAction2('Import Subject List (CSV)')">Import Subject List (CSV)</div>
+  <div class="menu-pop-item" onclick="menuAction2('Create Galleries by Count')">Create Galleries by Count</div>
+  <div class="menu-pop-heading">Upload and Auto-Sort</div>
+  <div class="menu-pop-item" onclick="menuAction2('Upload Files (include QR Codes)')">Upload Files (include QR Codes)</div>
+  <div class="menu-pop-heading">Download Job Details</div>
+  <div class="menu-pop-item" onclick="menuAction2('Choose File Type')">Choose File Type</div>
+  <div class="menu-pop-heading">Share</div>
+  <div class="menu-pop-item" onclick="menuAction2('Bulk Share by Email')">Bulk Share by Email</div>
+  <div class="menu-pop-item" onclick="menuAction2('Bulk Share by SMS')">Bulk Share by SMS</div>
 </div>
 
 <div class="menu-pop" id="menu-doc">
@@ -6273,6 +6507,7 @@ function flipCheck(el) {
 function openModal(id)  { document.getElementById(id).classList.add('open'); }
 function setFullscreen(id, on) { document.getElementById(id).classList.toggle('fullscreen', !!on); }
 function closeModal(id) {
+  if (id === 'modal-phase' && !currentPhase) return;   /* first load: a phase must be picked */
   document.getElementById(id).classList.remove('open');
   if (id === 'modal-folder' && locMode === 'dest') {
     locMode = 'add';
@@ -6887,6 +7122,7 @@ function generateOrders(j) {
 
 /* ══════════ OPEN A JOB ══════════ */
 function openJob(key) {
+  if (currentPhase === 1) { openJobP1(key); return; }   /* Phase 1 has its own job page */
   const j = JOBS[key];
   if (!j) return;
   persistJobSettings();          /* commit any settings edits belonging to the previously loaded job */
@@ -11892,23 +12128,520 @@ function updateSaveOrgRows() {
 
 /* ══════════ PHASE CHOOSER ══════════ */
 const PHASES = [
-  { id: 1, title: 'Phase 1', desc: 'In progress — not available yet.', enabled: false },
+  { id: 1, title: 'Phase 1', desc: 'CRM organizations and a simplified jobs table.', enabled: true },
   { id: 2, title: 'Phase 2', desc: 'In progress — not available yet.', enabled: false },
   { id: 3, title: 'Phase 3', desc: 'Current build: jobs dashboard, job detail, Create Job wizard and CRM.', enabled: true }
 ];
+let currentPhase = null;   /* set once a phase is picked; until then the chooser can't be dismissed */
+
 function renderPhaseChooser() {
-  document.getElementById('phase-grid').innerHTML = PHASES.map(p =>
-    '<button class="phase-tile" type="button"' + (p.enabled ? ' onclick="pickPhase(' + p.id + ')"' : ' disabled') + '>' +
-      '<div class="phase-tile-head"><span class="phase-tile-title">' + p.title + '</span>' +
-      (p.enabled ? chipTeal('Available') : '<span class="chip chip-gray"><i class="fa-solid fa-lock" style="font-size:9px;"></i> Coming Soon</span>') +
-      '</div><span class="phase-tile-desc">' + p.desc + '</span></button>'
-  ).join('');
+  document.getElementById('phase-grid').innerHTML = PHASES.map(p => {
+    const chip = !p.enabled
+      ? '<span class="chip chip-gray"><i class="fa-solid fa-lock" style="font-size:9px;"></i> Coming Soon</span>'
+      : (p.id === currentPhase ? '<span class="chip chip-orange">Current</span>' : chipTeal('Available'));
+    return '<button class="phase-tile' + (p.id === currentPhase ? ' current' : '') + '" type="button"' +
+      (p.enabled ? ' onclick="pickPhase(' + p.id + ')"' : ' disabled') + '>' +
+      '<div class="phase-tile-head"><span class="phase-tile-title">' + p.title + '</span>' + chip + '</div>' +
+      '<span class="phase-tile-desc">' + p.desc + '</span></button>';
+  }).join('');
+}
+
+/* first load, and the top bar's Switch Phase button */
+function openPhaseChooser() {
+  setText('phase-title', currentPhase ? 'Switch Phase' : 'Choose a Phase');
+  document.getElementById('modal-phase').classList.toggle('has-phase', !!currentPhase);
+  renderPhaseChooser();
   openModal('modal-phase');
 }
+
 function pickPhase(id) {
   const p = PHASES.find(x => x.id === id);
   if (!p || !p.enabled) return;
+  const changed = currentPhase !== id;
+  currentPhase = id;
+  document.body.classList.toggle('phase-1', id === 1);
   closeModal('modal-phase');
+  if (changed) { navJobs(); if (id === 1) renderJobsTableP1(); }
+}
+
+/* ══════════ PHASE 1 — JOBS TABLE ══════════ */
+const JT_COLS = [
+  { key: 'name', label: 'Job Title', min: 220 },
+  { key: 'org',  label: 'Organization', min: 180 },
+  { key: 'date', label: 'Shoot Date', min: 150 },
+  { key: 'loc',  label: 'Location', min: 200 },
+  { key: 'status', label: 'Status', min: 140 }
+];
+let jtSort = null;   /* null = list order until a header is clicked; then { key, dir } */
+
+/* shoot dates in chronological order, plus every distinct venue in shoot order */
+function jobShootSummary(j) {
+  const t = d => { const x = displayDateToLocal(d); return x ? x.getTime() : 0; };
+  const dates = (j.shoots || []).map(s => s.date).filter(d => d && d !== 'Date TBD').sort((a, b) => t(a) - t(b));
+  const locs = [];
+  (j.shoots || []).forEach(s => (s.locs || []).forEach(L => {
+    const v = (L.v || '').trim();
+    if (v && v !== 'Location TBD' && locs.indexOf(v) < 0) locs.push(v);
+  }));
+  return { dates, locs, dateKey: dates.length ? t(dates[0]) : 0 };
+}
+
+function morePillHTML(items, label) {
+  if (!items.length) return '';
+  return '<button type="button" class="more-pill" onclick="event.stopPropagation()" aria-label="' + items.length + ' more ' + label + ': ' + escHtml(items.join(', ')) + '">+' + items.length +
+    '<span class="more-pop"><b>More ' + label + '</b>' + items.map(escHtml).join('<br>') + '</span></button>';
+}
+
+function jtCellHTML(items, label, empty) {
+  if (!items.length) return '<span style="color:var(--text-3);">' + empty + '</span>';
+  return '<span class="jt-cell"><span>' + escHtml(items[0]) + '</span>' + morePillHTML(items.slice(1), label) + '</span>';
+}
+
+/* Phase 1 status: Upcoming / Active / Complete.
+   Upcoming and Active are automatic from the first shoot date (before it = Upcoming,
+   on or after it = Active; no shoot date yet = Upcoming). Complete is set by the
+   photographer, who can also pick any status by hand. A hand-picked status sticks;
+   picking the one the date would give clears it, so the job follows its date again. */
+const JT_STATUS_ORDER = ['upcoming', 'active', 'complete'];
+const JT_STATUS_LABEL = { upcoming: 'Upcoming', active: 'Active', complete: 'Complete' };
+
+function autoJobStatus(j) {
+  const first = (j.shoots || [])
+    .map(s => (s.date && s.date !== 'Date TBD') ? displayDateToLocal(s.date) : null)
+    .filter(Boolean)
+    .sort((a, b) => a - b)[0];
+  if (!first) return 'upcoming';
+  return first.getTime() <= todayLocal().getTime() ? 'active' : 'upcoming';
+}
+
+function jobStatusOf(j) { return j.status || autoJobStatus(j); }
+
+function jtStatusHTML(j) {
+  const st = jobStatusOf(j), auto = autoJobStatus(j);
+  const hint = 'From the shoot date: ' + JT_STATUS_LABEL[auto] + (j.status ? ' (set by hand to ' + JT_STATUS_LABEL[st] + ')' : '');
+  return '<select class="jt-status ' + st + '" title="' + hint + '" aria-label="Status for ' + escHtml(j.name) + '" onclick="event.stopPropagation()" onchange="setJobStatus(\'' + j.key + '\', this.value)">' +
+    JT_STATUS_ORDER.map(s => '<option value="' + s + '"' + (st === s ? ' selected' : '') + '>' + JT_STATUS_LABEL[s] + '</option>').join('') +
+    '</select>';
+}
+
+function setJobStatus(key, st) {
+  const j = JOBS[key];
+  if (!j) return;
+  if (st === autoJobStatus(j)) delete j.status; else j.status = st;
+  renderJobsTableP1();
+  if (p1JobKey === key && document.getElementById('view-job-p1').classList.contains('active')) renderJobP1();
+}
+
+/* ══════════ PHASE 1 — JOB PAGE (skeleton) ══════════
+   A job looks like a Zenfolio folder (Organize · Settings · Design, modelled on
+   the live folder page in app.zenfolio.dev) plus job-only Team and Reports tabs.
+   Every "folder" string is reworded for jobs. Actions toast. */
+let p1JobKey = null, p1TabId = 'organize', p1Pane = 'access';
+const p1Ui = { access: 'public', showReg: false, fee: false, capture: 'email', inSearch: false, search: false, appearance: 'default' };
+
+function openJobP1(key) {
+  if (!JOBS[key]) return;
+  if (p1JobKey !== key) { p1TabId = 'organize'; p1Pane = 'access'; Object.assign(p1Ui, { access: 'public', showReg: false, fee: false, capture: 'email', inSearch: false, search: false, appearance: 'default' }); }
+  p1JobKey = key;
+  renderJobP1();
+  showView('view-job-p1');
+}
+function p1SetTab(id) { p1TabId = id; renderJobP1(); }
+function p1SetPane(id) { p1Pane = id; renderJobP1(); }
+function p1Set(k, v) { p1Ui[k] = v; renderJobP1(); }
+
+function renderJobP1() {
+  const j = JOBS[p1JobKey]; if (!j) return;
+  const nf = (j.folders || []).length;
+  /* same gallery count the job's card shows on the Phase 3 jobs list; new jobs count their gallery rows */
+  const card = [...document.querySelectorAll('#view-jobs-list .job-card')].find(c => (c.getAttribute('onclick') || '').indexOf("'" + j.key + "'") >= 0);
+  const cm = card && /(\d[\d,]*) galler/.exec(card.querySelector('.gallery-count') ? card.querySelector('.gallery-count').textContent : '');
+  const ng = cm ? parseInt(cm[1].replace(/,/g, ''), 10) : (j.gals || []).length;
+  const tabs = [['organize', 'Organize'], ['settings', 'Settings'], ['design', 'Design'], ['team', 'Team'], ['reports', 'Reports']];
+  const body = p1TabId === 'organize' ? p1OrganizeHTML(j) : p1TabId === 'settings' ? p1SettingsHTML(j)
+    : p1TabId === 'design' ? p1DesignHTML() : p1TabId === 'team' ? p1TeamHTML(j) : p1ReportsHTML(j);
+  document.getElementById('p1-root').innerHTML =
+    '<div class="job-header"><div class="p1-crumb"><a onclick="navJobs()">Jobs</a> / <b>' + escHtml(j.name) + '</b></div>' +
+    '<div class="job-header-row1">' +
+      '<button class="back-btn" onclick="navJobs()" aria-label="Back to Jobs"><i class="fa-solid fa-arrow-left"></i></button>' +
+      '<div class="job-cover-thumb"><i class="fa-solid fa-folder"></i></div>' +
+      '<div class="job-header-title-group"><div class="job-header-name"><span>' + escHtml(j.name) + '</span>' +
+        '<i class="fa-solid fa-pencil edit-pencil" onclick="toast(\'Rename job — opens the job title editor\')"></i></div>' +
+        '<div class="job-header-subtitle">' + nf + (nf === 1 ? ' folder' : ' folders') + ' · ' + ng + (ng === 1 ? ' gallery' : ' galleries') + (j.org2 ? ' · ' + escHtml(j.org2) : '') + '</div></div>' +
+      '<div class="job-header-actions">' + jtStatusHTML(j) +
+        '<button class="btn btn-ghost" onclick="toast(\'Preview — opens the client view of this job\')"><i class="fa-regular fa-eye"></i> Preview</button>' +
+        '<button class="btn btn-brand" onclick="openMenu(event,\'menu-p1-share\')">Share <i class="fa-solid fa-chevron-down" style="font-size:10px; margin-left:2px;"></i></button>' +
+      '</div></div>' +
+    '<div class="job-tabs">' + tabs.map(t => '<div class="job-tab' + (t[0] === p1TabId ? ' active' : '') + '" onclick="p1SetTab(\'' + t[0] + '\')">' + t[1] + '</div>').join('') + '</div></div>' +
+    '<div style="padding-top:16px;">' + body + '</div>';
+}
+
+function p1OrganizeHTML(j) {
+  const rows = (j.folders || []).map(f => ({ t: f[0], type: 'Folder', sub: f[1], mod: f[3] }))
+    .concat((j.gals || []).map(g => ({ t: g[0], type: 'Gallery', sub: g[1] ? g[2] + ' photos' : 'No photos yet', mod: g[3] })));
+  const toolbar = '<div class="p1-toolbar">' +
+    '<button class="btn btn-ghost-sm" onclick="toast(\'Add Gallery\')">Add Gallery</button>' +
+    '<button class="btn btn-ghost-sm" onclick="openMenu(event,\'menu-p1-addfolder\')">Add Folder <i class="fa-solid fa-chevron-down" style="font-size:9px;"></i></button>' +
+    '<button class="btn btn-ghost-sm" onclick="openMenu(event,\'menu-p1-qr\')">QR Code Workflow <i class="fa-solid fa-chevron-down" style="font-size:9px;"></i></button>' +
+    '<button class="btn btn-ghost-sm" onclick="toast(\'Volume Wizard\')">Volume Wizard</button></div>';
+  if (!rows.length) return toolbar + '<div class="detail-card" style="text-align:center;"><i class="fa-solid fa-folder" style="font-size:26px; color:var(--text-3);"></i>' +
+    '<div class="p1-block-title" style="margin-top:8px;">This job is empty</div><div class="p1-muted">Add galleries or folders to start organizing this job.</div></div>';
+  return toolbar + '<div class="gallery-table-wrap" style="overflow-x:auto;"><table class="gallery-table"><thead><tr>' +
+    '<th class="col-check"><input type="checkbox" aria-label="Select all items in this job"></th><th style="width:72px;"></th><th>Title</th><th>Type</th><th>Access</th><th>Modified</th><th style="width:48px;"></th></tr></thead><tbody>' +
+    rows.map(r => '<tr><td><input type="checkbox" aria-label="Select ' + escHtml(r.t) + '"></td>' +
+      '<td><div class="p1-thumb"><i class="fa-solid ' + (r.type === 'Folder' ? 'fa-folder' : 'fa-image') + '"></i></div></td>' +
+      '<td><b style="color:var(--text);">' + escHtml(r.t) + '</b><span class="p1-sub">' + escHtml(r.sub) + '</span></td>' +
+      '<td>' + r.type + '</td><td>Public</td><td style="white-space:nowrap;">' + r.mod + '</td>' +
+      '<td><button class="topbar-icon-btn" aria-label="More options for ' + escHtml(r.t) + '" onclick="toast(\'' + escHtml(r.t).replace(/'/g, '') + ' — item actions\')"><i class="fa-solid fa-ellipsis"></i></button></td></tr>').join('') +
+    '</tbody></table></div>';
+}
+
+function p1SettingsHTML(j) {
+  const nav = [['access', 'fa-lock', 'Job Access'], ['details', 'fa-circle-info', 'Job Details'], ['contacts', 'fa-user', 'Contacts', (j.contacts || []).length], ['features', 'fa-gear', 'Features']];
+  const pane = p1Pane === 'access' ? p1AccessHTML() : p1Pane === 'details' ? p1DetailsHTML(j) : p1Pane === 'contacts' ? p1ContactsHTML(j) : p1FeaturesHTML();
+  return '<div class="settings-grid"><div class="settings-nav">' +
+    nav.map(n => '<div class="settings-nav-item' + (n[0] === p1Pane ? ' active' : '') + '" onclick="p1SetPane(\'' + n[0] + '\')"><i class="fa-solid ' + n[1] + '"></i> ' + n[2] +
+      (n[3] != null ? ' <span class="chip chip-gray" style="margin-left:auto;">' + n[3] + '</span>' : '') + '</div>').join('') +
+    '</div><div>' + pane + '</div></div>';
+}
+
+function p1Toggle(key, label) {
+  return '<button class="toggle' + (p1Ui[key] ? ' on' : '') + '" aria-label="' + label + '" aria-pressed="' + !!p1Ui[key] + '" onclick="p1Set(\'' + key + '\', ' + !p1Ui[key] + ')"></button>';
+}
+
+/* ── Phase 1 registration — the folder page's "Show Folder Registration" area and its
+   "Edit Custom Form" editor (explored on app.zenfolio.dev), reworded for jobs.
+   Kept per job in p1RegByJob so settings survive tab switches. ── */
+const P1_CF_MAX = 15;
+const P1_PAGES = ['Home', 'About', 'Contact', 'Galleries', 'Pricing'];
+const P1_FIELD_LABEL = { first: 'First Name', last: 'Last Name', email: 'Email', phone: 'Phone Number' };
+const p1RegByJob = {};
+let p1Seq = 0;
+function p1Block(primary) {
+  return { id: 'b' + (p1Seq++), label: '', description: '', role: 'Visitor (Default)', open: true, custom: [],
+    fields: primary
+      ? { first: { on: true, req: false }, last: { on: true, req: false }, email: { on: true, req: true }, phone: { on: true, req: false } }
+      : { first: { on: true, req: true }, last: { on: true, req: false }, email: { on: true, req: true }, phone: { on: false, req: false } } };
+}
+function p1Behavior() { return { kind: 'access', target: 'url', page: 'Home', url: '', message: 'Thank you for registering.' }; }
+function p1Reg() {
+  const j = JOBS[p1JobKey];
+  if (!p1RegByJob[p1JobKey]) p1RegByJob[p1JobKey] = {
+    access: 'public', showReg: false, fee: false, feeAmount: '$9.99', feeTitle: 'Access Fee',
+    feeDescription: "By filling out the form and clicking 'Continue', you will be prompted to pay a one time Access Fee.",
+    feeConfirmation: 'We’re pleased to confirm that we have received your payment.',
+    capture: 'email', emailOptional: false, formOptional: true,
+    inSearch: false, searchEngines: true, sitewideSearch: true, jobSearch: true,
+    customTitle: false, title: 'Pre-Registration for Job Access', description: 'Please fill out the form below to complete registration.',
+    blocks: [p1Block(true)], submitLabel: 'Submit', submit: p1Behavior(), skip: p1Behavior(),
+    assignment: 'job', destination: j ? j.name : '', preset: Object.keys(VOLUME_PRESET_ROLES)[0], galleryTitle: 'email'
+  };
+  return p1RegByJob[p1JobKey];
+}
+/* set a registration value and repaint the Job Access pane (and the editor when open) */
+function p1R(k, v) { p1Reg()[k] = v; renderJobP1(); if (document.getElementById('modal-p1-form').classList.contains('open')) p1FormRender(); }
+const p1Esc = s => escHtml(s == null ? '' : s);
+
+function p1AccessHTML() {
+  const r = p1Reg();
+  const cards = [['public', 'fa-globe', 'Public', 'Anyone with the link has access.'], ['password', 'fa-lock', 'Password Protected', 'Requires password for access.'], ['hidden', 'fa-eye', 'Hidden', 'Does not allow job level access.']];
+  const optLabel = r.fee ? 'Optional (not available with Access Fee)' : 'Optional (allow visitors to skip)';
+  const capture = (id, title, desc, optKey) => {
+    const sel = r.capture === id, dis = !sel || r.fee;
+    return '<div><div class="p1-optrow"><label class="p1-opt"><input type="radio" name="p1-capture"' + (sel ? ' checked' : '') + ' onchange="p1R(\'capture\', \'' + id + '\')"><span><div class="p1-block-title">' + title + '</div><div class="p1-muted">' + desc + '</div></span></label>' +
+      '<label class="p1-optional' + (dis ? ' off' : '') + '"><input type="checkbox"' + (r[optKey] ? ' checked' : '') + (dis ? ' disabled' : '') + ' onchange="p1R(\'' + optKey + '\', this.checked)"> ' + optLabel + '</label></div>' +
+      (id === 'email' && sel ? '<div class="p1-note"><b>Note:</b> Registrants will be added to the job as a default contact.</div>' : '') +
+      (id === 'form' && sel ? '<button class="btn btn-ghost-sm" style="margin:8px 0 0 24px;" onclick="p1OpenForm()">Edit Form</button>' : '') + '</div>';
+  };
+  let reg = '';
+  if (r.showReg) {
+    reg = '<div class="p1-reg">' +
+      '<label class="p1-opt"><input type="checkbox"' + (r.fee ? ' checked' : '') + ' onchange="p1R(\'fee\', this.checked)"><span><div class="p1-block-title">Enable Registration/Access Fee <i class="fa-solid fa-cart-shopping" title="Visitors pay this one-time fee before entering the job." style="color:var(--text-2); font-size:12px;"></i></div><div class="p1-muted">Charge a registration/access fee for this job.</div></span></label>' +
+      (r.fee ? '<div style="padding-left:24px;"><label class="f-label" for="p1-fee-amt">Access Fee Amount ($USD)</label><input class="f-input" id="p1-fee-amt" style="width:160px; margin:6px 0 10px; display:block;" value="' + p1Esc(r.feeAmount) + '" onchange="p1Reg().feeAmount = this.value"><button class="btn btn-ghost-sm" onclick="p1OpenFee()">Edit Details</button></div>' : '') +
+      capture('email', 'Collect Email', 'Collect visitor’s email address before they enter.', 'emailOptional') +
+      capture('form', 'Custom Form', 'Design your own form to collect additional information.', 'formOptional') +
+    '</div>';
+  }
+  const search = r.inSearch ? '<div class="p1-search-opts">' + [['searchEngines', 'Search Engines (Bing, Google, Yahoo)', 'learn about SEO'], ['sitewideSearch', 'Zenfolio Sitewide Search', 'click here to learn more'], ['jobSearch', 'Job Search', 'click here to learn more']]
+    .map(o => '<label><input type="checkbox"' + (r[o[0]] ? ' checked' : '') + ' onchange="p1R(\'' + o[0] + '\', this.checked)" style="accent-color:var(--orange);"> ' + o[1] + ' - <a onclick="toast(\'' + o[1] + ' — help article\')">' + o[2] + '</a></label>').join('') + '</div>' : '';
+  const tog = (k, label) => '<button class="toggle' + (r[k] ? ' on' : '') + '" aria-label="' + label + '" aria-pressed="' + !!r[k] + '" onclick="p1R(\'' + k + '\', ' + !r[k] + ')"></button>';
+  return '<div class="detail-card"><div class="settings-section-title">Job Access</div>' +
+    '<div class="p1-access" role="radiogroup" aria-label="Job access">' + cards.map(c => '<button type="button" role="radio" aria-checked="' + (r.access === c[0]) + '" class="p1-choice' + (r.access === c[0] ? ' on' : '') + '" onclick="p1R(\'access\', \'' + c[0] + '\')"><i class="fa-solid ' + c[1] + '"></i><b>' + c[2] + '</b><span>' + c[3] + '</span></button>').join('') + '</div>' +
+    '<div class="p1-block"><div class="p1-block-title">Access Info</div><div class="p1-muted">Public jobs allow anyone with the link to access. Any folders or galleries in the job will retain their individual access settings.</div></div>' +
+    '<div class="p1-block toggle-row"><div><div class="toggle-row-title">Show Job Registration</div><div class="toggle-row-desc">Configure payment collection, email capture and custom form fields.</div></div>' + tog('showReg', 'Show job registration') + '</div>' + reg +
+    '<div class="p1-block" style="border-top:1px solid var(--line); padding-top:16px;"><div style="display:flex; align-items:center; gap:12px;"><span class="p1-block-title">Allow job to appear in search results</span>' + tog('inSearch', 'Allow job to appear in search results') + '</div>' +
+    '<div class="p1-muted">' + (r.inSearch ? 'This job can appear in the searches selected below.' : 'Turn on to select which search results this job can appear in.') + '</div>' +
+    '<div class="p1-muted" style="font-size:11.5px;">Note: Items within this job have their own settings and must be managed separately.</div>' + search + '</div></div>';
+}
+
+/* Access Fee Details — staged: Save commits, Close discards */
+function p1OpenFee() {
+  const r = p1Reg();
+  document.getElementById('p1-fee-title').value = r.feeTitle;
+  document.getElementById('p1-fee-desc').value = r.feeDescription;
+  document.getElementById('p1-fee-conf').value = r.feeConfirmation;
+  openModal('modal-p1-fee');
+}
+function p1SaveFee() {
+  const r = p1Reg();
+  r.feeTitle = document.getElementById('p1-fee-title').value;
+  r.feeDescription = document.getElementById('p1-fee-desc').value;
+  r.feeConfirmation = document.getElementById('p1-fee-conf').value;
+  closeModal('modal-p1-fee');
+  toast('Access fee details saved');
+}
+
+/* ── Edit Custom Form (full screen) ── */
+function p1OpenForm() { p1FormRender(); openModal('modal-p1-form'); }
+function p1F(k, v) { p1Reg()[k] = v; p1FormRender(); }
+function p1Blk(i, k, v) { p1Reg().blocks[i][k] = v; p1FormRender(); }
+function p1Fld(i, f, k, v) { const fl = p1Reg().blocks[i].fields[f]; fl[k] = v; if (k === 'on' && !v) fl.req = false; p1FormRender(); }
+function p1Beh(which, k, v) {
+  const r = p1Reg(); r[which][k] = v;
+  if (which === 'submit' && k === 'kind' && v === 'access' && r.assignment !== 'job') r.assignment = 'job';   /* per-registrant options need a non-access submit */
+  p1FormRender();
+}
+function p1AddBlock() { p1Reg().blocks.push(p1Block(false)); p1FormRender(); }
+function p1RemoveBlock(i) { p1Reg().blocks.splice(i, 1); p1FormRender(); }
+function p1RemoveCustom(i, c) { p1Reg().blocks[i].custom.splice(c, 1); p1FormRender(); }
+function p1CustomCount() { return p1Reg().blocks.reduce((n, b) => n + b.custom.length, 0); }
+
+function p1BehaviorHTML(title, which) {
+  const b = p1Reg()[which];
+  return '<div class="cf-field"><span class="f-label">' + title + '</span><div class="cf-radio">' +
+    [['access', 'Access the Job'], ['redirect', 'Redirect to a Custom URL'], ['message', 'Show Message']].map(o =>
+      '<label><input type="radio" name="p1-' + which + '"' + (b.kind === o[0] ? ' checked' : '') + ' onchange="p1Beh(\'' + which + '\', \'kind\', \'' + o[0] + '\')"> ' + o[1] + '</label>' +
+      (o[0] === 'redirect' && b.kind === 'redirect' ? '<div class="cf-sub"><div class="cf-seg" role="radiogroup" aria-label="Redirect target">' +
+        ['page', 'url'].map(t => '<button type="button" role="radio" aria-checked="' + (b.target === t) + '" class="' + (b.target === t ? 'on' : '') + '" onclick="p1Beh(\'' + which + '\', \'target\', \'' + t + '\')">' + (t === 'page' ? 'Page' : 'URL') + '</button>').join('') + '</div>' +
+        (b.target === 'page'
+          ? '<select class="f-input" style="width:240px;" aria-label="' + title + ' page" onchange="p1Beh(\'' + which + '\', \'page\', this.value)">' + P1_PAGES.map(pg => '<option' + (pg === b.page ? ' selected' : '') + '>' + pg + '</option>').join('') + '</select>'
+          : '<input class="f-input" style="width:240px;" placeholder="URL" aria-label="' + title + ' URL" value="' + p1Esc(b.url) + '" onchange="p1Reg().' + which + '.url = this.value">') + '</div>' : '') +
+      (o[0] === 'message' && b.kind === 'message' ? '<div class="cf-sub"><label class="f-label" for="p1-' + which + '-msg">Message</label><input class="f-input" id="p1-' + which + '-msg" maxlength="250" value="' + p1Esc(b.message) + '" oninput="p1Reg().' + which + '.message = this.value; this.nextElementSibling.textContent = this.value.length + \'/250\'"><div class="cf-count">' + b.message.length + '/250</div></div>' : '')
+    ).join('') + '</div></div>';
+}
+
+function p1BlockHTML(b, i) {
+  const r = p1Reg(), primary = i === 0;
+  let body = '';
+  if (b.open) {
+    body = '<div class="cf-block-body">' +
+      '<div class="' + (r.assignment === 'new' ? 'cf-two' : '') + '"><div class="cf-field"><label class="f-label">Contact Card Label</label><input class="f-input" placeholder="' + (primary ? 'e.g. Parent info' : 'e.g. Player info') + '" value="' + p1Esc(b.label) + '" onchange="p1Blk(' + i + ', \'label\', this.value)"></div>' +
+      (r.assignment === 'new' ? '<div class="cf-field"><label class="f-label">Add this contact to the gallery as:</label><select class="f-input" onchange="p1Blk(' + i + ', \'role\', this.value)">' + ['Visitor (Default)', 'Default'].map(o => '<option' + (o === b.role ? ' selected' : '') + '>' + o + '</option>').join('') + '</select></div>' : '') + '</div>' +
+      '<div class="cf-field"><label class="f-label">Contact Card Description</label><input class="f-input" placeholder="' + (primary ? 'e.g. Parents, please provide your information here' : 'e.g. Please enter player info here') + '" value="' + p1Esc(b.description) + '" onchange="p1Blk(' + i + ', \'description\', this.value)"></div>' +
+      Object.keys(P1_FIELD_LABEL).map(f => {
+        const fl = b.fields[f], locked = f === 'email';
+        return '<div class="cf-frow' + (locked ? ' locked' : '') + '"><label><button class="toggle' + (fl.on ? ' on' : '') + '" aria-label="' + P1_FIELD_LABEL[f] + '" aria-pressed="' + fl.on + '"' + (locked ? ' disabled style="opacity:.5;"' : ' onclick="p1Fld(' + i + ', \'' + f + '\', \'on\', ' + !fl.on + ')"') + '></button> ' + P1_FIELD_LABEL[f] + '</label>' +
+          '<label style="font-size:11.5px; color:var(--text-2);"><input type="checkbox"' + (fl.req ? ' checked' : '') + (locked || !fl.on ? ' disabled' : '') + ' onchange="p1Fld(' + i + ', \'' + f + '\', \'req\', this.checked)"> Required</label></div>';
+      }).join('') +
+      b.custom.map((c, ci) => '<div class="cf-frow"><span>' + p1Esc(c.label) + '<span class="cf-custom-sub">' + (c.type === 'text' ? 'Text' : c.type === 'date' ? 'Date' : 'Dropdown · ' + p1Esc(c.options.join(', '))) + (c.req ? ' · Required' : '') + '</span></span>' +
+        '<button class="topbar-icon-btn" aria-label="Remove ' + p1Esc(c.label) + '" onclick="p1RemoveCustom(' + i + ', ' + ci + ')"><i class="fa-solid fa-trash-can"></i></button></div>').join('') +
+      '<div class="cf-center"><span class="cf-count">Custom Fields (' + P1_CF_MAX + ' max per form)</span>' +
+      '<button class="btn btn-ghost-sm" onclick="openMenu(event, \'menu-p1-field\'); p1FieldBlock = ' + i + ';"' + (p1CustomCount() >= P1_CF_MAX ? ' disabled' : '') + '><i class="fa-solid fa-plus"></i> Add Custom Field</button></div>' +
+    '</div>';
+  }
+  return '<div class="cf-block"><div class="cf-block-head"><button type="button" aria-expanded="' + b.open + '" onclick="p1Blk(' + i + ', \'open\', ' + !b.open + ')"><i class="fa-solid fa-chevron-' + (b.open ? 'up' : 'down') + '" style="font-size:10px;"></i> ' + (primary ? 'Primary Contact' : 'Contact ' + (i + 1)) + '</button>' +
+    (primary ? '<span class="cf-count">Cannot be removed</span>' : '<button type="button" onclick="p1RemoveBlock(' + i + ')" style="font-weight:600; font-size:12px; color:#B42318;"><i class="fa-solid fa-trash-can"></i> Remove</button>') + '</div>' + body + '</div>';
+}
+
+function p1AssignmentHTML() {
+  const r = p1Reg(), locked = r.submit.kind === 'access';
+  const lockTip = 'Not available when Submit Behavior is Access the Job';
+  const pb = r.blocks[0].fields, nameReady = pb.first.on && pb.first.req && pb.last.on && pb.last.req;
+  const opt = (v, html, tip) => '<label class="' + (v !== 'job' && locked ? 'off' : '') + '"><input type="radio" name="p1-assign"' + (r.assignment === v ? ' checked' : '') + (v !== 'job' && locked ? ' disabled' : '') + ' onchange="p1F(\'assignment\', \'' + v + '\')"> <span>' + html + '</span>' +
+    (tip ? ' <i class="fa-solid fa-circle-info" style="color:var(--text-3); font-size:11px;" title="' + (locked ? lockTip : tip) + '"></i>' : '') + '</label>';
+  return '<div class="cf-field"><span class="f-label">Registrants Assignment Options</span><div class="cf-radio">' +
+    opt('job', 'Add registrants to <b>this job</b>.') +
+    (r.assignment === 'job' ? '<div class="cf-sub"><span><b>Note:</b> Registrants will be added to the job as a visitor.</span></div>' : '') +
+    opt('existing', 'Add registrants to an <b>existing gallery or folder</b>.', 'Every registrant joins the gallery or folder you pick.') +
+    (r.assignment === 'existing' ? '<div class="cf-sub"><span>Selected: <b style="color:var(--text);">' + p1Esc(r.destination) + '</b> <i class="fa-solid fa-pencil" role="button" tabindex="0" aria-label="Change destination" style="cursor:pointer; color:var(--text-2);" onclick="p1OpenPick(\'dest\')"></i></span><span style="color:var(--text-3);"><b>Note:</b> Registrants will be added to the folder as a visitor.</span></div>' : '') +
+    opt('new', 'Automatically <b>create a new gallery</b> for each registrant.', 'Each registrant gets their own new gallery.') +
+    (r.assignment === 'new' ? '<div class="cf-sub"><span>Apply Preset: <b style="color:var(--text);">' + p1Esc(r.preset) + '</b> <i class="fa-solid fa-pencil" role="button" tabindex="0" aria-label="Change preset" style="cursor:pointer; color:var(--text-2);" onclick="p1OpenPick(\'preset\')"></i></span>' +
+      '<div class="cf-radio"><label><input type="radio" name="p1-gtitle"' + (r.galleryTitle === 'email' ? ' checked' : '') + ' onchange="p1F(\'galleryTitle\', \'email\')"> <span>Use <b>Registrant Email Address</b> for Gallery Title</span></label>' +
+      '<label class="' + (nameReady ? '' : 'off') + '"><input type="radio" name="p1-gtitle"' + (r.galleryTitle === 'name' ? ' checked' : '') + (nameReady ? '' : ' disabled') + ' onchange="p1F(\'galleryTitle\', \'name\')"> <span>Use <b>Registrant First and Last Name</b> for Gallery Title</span></label>' +
+      (nameReady ? '' : '<span class="cf-error" style="padding-left:24px;">First and Last Name must be On and Required.</span>') + '</div></div>' : '') +
+    '</div>' + (locked ? '<div class="cf-count">' + lockTip + ': the gallery and folder options need Redirect or Show Message.</div>' : '') + '</div>';
+}
+
+function p1PreviewHTML() {
+  const r = p1Reg(), j = JOBS[p1JobKey], optional = r.formOptional && !r.fee;
+  const inp = (label, icon) => '<div class="cf-pin">' + label + (icon ? '<i class="fa-solid ' + icon + '" style="font-size:11px;"></i>' : '') + '</div>';
+  return '<div class="cf-preview"><div class="cf-preview-inner"><h2>' + p1Esc(r.customTitle ? r.title : j.name) + '</h2><div class="cf-pdesc">' + p1Esc(r.description) + '</div>' +
+    r.blocks.map((b, i) => '<div class="cf-plabel">' + p1Esc(b.label || (i === 0 ? 'e.g. Parent info' : 'e.g. Player info')) + '</div><div class="cf-pcap">' + p1Esc(b.description || (i === 0 ? 'e.g. Parents, please provide your information here' : 'e.g. Please enter player info here')) + '</div>' +
+      ((b.fields.first.on || b.fields.last.on) ? '<div class="cf-two">' + (b.fields.first.on ? inp('First Name' + (b.fields.first.req ? '*' : '')) : '') + (b.fields.last.on ? inp('Last Name' + (b.fields.last.req ? '*' : '')) : '') + '</div>' : '') +
+      inp('Email*') + (b.fields.phone.on ? inp('Mobile' + (b.fields.phone.req ? '*' : ' (optional)')) : '') +
+      b.custom.map(c => inp(p1Esc(c.label) + (c.req ? '*' : ''), c.type === 'dropdown' ? 'fa-chevron-down' : c.type === 'date' ? 'fa-calendar-days' : '')).join('')).join('') +
+    '<div class="cf-count">By providing your phone number, you agree to receive transactional SMS messages, including login verification and notifications when your gallery is ready. Message and data rates may apply. Reply STOP to unsubscribe.</div>' +
+    '<div class="cf-pbtns">' + (optional ? '<span class="cf-pskip">Skip</span>' : '') + '<span class="cf-psubmit">' + p1Esc(r.submitLabel || 'Submit') + '</span></div></div></div>';
+}
+
+function p1FormRender() {
+  const r = p1Reg(), j = JOBS[p1JobKey];
+  document.getElementById('p1-form-root').innerHTML = '<div class="cf-grid"><div class="cf-col">' +
+    '<div class="cf-field"><label class="f-label" for="cf-title">Title</label><input class="f-input" id="cf-title"' + (r.customTitle ? '' : ' disabled') + ' value="' + p1Esc(r.customTitle ? r.title : j.name) + '" oninput="p1Reg().title = this.value">' +
+      '<label class="p1-optional"><input type="checkbox"' + (r.customTitle ? ' checked' : '') + ' onchange="p1F(\'customTitle\', this.checked)"> Use a Custom Form Title</label></div>' +
+    '<div class="cf-field"><label class="f-label" for="cf-desc">Description / Instructions</label><input class="f-input" id="cf-desc" value="' + p1Esc(r.description) + '" onchange="p1F(\'description\', this.value)"></div>' +
+    '<div class="cf-field"><span class="f-label">Contact Blocks</span>' + r.blocks.map(p1BlockHTML).join('') +
+      '<button class="btn btn-brand" style="align-self:center; margin-top:6px;" onclick="p1AddBlock()"><i class="fa-solid fa-plus"></i> Add Contact Block</button></div>' +
+    '<div class="cf-field"><label class="f-label" for="cf-submit">Submit Button Label</label><input class="f-input" id="cf-submit" maxlength="50" value="' + p1Esc(r.submitLabel) + '" onchange="p1F(\'submitLabel\', this.value)"><div class="cf-count">' + r.submitLabel.length + '/50</div></div>' +
+    p1BehaviorHTML('Submit Behavior', 'submit') + p1BehaviorHTML('Skip Behavior', 'skip') + p1AssignmentHTML() +
+    '</div>' + p1PreviewHTML() + '</div>';
+}
+
+/* custom field dialogs: Text · Dropdown · Date */
+let p1FieldBlock = 0, p1FieldType = 'text';
+function p1OpenField(type) {
+  document.querySelectorAll('.menu-pop').forEach(m => m.classList.remove('open'));
+  p1FieldType = type;
+  setText('p1-field-title', { text: 'Add Text', dropdown: 'Add Dropdown', date: 'Add Date Picker' }[type]);
+  const lbl = document.getElementById('p1-field-label');
+  lbl.value = ''; lbl.placeholder = { text: 'Example: What’s your age?', dropdown: 'Example: What’s your team?', date: 'Example: Shoot Date' }[type];
+  document.getElementById('p1-field-opts').value = '';
+  document.getElementById('p1-field-opts-wrap').style.display = type === 'dropdown' ? '' : 'none';
+  document.getElementById('p1-field-req').checked = false;
+  p1FieldValidate();
+  openModal('modal-p1-field');
+}
+function p1FieldOpts() { return document.getElementById('p1-field-opts').value.split(',').map(o => o.trim()).filter(Boolean); }
+function p1FieldValidate() {
+  const l = document.getElementById('p1-field-label').value;
+  setText('p1-field-n', l.length + '/250');
+  document.getElementById('p1-field-add').disabled = !l.trim() || (p1FieldType === 'dropdown' && !p1FieldOpts().length);
+}
+function p1FieldAdd() {
+  p1Reg().blocks[p1FieldBlock].custom.push({ type: p1FieldType, label: document.getElementById('p1-field-label').value.trim(), options: p1FieldOpts(), req: document.getElementById('p1-field-req').checked });
+  closeModal('modal-p1-field');
+  p1FormRender();
+}
+
+/* destination + preset pickers */
+let p1PickKind = 'dest', p1PickSel = '';
+function p1PickItems() {
+  if (p1PickKind === 'preset') return Object.keys(VOLUME_PRESET_ROLES).map(p => [p, '']);
+  const j = JOBS[p1JobKey];
+  return [[j.name, 'This job']].concat((j.folders || []).map(f => [f[0], 'Folder · ' + f[1]]), (j.gals || []).map(g => [g[0], 'Gallery']),
+    Object.keys(JOBS).filter(k => k !== p1JobKey).map(k => [JOBS[k].name, 'Job']));
+}
+function p1OpenPick(kind) {
+  const r = p1Reg();
+  p1PickKind = kind; p1PickSel = kind === 'preset' ? r.preset : r.destination;
+  setText('p1-pick-title', kind === 'preset' ? 'Presets' : 'Add Registrants to Gallery or Folder');
+  setText('p1-pick-sub', kind === 'preset' ? '' : 'Select destination');
+  setText('p1-pick-warn', kind === 'preset' ? "Changing this preset may affect your visitors' shopping cart." : '');
+  document.getElementById('p1-pick-q').style.display = kind === 'preset' ? 'none' : '';
+  document.getElementById('p1-pick-q').value = '';
+  setText('p1-pick-ok', kind === 'preset' ? 'Apply' : 'Done');
+  p1PickRender();
+  openModal('modal-p1-pick');
+}
+function p1PickRender() {
+  const q = document.getElementById('p1-pick-q').value.toLowerCase();
+  document.getElementById('p1-pick-list').innerHTML = p1PickItems().filter(i => i[0].toLowerCase().indexOf(q) >= 0).map(i =>
+    '<label><input type="radio" name="p1-pick" style="accent-color:var(--orange);"' + (i[0] === p1PickSel ? ' checked' : '') + ' onchange="p1PickSel = this.value" value="' + p1Esc(i[0]) + '"><div>' + p1Esc(i[0]) + (i[1] ? '<span>' + i[1] + '</span>' : '') + '</div></label>').join('');
+}
+function p1PickApply() {
+  const r = p1Reg();
+  if (p1PickKind === 'preset') r.preset = p1PickSel; else r.destination = p1PickSel;
+  closeModal('modal-p1-pick');
+  p1FormRender();
+}
+
+function p1DetailsHTML(j) {
+  return '<div class="detail-card"><div class="settings-section-title" style="margin-bottom:4px;">Details</div><div class="p1-muted" style="margin-bottom:14px;">Manage job details.</div>' +
+    '<div class="p1-meta"><div><span>Job Created</span><b>' + j.created + '</b></div><div><span>Job Modified</span><b>' + j.modified + '</b></div><div><span>Access Setting</span><b>Public</b></div></div>' +
+    '<div class="p1-block" style="max-width:520px;"><label class="f-label" for="p1-title">Job Title</label><input class="f-input" id="p1-title" maxlength="255" value="' + escHtml(j.name) + '" oninput="document.getElementById(\'p1-title-n\').textContent = this.value.length + \'/255\'" style="margin-top:6px;">' +
+    '<div class="p1-count" id="p1-title-n">' + j.name.length + '/255</div></div>' +
+    '<div class="p1-block" style="max-width:520px;"><label class="f-label" for="p1-desc">Job Description</label><div class="p1-muted">Everyone will see this description at the top of your job content.</div>' +
+    '<textarea class="f-textarea" id="p1-desc" rows="5" maxlength="750" placeholder="' + escHtml(j.name) + ' galleries. Browse and find your photos." oninput="document.getElementById(\'p1-desc-n\').textContent = this.value.length + \'/750\'" style="margin-top:6px; width:100%;"></textarea>' +
+    '<div class="p1-count" id="p1-desc-n">0/750</div></div></div>';
+}
+
+function p1ContactsHTML(j) {
+  const rows = j.contacts || [];
+  return '<div class="detail-card"><div class="settings-section-title">Contacts</div>' +
+    '<div style="display:flex; justify-content:space-between; align-items:center;"><span class="p1-block-title">Add Manually</span><span class="p1-links"><a onclick="toast(\'Add from Contacts\')">Add from Contacts</a><a onclick="toast(\'Import CSV\')">Import CSV</a></span></div>' +
+    '<div class="p1-contact-add"><input class="f-input" placeholder="First" aria-label="First name"><input class="f-input" placeholder="Last" aria-label="Last name"><input class="f-input" placeholder="Email" aria-label="Email"><input class="f-input" placeholder="Mobile Number" aria-label="Mobile number"></div>' +
+    '<button class="btn btn-ghost-sm" onclick="toast(\'Add contact to this job\')">Add</button>' +
+    '<div class="gallery-table-wrap" style="margin-top:16px; border:1px solid var(--line); box-shadow:none; overflow-x:auto;"><div style="display:flex; justify-content:space-between; padding:10px 12px;"><span class="stat-label" style="margin:0;">JOB CONTACTS</span>' +
+    '<button class="topbar-icon-btn" aria-label="Export contacts" onclick="toast(\'Export contacts\')"><i class="fa-solid fa-download"></i></button></div>' +
+    '<table class="gallery-table"><thead><tr><th>First</th><th>Last</th><th>Email</th><th>Mobile</th><th>Audience</th><th>Reg Info</th></tr></thead><tbody>' +
+    rows.map(c => '<tr><td><b style="color:var(--text);">' + escHtml(c[0]) + '</b></td><td>' + escHtml(c[1]) + '</td><td>' + escHtml(c[2]) + '</td><td style="white-space:nowrap;">' + escHtml(c[3]) + '</td><td>Default</td><td>' + c[5] + '</td></tr>').join('') +
+    '</tbody></table><div class="p1-muted" style="padding:10px 12px;">Showing 1–' + rows.length + ' of ' + rows.length + ' contacts</div></div></div>';
+}
+
+function p1FeaturesHTML() {
+  return '<div class="detail-card"><div class="settings-section-title" style="margin-bottom:4px;">Features</div><div class="p1-muted" style="margin-bottom:14px;">Control the features available for this job.</div>' +
+    '<div style="display:flex; align-items:center; gap:12px;"><span class="p1-block-title">Display a search bar on the job page</span>' + p1Toggle('search', 'Display a search bar on the job page') + '</div>' +
+    '<div class="p1-muted" style="font-size:11.5px;">Note: Only contained items that have been set to appear in Job Search will show in search results.</div></div>';
+}
+
+function p1DesignHTML() {
+  const opts = [['default', 'fa-image', 'Default', 'Adopt the appearance of your website or parent folder'], ['custom', 'fa-wand-magic-sparkles', 'Custom', 'Create a custom design specifically for this job']];
+  return '<div class="detail-card"><div class="settings-section-title" style="margin-bottom:4px;">Job Design Options</div><div class="p1-muted">Customize the appearance of your Job page</div>' +
+    '<div class="p1-block"><div class="p1-block-title">Cover Image</div><div class="p1-muted" style="margin-bottom:10px;">This image represents the job on your website and in shared links.</div>' +
+    '<button type="button" class="p1-cover" onclick="toast(\'Choose a cover image\')"><div class="p1-cover-img"><i class="fa-solid fa-folder"></i></div><div class="p1-cover-cap">Cover Image <i class="fa-solid fa-pencil" style="color:var(--text-3);"></i></div></button></div>' +
+    '<div class="p1-block"><div class="p1-block-title">Job Appearance</div><div class="p1-muted">Match your website\'s style or design this job on its own.</div>' +
+    '<div class="p1-appearance" role="radiogroup" aria-label="Job appearance">' + opts.map(o => '<button type="button" role="radio" aria-checked="' + (p1Ui.appearance === o[0]) + '" class="p1-choice' + (p1Ui.appearance === o[0] ? ' on' : '') + '" onclick="p1Set(\'appearance\', \'' + o[0] + '\')">' +
+      '<span style="display:flex; width:100%; justify-content:space-between;"><i class="fa-solid ' + o[1] + '"></i>' + (p1Ui.appearance === o[0] ? '<i class="fa-solid fa-circle-check" style="color:var(--text);"></i>' : '') + '</span><b>' + o[2] + '</b><span>' + o[3] + '</span></button>').join('') +
+    '</div></div></div>';
+}
+
+function p1TeamHTML(j) {
+  const team = j.photogs || [];
+  return '<div class="detail-card"><div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:12px;"><div><div class="settings-section-title" style="margin-bottom:4px;">Team</div><div class="p1-muted">The photographers working on this job.</div></div>' +
+    '<button class="btn btn-ghost-sm" onclick="toast(\'Add Team Member\')"><i class="fa-solid fa-user-plus"></i> Add Team Member</button></div>' +
+    (team.length ? '<div style="overflow-x:auto;"><table class="gallery-table"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Assigned To</th><th>Status</th></tr></thead><tbody>' +
+      team.map(p => '<tr><td><b style="color:var(--text);">' + escHtml(p.name) + '</b></td><td>' + escHtml(p.email) + '</td><td>' + (p.lead ? 'Lead Photographer' : 'Photographer') + '</td><td>' + escHtml(p.folder === '—' ? 'Entire job' : p.folder) + '</td><td>' +
+        (p.lead ? chipTeal('Owner') : (p.status === 'Active' ? chipTeal('Active') : chipGray(p.status || 'Active'))) + '</td></tr>').join('') + '</tbody></table></div>'
+      : '<div class="p1-muted" style="text-align:center; padding:20px;">No one is on this job’s team yet.</div>') + '</div>';
+}
+
+function p1ReportsHTML(j) {
+  const orders = generateOrders(j), rev = orders.reduce((t, o) => t + o.amt, 0);
+  const tiles = [['Revenue', fmt$(rev)], ['Orders', String(orders.length)], ['Gallery Views', (j.views && j.views[0]) || '0'], ['Visitors Who Ordered', (j.conv && j.conv[0]) || '—']];
+  return '<div class="p1-stats">' + tiles.map(t => '<div class="stat-tile"><div class="stat-label">' + t[0] + '</div><div class="stat-value">' + t[1] + '</div></div>').join('') + '</div>' +
+    ['Revenue Over Time', 'Top Galleries'].map(t => '<div class="detail-card" style="margin-bottom:16px;"><div class="settings-section-title">' + t + '</div><div class="p1-chart-empty">Report content to be defined</div></div>').join('');
+}
+
+function jtSortBy(key) {
+  jtSort = (jtSort && jtSort.key === key) ? { key, dir: jtSort.dir === 'asc' ? 'desc' : 'asc' } : { key, dir: 'asc' };
+  renderJobsTableP1();
+}
+
+function renderJobsTableP1() {
+  /* jobs added by the wizard come first, then the four demo jobs in list order */
+  const demo = ['riverside', 'lincoln', 'keystone', 'york'];
+  const keys = Object.keys(JOBS).filter(k => demo.indexOf(k) < 0).reverse().concat(demo.filter(k => JOBS[k]));
+  let rows = keys.map(k => Object.assign({ j: JOBS[k] }, jobShootSummary(JOBS[k])));
+  if (jtSort) {
+    const val = r => jtSort.key === 'name' ? r.j.name.toLowerCase()
+      : jtSort.key === 'org' ? (r.j.org2 || '').toLowerCase()
+      : jtSort.key === 'loc' ? (r.locs[0] || '').toLowerCase()
+      : jtSort.key === 'status' ? (JT_STATUS_ORDER.indexOf(jobStatusOf(r.j)) + 1)   /* asc = Upcoming, Active, Complete */
+      : r.dateKey;
+    const dir = jtSort.dir === 'asc' ? 1 : -1;
+    rows = rows.slice().sort((a, b) => {
+      const va = val(a), vb = val(b);
+      const ea = va === '' || va === 0, eb = vb === '' || vb === 0;   /* blanks always sink */
+      if (ea !== eb) return ea ? 1 : -1;
+      return va < vb ? -dir : va > vb ? dir : 0;
+    });
+  }
+  const head = JT_COLS.map(c => {
+    const on = jtSort && jtSort.key === c.key;
+    const ariaSort = on ? (jtSort.dir === 'asc' ? 'ascending' : 'descending') : 'none';
+    const icon = on && jtSort.dir === 'desc' ? 'fa-chevron-down' : 'fa-chevron-up';
+    return '<th style="min-width:' + c.min + 'px;" aria-sort="' + ariaSort + '"><button type="button" class="jt-sort' + (on ? ' on' : '') +
+      '" onclick="jtSortBy(\'' + c.key + '\')">' + c.label + ' <i class="fa-solid ' + icon + '"></i></button></th>';
+  }).join('');
+  const body = rows.map(r =>
+    '<tr onclick="openJobP1(\'' + r.j.key + '\')"><td><button type="button" class="jt-title" onclick="event.stopPropagation(); openJobP1(\'' + r.j.key + '\')">' + escHtml(r.j.name) + '</button></td>' +
+    '<td>' + (r.j.org2 ? escHtml(r.j.org2) : '<span style="color:var(--text-3);">No organization</span>') + '</td>' +
+    '<td style="white-space:nowrap;">' + jtCellHTML(r.dates, 'shoot dates', 'Date TBD') + '</td>' +
+    '<td>' + jtCellHTML(r.locs, 'locations', 'Location TBD') + '</td>' +
+    '<td>' + jtStatusHTML(r.j) + '</td></tr>'
+  ).join('');
+  document.getElementById('jobs-table-p1').innerHTML =
+    '<div class="gallery-table-wrap"><table class="gallery-table"><thead><tr>' + head + '</tr></thead><tbody>' + body + '</tbody></table></div>';
 }
 
 /* ══════════ INIT ══════════ */
@@ -11919,7 +12652,7 @@ refreshRevenueStat();
 renderQR();
 updateRuleSentence();
 refreshJobCounts();
-renderPhaseChooser();
+openPhaseChooser();
 </script>
 
 </body>

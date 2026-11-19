@@ -465,9 +465,156 @@ Every load now opens a **Choose a Phase** modal over the jobs list
 | Phase 2 | Locked — "Coming Soon" chip, button disabled |
 | Phase 3 | Available — the current build; picking it closes the modal |
 
-- A phase must be chosen: the modal has no close button, and the overlay
-  doesn't dismiss it.
+- A phase must be chosen on first load: the close button is hidden and
+  `closeModal('modal-phase')` (overlay click included) is a no-op until
+  `currentPhase` is set.
+- **Switch Phase** button in the top bar, left of the notification bell,
+  reopens the modal (`openPhaseChooser()`) titled "Switch Phase". Once a phase
+  is loaded the modal can be closed to stay put, and the loaded phase's tile
+  shows a "Current" chip with an orange border.
+- Even 24px padding: above the title, below the tiles, and both sides.
 - **To turn a phase on later:** set `enabled: true` on its entry in `PHASES`
   and add what that phase loads in `pickPhase()`.
 - Mirrored in the native rebuild (`zf-image-insights-frontend`, branch
   `prototype/jobs-rebuild`, `components/prototypes/jobs/PhasePicker.tsx`).
+
+## Addendum — Phase 1: CRM organizations + simplified jobs table
+
+Phase 1 is now enabled in the phase chooser. Picking it adds `body.phase-1`
+and returns to the jobs list; switching back to Phase 3 restores everything.
+
+- **Jobs dashboard → plain table** (`#jobs-table-p1`, `renderJobsTableP1()`).
+  Hidden in Phase 1: stat tiles, Needs attention, status tabs, job cards with
+  the Setup / Shoot Day / Upload / Sales tracker, and the New Job button.
+- **Columns:** Job Title · Organization · Shoot Date · Location.
+  - Shoot Date is the earliest shoot date; Location is the first venue in shoot
+    order (distinct venues across all shoot dates).
+  - Extra dates / locations show as a **+X pill**; hovering or focusing it lists
+    the rest (`morePillHTML`). York shows +1 date and +2 locations; Riverside +2
+    locations.
+- **Sortable headers** (`jtSortBy`): first click ascending, second descending.
+  Shoot Date sorts chronologically; blanks always sink to the bottom. Before any
+  click the table keeps list order.
+- **CRM** (organizations list, organization detail, all tabs and modals) is
+  unchanged and part of Phase 1.
+- **Status column** (Phase 1): a manual **Active / Complete** status, changed
+  by hand from a dropdown in the table (`jtStatusHTML`, `setJobStatus`, stored
+  as `JOBS[key].status`; unset reads as Active). Sortable — ascending lists
+  Active first. Phase 3 keeps deriving status from the workflow phase.
+- Rows open the **Phase 1 job page** (see the next addendum); the +X pills and
+  the status dropdown don't.
+
+## Addendum — colour contrast (WCAG 2.1 AA)
+
+Audited every text and icon colour on the phase chooser and the Phase 1 jobs
+table (4.5:1 for text, 3:1 for icons/large text) and fixed failures with the
+smallest darkening that passes, so the palette reads the same:
+
+| Token / element | Before | After | Contrast |
+|---|---|---|---|
+| `--text-3` (secondary text, table headers, subtitles) — global | `#86868B` (3.6:1) | `#6D6D71` | 5.1:1 on white, 4.7:1 on `--bg`, 4.5:1 on gray chips |
+| New `--teal-text` — every `color: var(--teal)` text/icon use (22 rules: chips, links, deltas, step labels…) | `#2DB3A6` (2.6:1) | `#1F7C73` | 5.0:1 on white, 4.5:1 on teal chip tint |
+| Sort chevrons | `--text-3` at 35% opacity (1.5:1) | `--text-3`, full opacity | 4.9:1 |
+
+`--teal` itself is unchanged for borders, fills, checkbox accents and graphics.
+
+**Flagged, not changed (brand decision):** white text on the brand orange
+`#F26B3A` — the RC avatar and orange buttons such as New Job — is 3.0:1, which
+passes only for large text (18.66px bold / 24px). Fixing it means a darker
+orange or dark text on orange; left for design. The design system's
+`nz-primary` buttons share this pairing.
+
+## Addendum — Phase 1 job page (skeleton)
+
+In Phase 1 a job opens its own page (`view-job-p1`, `openJobP1()`,
+`renderJobP1()`); `openJob()` routes there whenever Phase 1 is loaded, so
+CRM job links land on it too. A job is laid out like a **Zenfolio folder** —
+modelled on the live folder page in app.zenfolio.dev (Organize · Settings ·
+Design) — plus two job-only tabs, **Team** and **Reports**. Every "folder"
+string from the folder page is reworded around jobs. Skeleton only: actions toast.
+
+- **Header:** breadcrumb (Jobs / job), back, cover, title with rename pencil,
+  "N folders · N galleries · Organization", the Active / Complete status
+  control (same as the table; changes sync both ways), Preview, and Share
+  (Share Job by Email / SMS, Bulk Share by Email / SMS, Copy Direct Link,
+  Message, Get QR Code, Edit Job Link).
+- **Organize:** toolbar Add Gallery · Add Folder (Create / Upload Folder) ·
+  QR Code Workflow (Create Galleries & QR Codes, Upload and Auto-Sort,
+  Download Job Details, Share) · Volume Wizard; table Title · Type · Access ·
+  Modified from the job's folders and galleries.
+- **Settings:** Job Access (Public / Password Protected / Hidden, Access Info,
+  Show Job Registration → access fee, Collect Email / Custom Form, search
+  results), Job Details (created / modified / access, Job Title 255, Job
+  Description 750), Contacts (Add Manually, Add from Contacts, Import CSV,
+  Job Contacts table), Features (job page search bar).
+- **Design:** Cover Image; Job Appearance Default / Custom.
+- **Team:** team table (name, email, role, assigned to, status) + Add Team Member.
+- **Reports:** Revenue · Orders · Gallery Views · Visitors Who Ordered, plus
+  placeholder Revenue Over Time and Top Galleries panels ("Report content to be
+  defined").
+- Contrast: the active settings-nav item now uses dark text on its orange tint
+  (orange text was 2.6:1) — this also applies to Phase 3's settings nav.
+
+## Addendum — Phase 1 job registration + Edit Custom Form
+
+Explored the live folder settings on app.zenfolio.dev ("Download Demo" folder:
+Show Folder Registration, Access Fee, Custom Form editor, every hidden option and
+modal) and brought all of it into the Phase 1 job's **Settings → Job Access**,
+reworded for jobs. The .dev folder was restored to its original settings after
+exploring. State is per job (`p1RegByJob`, `p1Reg()`), so it survives tab switches.
+
+**Job Access → Show Job Registration**
+- Enable Registration/Access Fee (cart icon tooltip) → Access Fee Amount ($USD)
+  + **Edit Details** → *Access Fee Details*: Access Fee Title, Description to
+  Visitors, Payment Confirmation Message (Save commits, Close discards).
+- Collect Email | Custom Form, each with its own **Optional (allow visitors to
+  skip)** checkbox — only the selected option's checkbox is active; with an
+  Access Fee both are disabled and read "Optional (not available with Access
+  Fee)". Collect Email adds the note "Registrants will be added to the job as a
+  default contact."; Custom Form shows **Edit Form**.
+- Allow job to appear in search results → when on, "This job can appear in the
+  searches selected below." + Search Engines (Bing, Google, Yahoo) / Zenfolio
+  Sitewide Search / Job Search, each with a learn-more link.
+
+**Edit Custom Form** (full screen, live preview on the right)
+- Title (the job name unless **Use a Custom Form Title** — default
+  "Pre-Registration for Job Access"), Description / Instructions.
+- Contact Blocks: **Primary Contact** ("Cannot be removed") + **Add Contact
+  Block** (Contact 2…, removable). Each block: Contact Card Label, Contact Card
+  Description, First Name / Last Name / Email (always on + required) / Phone
+  Number with on-off and Required, and custom fields. Added blocks default to
+  First Name required and Phone off. "Add this contact to the gallery as"
+  (Visitor (Default) / Default) appears only when a new gallery is created per
+  registrant.
+- **Add Custom Field** (15 max per form): Text, Dropdown (comma-separated
+  options), Date — each a dialog with Label Text (Question, 250) + Required.
+- Submit Button Label (50).
+- **Submit Behavior** and **Skip Behavior**: Access the Job · Redirect to a
+  Custom URL (Page | URL — Page picks a website page) · Show Message (Message,
+  250, "Thank you for registering.").
+- **Registrants Assignment Options**: Add registrants to this job (note) · to an
+  existing gallery or folder (Selected + picker modal *Add Registrants to
+  Gallery or Folder*, searchable) · automatically create a new gallery for each
+  registrant (Apply Preset + *Presets* modal with the shopping-cart warning;
+  gallery title from Registrant Email Address or First and Last Name — the
+  latter needs First and Last Name On and Required, with the red warning).
+  The last two are **unavailable while Submit Behavior is Access the Job**
+  (info tooltip, as on .dev); switching Submit back to Access resets the
+  assignment to this job.
+- Preview mirrors the form: title, description, each block's label/description/
+  fields/custom fields, SMS consent text, Skip (only when the form is Optional
+  and there's no fee) and the Submit label.
+
+### Addendum — Phase 1 job status: Upcoming / Active / Complete
+
+- **Upcoming** (automatic): the job's first shoot date hasn't arrived yet. A job
+  with no shoot date yet also reads as Upcoming.
+- **Active** (automatic): the first shoot date is today or has passed.
+- **Complete** (manual): set by the photographer from the status dropdown in the
+  jobs table or on the job page.
+- The photographer can pick any of the three by hand. A hand-picked status sticks;
+  picking the status the date would give clears it, so the job goes back to
+  following its shoot date. Hovering the pill shows the status the date gives.
+- Sorting the Status column ascending orders Upcoming, Active, Complete.
+- Upcoming uses a blue pill (#2F6BAD, 5.5:1 on white); Active stays teal,
+  Complete gray.
