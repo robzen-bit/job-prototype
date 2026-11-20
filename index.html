@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="design-system/tokens.css">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -3582,6 +3583,7 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
   color: var(--text-3);
 }
 </style>
+<link rel="stylesheet" href="credits.css">
 </head>
 <body>
 
@@ -3963,7 +3965,7 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
               <div class="job-tab"          data-panel="tab-settings"   onclick="switchJobTab(this,'tab-settings')">Settings</div>
               <div class="job-tab"          data-panel="tab-contacts"   onclick="switchJobTab(this,'tab-contacts')">Contacts</div>
               <div class="job-tab"          data-panel="tab-team"       onclick="switchJobTab(this,'tab-team')">Team</div>
-              <div class="job-tab"          data-panel="tab-preorders"  onclick="switchJobTab(this,'tab-preorders')">Pre-Orders</div>
+              <div class="job-tab"          data-panel="tab-preorders"  onclick="switchJobTab(this,'tab-preorders')">Selling &amp; Registration</div>
               <div class="job-tab"          data-panel="tab-documents"  onclick="switchJobTab(this,'tab-documents')">Documents</div>
               <div class="job-tab"          data-panel="tab-reports"    onclick="switchJobTab(this,'tab-reports')">Reports</div>
             </div>
@@ -7122,6 +7124,7 @@ function generateOrders(j) {
 /* ══════════ OPEN A JOB ══════════ */
 function openJob(key) {
   if (currentPhase === 1) { openJobP1(key); return; }   /* Phase 1 has its own job page */
+  crParkSellingTab(true);
   const j = JOBS[key];
   if (!j) return;
   persistJobSettings();          /* commit any settings edits belonging to the previously loaded job */
@@ -12244,11 +12247,12 @@ const p1Ui = { access: 'public', showReg: false, fee: false, capture: 'email', i
 function openJobP1(key) {
   if (!JOBS[key]) return;
   if (p1JobKey !== key) { p1TabId = 'organize'; p1Pane = 'access'; Object.assign(p1Ui, { access: 'public', showReg: false, fee: false, capture: 'email', inSearch: false, search: false, appearance: 'default' }); }
+  if (p1JobKey !== key) p1SellingFor = null;
   p1JobKey = key;
   renderJobP1();
   showView('view-job-p1');
 }
-function p1SetTab(id) { p1TabId = id; renderJobP1(); }
+function p1SetTab(id) { if (id !== p1TabId) p1SellingFor = null; p1TabId = id; renderJobP1(); }
 function p1SetPane(id) { p1Pane = id; renderJobP1(); }
 function p1Set(k, v) { p1Ui[k] = v; renderJobP1(); }
 
@@ -12259,8 +12263,10 @@ function renderJobP1() {
   const card = [...document.querySelectorAll('#view-jobs-list .job-card')].find(c => (c.getAttribute('onclick') || '').indexOf("'" + j.key + "'") >= 0);
   const cm = card && /(\d[\d,]*) galler/.exec(card.querySelector('.gallery-count') ? card.querySelector('.gallery-count').textContent : '');
   const ng = cm ? parseInt(cm[1].replace(/,/g, ''), 10) : (j.gals || []).length;
-  const tabs = [['organize', 'Organize'], ['settings', 'Settings'], ['design', 'Design'], ['team', 'Team'], ['reports', 'Reports']];
+  crParkSellingTab();   /* the shared Selling & Registration node must leave p1-root before it is rewritten */
+  const tabs = [['organize', 'Organize'], ['settings', 'Settings'], ['selling', 'Selling &amp; Registration'], ['design', 'Design'], ['team', 'Team'], ['reports', 'Reports']];
   const body = p1TabId === 'organize' ? p1OrganizeHTML(j) : p1TabId === 'settings' ? p1SettingsHTML(j)
+    : p1TabId === 'selling' ? '<div id="p1-selling-mount"></div>'
     : p1TabId === 'design' ? p1DesignHTML() : p1TabId === 'team' ? p1TeamHTML(j) : p1ReportsHTML(j);
   document.getElementById('p1-root').innerHTML =
     '<div class="job-header"><div class="p1-crumb"><a onclick="navJobs()">Jobs</a> / <b>' + escHtml(j.name) + '</b></div>' +
@@ -12276,7 +12282,36 @@ function renderJobP1() {
       '</div></div>' +
     '<div class="job-tabs">' + tabs.map(t => '<div class="job-tab' + (t[0] === p1TabId ? ' active' : '') + '" onclick="p1SetTab(\'' + t[0] + '\')">' + t[1] + '</div>').join('') + '</div></div>' +
     '<div style="padding-top:16px;">' + body + '</div>';
+  if (p1TabId === 'selling') p1MountSelling(j);
 }
+
+/* Phase 1 Selling & Registration: Juri's credits tab (#cr-credit-tab), the same node Phase 3 shows in its
+   tab-preorders panel. It is loaded for this job the way Phase 3's openJob() loads it, then moved in here;
+   crParkSellingTab() puts it back before either page is redrawn. */
+let p1SellingFor = null;   /* job the tab was last loaded for; a redraw of the same tab keeps any edit in progress */
+function p1MountSelling(j) {
+  if (p1SellingFor !== j.key) {
+    persistJobSettings();
+    currentJob = j;
+    ORDERS = generateOrders(j);
+    buildPreorders(j);
+    loadJobSettings(j);
+    p1SellingFor = j.key;
+  }
+  const node = document.getElementById('cr-credit-tab'), mount = document.getElementById('p1-selling-mount');
+  if (node && mount) mount.appendChild(node);
+}
+function crParkSellingTab(reset) {
+  if (reset) p1SellingFor = null;
+  const node = document.getElementById('cr-credit-tab'), home = document.getElementById('tab-preorders');
+  if (node && home && node.parentNode !== home) home.appendChild(node);
+}
+/* links inside the credits tab that point at Phase 3's tab-preorders land on Phase 1's tab instead */
+const p1RobertSwitchJobTabById = switchJobTabById;
+switchJobTabById = function (panelId) {
+  if (currentPhase === 1 && panelId === 'tab-preorders') { p1SetTab('selling'); return; }
+  return p1RobertSwitchJobTabById(panelId);
+};
 
 function p1OrganizeHTML(j) {
   const rows = (j.folders || []).map(f => ({ t: f[0], type: 'Folder', sub: f[1], mod: f[3] }))
@@ -12657,5 +12692,18 @@ refreshJobCounts();
 openPhaseChooser();
 </script>
 
+<!-- Prepaid credits (Juri Gottschau, product-prototypes prepay-credits/build). Phase 3, plus in Phase 1 the
+     wizard's Ecommerce step and the job's Selling & Registration tab. -->
+<script src="credits-data.js"></script>
+<script src="credits-ledger.js"></script>
+<script src="credits-demo.js"></script>
+<script src="credits-photographer.js"></script>
+<script src="credits-settings.js"></script>
+<script src="credits-client.js"></script>
+<script src="credits-store.js"></script>
+<script src="credits-orders.js"></script>
+<script src="credits-jobviews.js"></script>
+<script src="credits-emails.js"></script>
+<script src="credits-words.js"></script>
 </body>
 </html>

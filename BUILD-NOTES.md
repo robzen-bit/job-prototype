@@ -636,3 +636,30 @@ simplified wizard (`wizFlow()` branches on `currentPhase === 1`).
 - Mirrored in the native rebuild: `wizFlow(s, simplified)` in
   `wizard/logic.ts`, `<NewJobWizard simplified={phase === 1} />` in
   `JobsApp.tsx`, and a New Job button on `list/JobsTableView.tsx`.
+
+## Addendum — Prepaid credits merged into Phase 3
+
+Juri Gottschau's prepaid credits prototype (Azure DevOps `ZenAI/product-prototypes`,
+branch `prepay-credits/build`, commit `a0e4f3a`) is merged into Phase 3. It was
+built on this prototype at `49673cb`, as separate files, so the merge copies them in:
+
+- **Files added:** `credits-*.js` (11 files), `credits.css`, and
+  `design-system/tokens.css` (the shared design tokens, copied so GitHub Pages
+  can serve it). Juri's `docs/merge-notes.md` lists every hook they make into
+  this file.
+- **Edits to `index.html`:** link the tokens before the inline `<style>` and
+  `credits.css` after it. The job tab "Pre-Orders" reads **Selling &
+  Registration** (ids unchanged). The credits scripts load after the main script.
+- **Phase 1 (2026-11-20):** the New Job wizard's Ecommerce step is Juri's in
+  both phases (price list, credit sales, package-first checkout). The Phase 1
+  job page has a **Selling & Registration** tab after Settings. It shows Juri's
+  tab: the same `#cr-credit-tab` node Phase 3 shows. `p1MountSelling()` loads it
+  for the job the way Phase 3's `openJob()` does, then moves the node into the
+  tab. `crParkSellingTab()` moves it back before either page redraws. Links
+  inside it that point at `tab-preorders` open the Phase 1 tab. Demo control
+  shows in both phases.
+- **To take a later update from Juri:** copy his `prototype/credits-*.js` and
+  `credits.css` over these, and check his merge-notes for new hooks.
+- **Known gaps on the Phase 1 tab:** links in it that go to Phase 3-only
+  screens, such as Reports › Orders for approving credit orders, switch
+  Phase 3's hidden job page. They don't change what Phase 1 shows.

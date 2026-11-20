@@ -1,0 +1,156 @@
+/* Zenfolio design tokens: the one shared copy. Every guide and prototype links this file.
+   Light values on :root, dark values on [data-theme="dark"] (set on <html> by the theme toggle).
+   Edit tokens here only; see design-system/AGENTS.md. Generated 2026-10-27 from nz-ui-style-guide.html. */
+
+:root {
+    /* Brand */
+    --orange: #F26B3A;
+    --orange-soft: #FFF1E9;
+    --orange-deep: #D9521F;
+    --orange-darker: #B84115;
+    --teal: #068389;
+    --teal-soft: #DBEEEF;
+    --teal-deep: #085D61;
+    --zia-teal: #2DB3A6;
+    --zia-teal-soft: #E3F5F2;
+    --zia-teal-deep: #1FA294;
+    --zia-teal-dark: #256A62;
+    --tan: #B0A18D;
+    --tan-soft: #F7F6F4;
+    --tan-deep: #9C8A71;
+    --tan-dark: #77644A;
+    --yellow: #F4C430;
+    --yellow-soft: #FFF6DC;
+
+    /* Neutrals */
+    --bg: #F5F5F7;
+    --bg-2: #FBFBFD;
+    --surface: #FFFFFF;
+    --surface-elev: #FFFFFF;      /* elevated cards / popovers */
+    --sidebar: #1D1F23;
+    --line: #E8E8ED;
+    --line-2: #F0F0F3;
+    --line-subtle: rgba(0,0,0,0.06);
+    --bg-subtle: rgba(0,0,0,0.04);
+    --bg-hover: #EFEFF1;
+    --bg-active: #E5E5EA;
+    --text: #1D1D1F;
+    --text-2: #424247;
+    --text-3: #86868B;
+    --text-4: #B0B0B6;
+    --text-strong-hover: #000000; /* hover on primary black button */
+    --on-text: #FFFFFF;           /* text on primary (text-color bg) */
+    --on-brand: #FFFFFF;          /* text on orange / teal / danger */
+    --header-bg: rgba(251,251,253,0.78);
+    --toc-bg: rgba(255,255,255,0.7);
+    --code-bg: var(--bg);
+
+    /* Soft semantic backgrounds */
+    --success-soft: #E8F5F1;
+    --danger-soft: #FFE4E4;
+    --info-soft: #EEF1FF;
+    --warning-soft: #FFF6DC;
+
+    /* Disabled fills */
+    --orange-disabled: #FBC4A8;
+    --teal-disabled: #B5E1E3;
+    --danger-disabled: #F4B4B4;
+
+    /* Semantic */
+    --success: #0D7567;
+    --warning: #B8860B;
+    --danger: #DC2626;
+    --info: #3D4FB8;
+    --violet: #6E45B8;
+    --violet-soft: #F4ECFF;
+
+    /* Radii */
+    --r-xs: 6px;
+    --r-sm: 10px;
+    --r-md: 14px;
+    --r-lg: 20px;
+    --r-xl: 28px;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.04), 0 1px 1px rgba(0,0,0,0.02);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03);
+    --shadow-lg: 0 14px 32px rgba(0,0,0,0.06), 0 4px 8px rgba(0,0,0,0.03);
+    --shadow-xl: 0 30px 60px rgba(0,0,0,0.10), 0 8px 16px rgba(0,0,0,0.04);
+
+    color-scheme: light;
+
+    /* Overlays — from the component libraries, not in the style guide yet */
+    --scrim: rgba(15,15,20,0.42);
+  }
+
+[data-theme="dark"] {
+    /* Brand — lifted for dark backgrounds */
+    --orange: #FF7E4D;
+    --orange-soft: rgba(255,126,77,0.16);
+    --orange-deep: #FF9468;
+    --orange-darker: #F26B3A;
+    --teal: #08B2BA;
+    --teal-soft: rgba(8,178,186,0.16);
+    --teal-deep: #11C3CB;
+    --zia-teal: #3FCAB8;
+    --zia-teal-soft: rgba(63,202,184,0.16);
+    --zia-teal-deep: #5BD9C7;
+    --zia-teal-dark: #329085;
+    --tan: #C1B5A5;
+    --tan-soft: rgba(193,181,165,0.16);
+    --tan-deep: #AD9E89;
+    --tan-dark: #90795A;
+    --yellow: #FFD03D;
+    --yellow-soft: rgba(255,208,61,0.16);
+
+    /* Neutrals — inverted */
+    --bg: #0E0E12;                /* canvas */
+    --bg-2: #18181C;              /* recessed surface */
+    --surface: #1C1C20;           /* cards */
+    --surface-elev: #26262B;      /* popovers, elevated */
+    --sidebar: #18181C;
+    --line: rgba(255,255,255,0.10);
+    --line-2: rgba(255,255,255,0.06);
+    --line-subtle: rgba(255,255,255,0.08);
+    --bg-subtle: rgba(255,255,255,0.05);
+    --bg-hover: #28282E;
+    --bg-active: #313137;
+    --text: #F5F5F7;
+    --text-2: #C5C5CA;
+    --text-3: #8E8E93;
+    --text-4: #5A5A5F;
+    --text-strong-hover: #FFFFFF;
+    --on-text: #1C1C20;           /* dark text on light primary button */
+    --on-brand: #FFFFFF;
+    --header-bg: rgba(20,20,24,0.78);
+    --toc-bg: rgba(28,28,32,0.78);
+    --code-bg: rgba(255,255,255,0.06);
+
+    --success-soft: rgba(48,217,168,0.16);
+    --danger-soft: rgba(255,105,97,0.16);
+    --info-soft: rgba(103,131,230,0.16);
+    --warning-soft: rgba(255,204,77,0.16);
+
+    --orange-disabled: rgba(255,126,77,0.30);
+    --teal-disabled: rgba(8,178,186,0.30);
+    --danger-disabled: rgba(255,105,97,0.30);
+
+    /* Semantic — lifted for legibility */
+    --success: #30D9A8;
+    --warning: #FFCC4D;
+    --danger: #FF6961;
+    --info: #88A1FA;
+    --violet: #C5A4FF;
+    --violet-soft: rgba(186,143,255,0.16);
+
+    /* Shadows — softer ambient on dark */
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.50);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.45), 0 1px 2px rgba(0,0,0,0.40);
+    --shadow-lg: 0 14px 32px rgba(0,0,0,0.55), 0 4px 8px rgba(0,0,0,0.40);
+    --shadow-xl: 0 30px 60px rgba(0,0,0,0.70), 0 8px 16px rgba(0,0,0,0.50);
+
+    color-scheme: dark;
+
+    /* Overlays — from the component libraries, not in the style guide yet */
+    --scrim: rgba(0,0,0,0.65);
+  }
