@@ -1694,6 +1694,62 @@ body.phase-wf #cr-demo { display: none; }   /* credits demo control is a Phase 3
 .wf-row:first-child { border-top: 0; }
 .wf-row.head { background: #f3f3f3; font-weight: 700; color: #666; font-size: 12px; }
 .wf-chip { display: inline-block; width: 70px; height: 20px; border: 1.5px solid #aaa; border-radius: 10px; }
+/* Wireframes · Create New Job wizard */
+.wf-wiz { position: fixed; inset: 0; z-index: 600; display: none; flex-direction: column; background: #FAFAFA; color: #555; font-size: 13px; }
+.wf-wiz.open { display: flex; }
+.wf-wiz-head { display: flex; align-items: flex-start; justify-content: space-between; padding: 24px 32px 0; }
+.wf-wiz-head h2 { font-size: 20px; font-weight: 700; color: #333; }
+.wf-x { border: 1.5px solid #999; background: #fff; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; color: #555; }
+.wf-steps { display: flex; align-items: center; gap: 10px; padding: 18px 32px; border-bottom: 1px solid #ddd; }
+.wf-step { display: flex; align-items: center; gap: 8px; color: #999; font-weight: 600; }
+.wf-step b { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border: 1.5px solid #aaa; border-radius: 50%; font-size: 11px; }
+.wf-step.on { color: #333; } .wf-step.on b { background: #333; border-color: #333; color: #fff; }
+.wf-step.done { color: #555; } .wf-step.done b { border-color: #555; }
+.wf-step.later { opacity: .55; } .wf-step.later b { border-style: dashed; }
+.wf-step-line { flex: 0 0 32px; height: 1.5px; background: #ccc; }
+.wf-wiz-body { flex: 1; overflow: auto; }
+.wf-wiz-inner { max-width: 780px; margin: 0 auto; padding: 28px 24px 40px; }
+.wf-wiz-inner .wf-note { max-width: none; }
+.wf-wiz-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 32px; border-top: 1px solid #ddd; background: #fff; }
+.wf-btn.solid { background: #333; color: #fff; }
+.wf-btn.solid:hover { background: #111; }
+.wf-btn:disabled { opacity: .4; cursor: not-allowed; }
+.wf-btn.ghost { border-color: #999; color: #555; font-weight: 600; }
+.wf-sec { margin-bottom: 24px; }
+.wf-lbl { display: block; font-weight: 700; color: #444; margin-bottom: 6px; }
+.wf-opt { font-weight: 400; color: #999; }
+.wf-req { color: #B42318; font-weight: 700; }
+.wf-hint { font-size: 12px; color: #888; margin-top: 6px; }
+.wf-in { width: 100%; border: 1.5px solid #999; border-radius: 6px; background: #fff; padding: 9px 12px; font: inherit; color: #333; }
+.wf-in::placeholder { color: #aaa; }
+textarea.wf-in { min-height: 72px; resize: vertical; }
+.wf-choices { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 10px; }
+.wf-choice { text-align: left; border: 1.5px solid #bbb; border-radius: 6px; background: #fff; padding: 12px; font: inherit; color: #555; cursor: pointer; }
+.wf-choice b { display: block; color: #333; margin-bottom: 2px; }
+.wf-choice.on { border: 2px solid #333; padding: 11.5px; }
+.wf-pair { display: flex; gap: 10px; align-items: center; }
+.wf-pair > .wf-box { flex: 1; }
+.wf-add { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; border: 1.5px dashed #aaa; border-radius: 6px; background: transparent; padding: 9px 12px; font: inherit; font-weight: 600; color: #777; cursor: default; }
+.wf-add.inline { width: auto; display: inline-flex; padding: 6px 10px; }
+.wf-scen { border: 2px dashed #2F6FDB; border-radius: 8px; background: #F2F6FD; padding: 10px 12px; margin-bottom: 18px; color: #1D3F7A; }
+.wf-scen-lbl { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #2F6FDB; margin-bottom: 8px; }
+.wf-scen-btns { display: flex; flex-wrap: wrap; gap: 6px; }
+.wf-scen-btns button { border: 1.5px solid #9DB7E6; border-radius: 14px; background: #fff; padding: 5px 12px; font: inherit; font-size: 12px; font-weight: 600; color: #1D3F7A; cursor: pointer; }
+.wf-scen-btns button.on { background: #2F6FDB; border-color: #2F6FDB; color: #fff; }
+.wf-shoot { border: 1.5px solid #999; border-radius: 6px; background: #fff; padding: 16px; margin-bottom: 12px; }
+.wf-shoot-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; font-weight: 700; color: #333; }
+.wf-dates { display: flex; gap: 10px; align-items: flex-end; margin-bottom: 14px; flex-wrap: wrap; }
+.wf-dates .wf-f { width: 190px; }
+.wf-f .wf-lbl { font-size: 12px; }
+.wf-check { display: inline-flex; align-items: center; gap: 6px; padding-bottom: 10px; color: #555; }
+.wf-check i { width: 14px; height: 14px; border: 1.5px solid #888; border-radius: 3px; display: inline-flex; align-items: center; justify-content: center; font-size: 9px; }
+.wf-locs-h { display: grid; grid-template-columns: 1.6fr 0.8fr 1.4fr 24px; gap: 10px; font-size: 12px; font-weight: 700; color: #777; margin-bottom: 6px; }
+.wf-loc { display: grid; grid-template-columns: 1.6fr 0.8fr 1.4fr 24px; gap: 10px; align-items: center; margin-bottom: 8px; }
+.wf-people { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.wf-person { display: inline-flex; align-items: center; gap: 6px; border: 1.5px solid #bbb; border-radius: 14px; padding: 3px 9px 3px 3px; background: #fff; }
+.wf-person i { width: 18px; height: 18px; border-radius: 50%; background: #ccc; }
+.wf-person span { display: block; width: 44px; height: 8px; border-radius: 3px; background: #d6d6d6; }
+.wf-rm { color: #aaa; text-align: center; }
 body:not(.phase-1) #jobs-table-p1 { display: none; }
 /* visible overflow so the +X popover isn't clipped; scroll sideways only when narrow */
 #jobs-table-p1 .gallery-table-wrap { overflow: visible; }
@@ -3961,7 +4017,7 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
         <div class="wf">
           <div class="wf-head">
             <div class="wf-title">Jobs</div>
-            <button class="wf-btn" type="button" title="Opens the Create New Job wizard (next wireframe)"><i class="fa-solid fa-plus"></i> New Job</button>
+            <button class="wf-btn" type="button" onclick="openWfWizard()"><i class="fa-solid fa-plus"></i> New Job</button>
           </div>
 
           <div class="wf-note">
@@ -3993,6 +4049,9 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
           <div class="wf-table" id="wf-jobs-rows"></div>
         </div>
       </div>
+
+      <!-- ── WIREFRAMES · CREATE NEW JOB WIZARD (rendered by renderWfWiz) ── -->
+      <div id="wf-wiz" class="wf-wiz" role="dialog" aria-label="Create New Job (wireframe)"></div>
 
       <!-- ── VIEW: PHASE 1 JOB PAGE (rendered by renderJobP1) ── -->
       <div id="view-job-p1" class="view">
@@ -12183,6 +12242,116 @@ function renderWfJobs() {
     w.map(r => '<div class="wf-row"><span class="wf-bar dark" style="width:' + r[0] + '%"></span>' +
       '<span class="wf-bar" style="width:' + r[1] + '%"></span><span class="wf-bar" style="width:' + r[2] + '%"></span>' +
       '<span class="wf-chip"></span><i class="fa-solid fa-chevron-right" style="color:#aaa; justify-self:end;"></i></div>').join('');
+}
+
+/* ══════════ WIREFRAMES · CREATE NEW JOB WIZARD ══════════
+   Details (organization, job name, notes, key contact, folder) and Schedule. Schedule has a scenario switcher, a
+   wireframe aid only, that shows the same layout from one date at one location up to several dates, locations,
+   start times and photographers. */
+const WF_STEPS = ['Details', 'Schedule'];
+const WF_LATER = ['Setup', 'Ecommerce'];   /* still to be wireframed */
+const WF_SCENARIOS = [
+  { label: 'One date, one location', shoots: [{ date: 'Mar 8, 2027', locs: [{ v: 'Lincoln Elementary, Gym', t: '8:00 AM', p: 0 }] }] },
+  { label: 'With photographers', shoots: [{ date: 'Mar 8, 2027', locs: [{ v: 'Lincoln Elementary, Gym', t: '8:00 AM', p: 2 }] }] },
+  { label: 'Start and end date', shoots: [{ date: 'Mar 8, 2027', end: 'Mar 10, 2027', locs: [{ v: 'Lincoln Elementary, Gym', t: '8:00 AM', p: 2 }] }] },
+  { label: 'Multiple dates, locations and photographers', shoots: [
+    { date: 'Mar 8, 2027', locs: [{ v: 'Lincoln Elementary, Gym', t: '8:00 AM', p: 2 }, { v: 'Lincoln Elementary, Library', t: '10:30 AM', p: 1 }] },
+    { date: 'Mar 15, 2027', locs: [{ v: 'Riverside Park, Field 2', t: '9:00 AM', p: 3 }] },
+    { date: 'Apr 2, 2027', end: 'Apr 4, 2027', locs: [{ v: 'Westside Community Center', t: '1:00 PM', p: 2 }, { v: 'Riverside Park, Field 2', t: '4:00 PM', p: 1 }] }
+  ] }
+];
+const wfWiz = { step: 1, org: 'link', name: '', scenario: 0 };
+
+function openWfWizard() {
+  Object.assign(wfWiz, { step: 1, org: 'link', name: '', scenario: 0 });
+  renderWfWiz();
+  document.getElementById('wf-wiz').classList.add('open');
+}
+function closeWfWizard() { document.getElementById('wf-wiz').classList.remove('open'); }
+function wfWizGo(step) { wfWiz.step = step; renderWfWiz(); }
+function wfWizSet(key, val) { wfWiz[key] = val; renderWfWiz(); }
+function wfWizName(v) { wfWiz.name = v; document.getElementById('wf-wiz-next').disabled = !v.trim(); }
+
+function wfNote(eyebrow, title, items, foot) {
+  return '<div class="wf-note"><div class="wf-note-eyebrow">' + eyebrow + '</div><h2>' + title + '</h2>' +
+    '<ol>' + items.map(i => '<li>' + i + '</li>').join('') + '</ol>' + (foot ? '<div class="wf-second">' + foot + '</div>' : '') + '</div>';
+}
+
+function wfDetailsHTML() {
+  const choice = (id, t, d) => '<button type="button" class="wf-choice' + (wfWiz.org === id ? ' on' : '') + '" onclick="wfWizSet(\'org\',\'' + id + '\')"><b>' + t + '</b>' + d + '</button>';
+  const orgBody = {
+    link: '<div class="wf-box"><i class="fa-solid fa-magnifying-glass"></i> Search your organizations</div>',
+    create: '<input class="wf-in" placeholder="New organization name"><div class="wf-hint">Created with the job. Add the rest of its details later in CRM.</div>',
+    none: '<div class="wf-hint" style="margin-top:0">This job won\'t be linked to an organization. You can link one later.</div>'
+  }[wfWiz.org];
+  return wfNote('What this step does', 'Details: who the job is for, and where it lives', [
+      '<b>Link the job to an organization.</b> Pick an existing one, create one on the fly, or skip it.',
+      '<b>Name the job.</b> The job name is the only required field.',
+      '<b>Optional extras:</b> notes, a key contact, and the Zenfolio folder the job is saved to.'
+    ]) +
+    '<div class="wf-sec"><span class="wf-lbl">Organization <span class="wf-opt">(optional)</span></span>' +
+      '<div class="wf-choices">' + choice('link', 'Link an organization', 'One you already have') +
+        choice('create', 'Create an organization', 'Add a new one now') + choice('none', 'No organization', 'A standalone job') + '</div>' +
+      orgBody + '</div>' +
+    '<div class="wf-sec"><label class="wf-lbl" for="wf-name">Job name <span class="wf-req">*</span></label>' +
+      '<input class="wf-in" id="wf-name" placeholder="Job name" value="' + escHtml(wfWiz.name) + '" oninput="wfWizName(this.value)">' +
+      '<div class="wf-hint">Required. Everything else on this step is optional.</div></div>' +
+    '<div class="wf-sec"><label class="wf-lbl">Notes <span class="wf-opt">(optional)</span></label><textarea class="wf-in" placeholder="Notes for this job"></textarea></div>' +
+    '<div class="wf-sec"><span class="wf-lbl">Key contact <span class="wf-opt">(optional)</span></span>' +
+      '<div class="wf-pair"><div class="wf-box">Choose a contact <i class="fa-solid fa-chevron-down" style="font-size:10px; margin-left:auto"></i></div>' +
+      '<button type="button" class="wf-add inline"><i class="fa-solid fa-plus"></i> New contact</button></div>' +
+      '<div class="wf-hint">' + (wfWiz.org === 'link' ? 'Lists the organization\'s contacts first.' : 'Pick from your contacts or add a new one.') + '</div></div>' +
+    '<div class="wf-sec"><span class="wf-lbl">Save to folder</span>' +
+      '<div class="wf-pair"><div class="wf-box"><i class="fa-regular fa-folder"></i> Jobs / 2027</div>' +
+      '<button type="button" class="wf-btn ghost">Change folder</button></div>' +
+      '<div class="wf-hint">Where this job\'s galleries are saved in your Zenfolio folders.</div></div>';
+}
+
+function wfScheduleHTML() {
+  const sc = WF_SCENARIOS[wfWiz.scenario], multi = sc.shoots.length > 1;
+  const people = n => n
+    ? '<div class="wf-people">' + Array.from({ length: n }, () => '<span class="wf-person"><i></i><span></span></span>').join('') +
+      '<button type="button" class="wf-add inline" title="Assign photographer"><i class="fa-solid fa-plus"></i></button></div>'
+    : '<button type="button" class="wf-add inline"><i class="fa-solid fa-plus"></i> Assign photographers</button>';
+  const shoot = (s, i) => {
+    const field = (l, v) => '<div class="wf-f"><span class="wf-lbl">' + l + '</span><div class="wf-box"><i class="fa-regular fa-calendar"></i> ' + v + '</div></div>';
+    return '<div class="wf-shoot"><div class="wf-shoot-head"><span>Shoot ' + (i + 1) + '</span>' + (multi ? '<i class="fa-solid fa-xmark wf-rm"></i>' : '') + '</div>' +
+      '<div class="wf-dates">' + (s.end ? field('Start date', s.date) + field('End date', s.end) : field('Shoot date', s.date)) +
+        '<span class="wf-check"><i>' + (s.end ? '<i class="fa-solid fa-check" style="border:0;width:auto;height:auto"></i>' : '') + '</i> Runs over several days</span></div>' +
+      '<div class="wf-locs-h"><span>Location</span><span>Start time</span><span>Photographers</span><span></span></div>' +
+      s.locs.map(L => '<div class="wf-loc"><div class="wf-box"><i class="fa-solid fa-location-dot"></i> ' + L.v + '</div>' +
+        '<div class="wf-box"><i class="fa-regular fa-clock"></i> ' + L.t + '</div>' + people(L.p) +
+        '<span class="wf-rm">' + (s.locs.length > 1 ? '<i class="fa-solid fa-xmark"></i>' : '') + '</span></div>').join('') +
+      '<button type="button" class="wf-add inline" style="margin-top:4px"><i class="fa-solid fa-plus"></i> Add location</button></div>';
+  };
+  return wfNote('What this step does', 'Schedule: when and where the job is shot', [
+      '<b>One shoot date at one location.</b> The simplest job.',
+      '<b>Photographers.</b> Assign one or more photographers to each location.',
+      '<b>Several days.</b> A shoot can have a start and end date.',
+      '<b>Bigger jobs.</b> Several shoot dates, each with its own locations, start times and photographers.'
+    ], 'One layout covers all of these. A job grows by adding locations and shoot dates, never by switching screens.') +
+    '<div class="wf-scen"><div class="wf-scen-lbl">Wireframe scenario (not part of the page)</div><div class="wf-scen-btns">' +
+      WF_SCENARIOS.map((s, i) => '<button type="button"' + (i === wfWiz.scenario ? ' class="on"' : '') + ' onclick="wfWizSet(\'scenario\',' + i + ')">' + (i + 1) + '. ' + s.label + '</button>').join('') +
+    '</div></div>' +
+    sc.shoots.map(shoot).join('') +
+    '<button type="button" class="wf-add"><i class="fa-solid fa-plus"></i> Add another shoot date</button>';
+}
+
+function renderWfWiz() {
+  const step = wfWiz.step, last = step === WF_STEPS.length;
+  const steps = WF_STEPS.map((t, i) => '<span class="wf-step' + (i + 1 === step ? ' on' : i + 1 < step ? ' done' : '') + '"><b>' + (i + 1 < step ? '<i class="fa-solid fa-check"></i>' : i + 1) + '</b>' + t + '</span>')
+    .concat(WF_LATER.map((t, i) => '<span class="wf-step later" title="Not wireframed yet"><b>' + (WF_STEPS.length + i + 1) + '</b>' + t + '</span>'))
+    .join('<span class="wf-step-line"></span>');
+  const next = last
+    ? '<button type="button" class="wf-btn solid" id="wf-wiz-next" disabled title="Setup is the next wireframe">Next: Setup <i class="fa-solid fa-arrow-right"></i></button>'
+    : '<button type="button" class="wf-btn solid" id="wf-wiz-next"' + (wfWiz.name.trim() ? '' : ' disabled') + ' onclick="wfWizGo(' + (step + 1) + ')">Next: ' + WF_STEPS[step] + ' <i class="fa-solid fa-arrow-right"></i></button>';
+  document.getElementById('wf-wiz').innerHTML =
+    '<div class="wf-wiz-head"><h2>Create New Job</h2><button type="button" class="wf-x" onclick="closeWfWizard()" title="Close"><i class="fa-solid fa-xmark"></i></button></div>' +
+    '<div class="wf-steps">' + steps + '</div>' +
+    '<div class="wf-wiz-body"><div class="wf-wiz-inner">' + (step === 1 ? wfDetailsHTML() : wfScheduleHTML()) + '</div></div>' +
+    '<div class="wf-wiz-foot">' +
+      (step > 1 ? '<button type="button" class="wf-btn ghost" onclick="wfWizGo(' + (step - 1) + ')"><i class="fa-solid fa-arrow-left"></i> Back</button>' : '<span></span>') +
+      '<span style="display:flex; align-items:center; gap:14px"><span>Step ' + step + ' of ' + (WF_STEPS.length + WF_LATER.length) + '</span>' + next + '</span></div>';
 }
 
 function orgLocContextActive(lc) {
