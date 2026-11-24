@@ -1644,7 +1644,7 @@ html, body {
 
 /* Phase chooser — shown on every load; only Phase 3 (the current build) is live.
    Flip `enabled` in PHASES to switch Phase 1 / Phase 2 on once their work lands. */
-.phase-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.phase-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
 @media (max-width: 640px) { .phase-grid { grid-template-columns: 1fr; } }
 .phase-tile {
   display: flex; flex-direction: column; align-items: flex-start; gap: 8px;
@@ -1666,6 +1666,34 @@ body.phase-1 #view-jobs-list .dash-strip,
 body.phase-1 #view-jobs-list .dash-lower,
 body.phase-1 #view-jobs-list .jobs-filterbar,
 body.phase-1 #view-jobs-list .jobs-list { display: none; }
+
+/* ── Wireframes mode: greyscale boxes that show what each page is for, not how it looks ── */
+body.phase-wf #cr-demo { display: none; }   /* credits demo control is a Phase 3 aid */
+.wf { padding: 32px; color: #555; font-size: 13px; min-width: 860px; }
+.wf-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+.wf-title { font-size: 24px; font-weight: 700; color: #333; }
+.wf-btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; border: 2px solid #333; border-radius: 6px; background: #fff; color: #333; font: inherit; font-weight: 700; cursor: pointer; }
+.wf-btn:hover { background: #f0f0f0; }
+.wf-note { max-width: 680px; margin: 0 auto 28px; padding: 20px 24px; border: 2px dashed #2F6FDB; border-radius: 8px; background: #F2F6FD; color: #1D3F7A; line-height: 1.55; }
+.wf-note-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #2F6FDB; margin-bottom: 4px; }
+.wf-note h2 { font-size: 17px; font-weight: 700; margin-bottom: 8px; color: #1D3F7A; }
+.wf-note ol { margin: 0 0 10px 18px; padding: 0; }
+.wf-note li { margin-bottom: 4px; }
+.wf-note .wf-second { color: #4A6390; }
+.wf-tag { display: inline-block; padding: 1px 7px; border: 1px solid currentColor; border-radius: 4px; font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; vertical-align: 2px; margin-left: 6px; }
+.wf-sec-label { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #888; margin: 0 0 8px; }
+.wf-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 28px; opacity: .6; }
+.wf-stat { height: 64px; border: 1.5px dashed #aaa; border-radius: 6px; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+.wf-bar { display: block; height: 10px; border-radius: 3px; background: #d6d6d6; }
+.wf-bar.dark { background: #b5b5b5; }
+.wf-tools { display: flex; gap: 10px; margin-bottom: 12px; }
+.wf-box { border: 1.5px solid #999; border-radius: 6px; background: #fff; padding: 9px 12px; color: #777; display: flex; align-items: center; gap: 8px; }
+.wf-search { flex: 1; }
+.wf-table { border: 1.5px solid #999; border-radius: 6px; background: #fff; overflow: hidden; }
+.wf-row { display: grid; grid-template-columns: 2.2fr 1.6fr 1.1fr 1fr 40px; gap: 16px; align-items: center; padding: 14px 16px; border-top: 1px solid #ddd; }
+.wf-row:first-child { border-top: 0; }
+.wf-row.head { background: #f3f3f3; font-weight: 700; color: #666; font-size: 12px; }
+.wf-chip { display: inline-block; width: 70px; height: 20px; border: 1.5px solid #aaa; border-radius: 10px; }
 body:not(.phase-1) #jobs-table-p1 { display: none; }
 /* visible overflow so the +X popover isn't clipped; scroll sideways only when narrow */
 #jobs-table-p1 .gallery-table-wrap { overflow: visible; }
@@ -3927,6 +3955,44 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
         </div><!-- /jobs-list -->
       </div><!-- /page-inner -->
       </div><!-- /view-jobs-list -->
+
+      <!-- ── VIEW: WIREFRAMES · JOBS DASHBOARD ── -->
+      <div id="view-wf-jobs" class="view">
+        <div class="wf">
+          <div class="wf-head">
+            <div class="wf-title">Jobs</div>
+            <button class="wf-btn" type="button" title="Opens the Create New Job wizard (next wireframe)"><i class="fa-solid fa-plus"></i> New Job</button>
+          </div>
+
+          <div class="wf-note">
+            <div class="wf-note-eyebrow">What this page does</div>
+            <h2>Jobs dashboard: see your jobs and start new ones</h2>
+            <ol>
+              <li><b>See every job in your account.</b> The jobs list is the main content of the page.</li>
+              <li><b>Find a job.</b> Search and filter the list.</li>
+              <li><b>Start a new job.</b> New Job opens the Create New Job wizard.</li>
+            </ol>
+            <div class="wf-second">Secondary: quick analytics across your jobs. Useful, but never in the way of the list.</div>
+          </div>
+
+          <div class="wf-sec-label">Quick analytics <span class="wf-tag">Secondary</span></div>
+          <div class="wf-stats">
+            <div class="wf-stat"><span class="wf-bar" style="width:50%"></span><span class="wf-bar dark" style="width:30%; height:16px"></span></div>
+            <div class="wf-stat"><span class="wf-bar" style="width:60%"></span><span class="wf-bar dark" style="width:25%; height:16px"></span></div>
+            <div class="wf-stat"><span class="wf-bar" style="width:45%"></span><span class="wf-bar dark" style="width:35%; height:16px"></span></div>
+            <div class="wf-stat"><span class="wf-bar" style="width:55%"></span><span class="wf-bar dark" style="width:30%; height:16px"></span></div>
+          </div>
+
+          <div class="wf-sec-label">Your jobs <span class="wf-tag">Primary</span></div>
+          <div class="wf-tools">
+            <div class="wf-box wf-search"><i class="fa-solid fa-magnifying-glass"></i> Search jobs</div>
+            <div class="wf-box">Status <i class="fa-solid fa-chevron-down" style="font-size:10px"></i></div>
+            <div class="wf-box">Organization <i class="fa-solid fa-chevron-down" style="font-size:10px"></i></div>
+            <div class="wf-box">Shoot date <i class="fa-solid fa-chevron-down" style="font-size:10px"></i></div>
+          </div>
+          <div class="wf-table" id="wf-jobs-rows"></div>
+        </div>
+      </div>
 
       <!-- ── VIEW: PHASE 1 JOB PAGE (rendered by renderJobP1) ── -->
       <div id="view-job-p1" class="view">
@@ -12103,7 +12169,21 @@ registerSmarts();
 document.querySelectorAll('.smart input').forEach(inp => inp.addEventListener('click', e => e.stopPropagation()));
 
 
-function navJobs() { navSetActive('Jobs'); showView('view-jobs-list'); }
+function navJobs() {
+  navSetActive('Jobs');
+  if (currentPhase === 'wireframes') { renderWfJobs(); showView('view-wf-jobs'); return; }
+  showView('view-jobs-list');
+}
+
+/* Wireframes · Jobs dashboard: grey placeholder rows, widths varied so it reads as a list of different jobs */
+function renderWfJobs() {
+  const w = [[70, 55, 60], [55, 70, 50], [80, 45, 65], [60, 60, 55], [75, 50, 60], [50, 65, 45]];
+  document.getElementById('wf-jobs-rows').innerHTML =
+    '<div class="wf-row head"><span>Job</span><span>Organization</span><span>Shoot date</span><span>Status</span><span></span></div>' +
+    w.map(r => '<div class="wf-row"><span class="wf-bar dark" style="width:' + r[0] + '%"></span>' +
+      '<span class="wf-bar" style="width:' + r[1] + '%"></span><span class="wf-bar" style="width:' + r[2] + '%"></span>' +
+      '<span class="wf-chip"></span><i class="fa-solid fa-chevron-right" style="color:#aaa; justify-self:end;"></i></div>').join('');
+}
 
 function orgLocContextActive(lc) {
   if (lc.closest('#sh-locs') || lc.closest('#set-sched-shoots')) return !!(currentJob && ORGS.find(x => x.name === currentJob.org2));
@@ -12146,7 +12226,8 @@ function updateSaveOrgRows() {
 const PHASES = [
   { id: 1, title: 'Phase 1', desc: 'CRM organizations and a simplified jobs table.', enabled: true },
   { id: 2, title: 'Phase 2', desc: 'In progress — not available yet.', enabled: false },
-  { id: 3, title: 'Phase 3', desc: 'Current build: jobs dashboard, job detail, Create Job wizard and CRM.', enabled: true }
+  { id: 3, title: 'Phase 3', desc: 'Current build: jobs dashboard, job detail, Create Job wizard and CRM.', enabled: true },
+  { id: 'wireframes', title: 'Wireframes', desc: 'The full job workflow as wireframes: what each page is for.', enabled: true }
 ];
 let currentPhase = null;   /* set once a phase is picked; until then the chooser can't be dismissed */
 
@@ -12156,7 +12237,7 @@ function renderPhaseChooser() {
       ? '<span class="chip chip-gray"><i class="fa-solid fa-lock" style="font-size:9px;"></i> Coming Soon</span>'
       : (p.id === currentPhase ? '<span class="chip chip-orange">Current</span>' : chipTeal('Available'));
     return '<button class="phase-tile' + (p.id === currentPhase ? ' current' : '') + '" type="button"' +
-      (p.enabled ? ' onclick="pickPhase(' + p.id + ')"' : ' disabled') + '>' +
+      (p.enabled ? ' onclick="pickPhase(' + (typeof p.id === 'string' ? "'" + p.id + "'" : p.id) + ')"' : ' disabled') + '>' +
       '<div class="phase-tile-head"><span class="phase-tile-title">' + p.title + '</span>' + chip + '</div>' +
       '<span class="phase-tile-desc">' + p.desc + '</span></button>';
   }).join('');
@@ -12176,6 +12257,7 @@ function pickPhase(id) {
   const changed = currentPhase !== id;
   currentPhase = id;
   document.body.classList.toggle('phase-1', id === 1);
+  document.body.classList.toggle('phase-wf', id === 'wireframes');
   closeModal('modal-phase');
   if (changed) { navJobs(); if (id === 1) renderJobsTableP1(); }
 }
