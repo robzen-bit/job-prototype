@@ -3584,6 +3584,17 @@ th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; }
 }
 </style>
 <link rel="stylesheet" href="credits.css">
+<style>
+/* Credits frozen notice (24 Nov 2026). Juri's HTML credits screens stopped at the 23 November copy; the live version
+   is in the React prototype. A ::before keeps the notice in place however often the credits scripts redraw a screen,
+   so none of their files change. Same look as .ecom-warn. */
+#cr-credit-tab::before, #wiz-ecom-mount::before, #set-ecom-mount::before, #cr-orders::before, .cr-client-stage::before {
+  content: "Credits frozen as of 23 November, current version in React";
+  display: block; background: #FEF3E7; border: 1px solid #F0C89B; border-radius: var(--r-sm);
+  padding: 10px 12px; font-size: 12.5px; font-weight: 600; color: #8A5A1E; line-height: 1.5; margin-bottom: 14px;
+}
+.cr-client-stage::before { margin-bottom: 0; }
+</style>
 </head>
 <body>
 
